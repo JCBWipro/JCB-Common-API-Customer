@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
  * project: JCB-Common-API-New
  */
 @Repository
-public interface ClientRepo extends JpaRepository<ClientEntity,Integer> {
+public interface ClientRepo extends JpaRepository<ClientEntity, Integer> {
 }

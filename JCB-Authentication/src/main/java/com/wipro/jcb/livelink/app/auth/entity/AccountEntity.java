@@ -1,8 +1,7 @@
 package com.wipro.jcb.livelink.app.auth.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -13,7 +12,9 @@ import java.util.Date;
  * Date:11-07-2024
  * project: JCB-Common-API-New
  */
-@Data
+@Getter
+@Setter
+@ToString
 @AllArgsConstructor
 @Entity
 @Table(name = "account")
@@ -66,183 +67,6 @@ public class AccountEntity {
         accountEntity.setMappingCode("mapping123");
         return accountEntity;
     }
-
-	public int getAccount_id() {
-		return account_id;
-	}
-
-	public void setAccount_id(int account_id) {
-		this.account_id = account_id;
-	}
-
-	public String getAccount_name() {
-		return account_name;
-	}
-
-	public void setAccount_name(String account_name) {
-		this.account_name = account_name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getSite_location() {
-		return site_location;
-	}
-
-	public void setSite_location(String site_location) {
-		this.site_location = site_location;
-	}
-
-	public String getPhone_no() {
-		return phone_no;
-	}
-
-	public void setPhone_no(String phone_no) {
-		this.phone_no = phone_no;
-	}
-
-	public String getMobile_no() {
-		return mobile_no;
-	}
-
-	public void setMobile_no(String mobile_no) {
-		this.mobile_no = mobile_no;
-	}
-
-	public String getEmailId() {
-		return emailId;
-	}
-
-	public void setEmailId(String emailId) {
-		this.emailId = emailId;
-	}
-
-	public boolean isStatus() {
-		return status;
-	}
-
-	public void setStatus(boolean status) {
-		this.status = status;
-	}
-
-	public Long getNo_of_employees() {
-		return no_of_employees;
-	}
-
-	public void setNo_of_employees(Long no_of_employees) {
-		this.no_of_employees = no_of_employees;
-	}
-
-	public AccountEntity getParent_account_id() {
-		return parent_account_id;
-	}
-
-	public void setParent_account_id(AccountEntity parent_account_id) {
-		this.parent_account_id = parent_account_id;
-	}
-
-	public Date getYear_started() {
-		return year_started;
-	}
-
-	public void setYear_started(Date year_started) {
-		this.year_started = year_started;
-	}
-
-	public int getOwner_id() {
-		return owner_id;
-	}
-
-	public void setOwner_id(int owner_id) {
-		this.owner_id = owner_id;
-	}
-
-	public ClientEntity getClient_id() {
-		return client_id;
-	}
-
-	public void setClient_id(ClientEntity client_id) {
-		this.client_id = client_id;
-	}
-
-	public String getAccountCode() {
-		return accountCode;
-	}
-
-	public void setAccountCode(String accountCode) {
-		this.accountCode = accountCode;
-	}
-
-	public AddressEntity getAddressId() {
-		return addressId;
-	}
-
-	public void setAddressId(AddressEntity addressId) {
-		this.addressId = addressId;
-	}
-
-	public String getFax() {
-		return fax;
-	}
-
-	public void setFax(String fax) {
-		this.fax = fax;
-	}
-
-	public String getTimeZone() {
-		return timeZone;
-	}
-
-	public void setTimeZone(String timeZone) {
-		this.timeZone = timeZone;
-	}
-
-	public String getCountryCode() {
-		return countryCode;
-	}
-
-	public void setCountryCode(String countryCode) {
-		this.countryCode = countryCode;
-	}
-
-	public boolean isMAFlag() {
-		return MAFlag;
-	}
-
-	public void setMAFlag(boolean mAFlag) {
-		MAFlag = mAFlag;
-	}
-
-	public String getMappingCode() {
-		return mappingCode;
-	}
-
-	public void setMappingCode(String mappingCode) {
-		this.mappingCode = mappingCode;
-	}
-
-	public Timestamp getCreatedOn() {
-		return createdOn;
-	}
-
-	public void setCreatedOn(Timestamp createdOn) {
-		this.createdOn = createdOn;
-	}
-
-	public Timestamp getUpdatedOn() {
-		return updatedOn;
-	}
-
-	public void setUpdatedOn(Timestamp updatedOn) {
-		this.updatedOn = updatedOn;
-	}
-    
     
 }
 

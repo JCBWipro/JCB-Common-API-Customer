@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
  * project: JCB-Common-API-New
  */
 @Repository
-public interface CustomAssetGroupRepo extends JpaRepository<CustomAssetGroupEntity,Integer> {
+public interface CustomAssetGroupRepo extends JpaRepository<CustomAssetGroupEntity, Integer> {
 }

@@ -1,9 +1,7 @@
 package com.wipro.jcb.livelink.app.auth.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 
 /**
@@ -12,7 +10,9 @@ import lombok.NoArgsConstructor;
  * Date:11-07-2024
  * project: JCB-Common-API-New
  */
-@Data
+
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -25,25 +25,6 @@ public class AssetGroupEntity {
     @OneToOne(targetEntity = ClientEntity.class)
     @JoinColumn(name = "Client_ID")
     private ClientEntity client_id;
-    
-	public int getAsset_group_id() {
-		return asset_group_id;
-	}
-	public void setAsset_group_id(int asset_group_id) {
-		this.asset_group_id = asset_group_id;
-	}
-	public String getAsset_group_name() {
-		return asset_group_name;
-	}
-	public void setAsset_group_name(String asset_group_name) {
-		this.asset_group_name = asset_group_name;
-	}
-	public ClientEntity getClient_id() {
-		return client_id;
-	}
-	public void setClient_id(ClientEntity client_id) {
-		this.client_id = client_id;
-	}
 
     /*public AssetGroupEntity(int asset_group_id )
     {

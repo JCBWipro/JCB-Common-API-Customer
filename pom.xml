@@ -5,9 +5,7 @@
     <modules>
         <module>JCB-user</module>
         <module>JCB-Service-Registry</module>
-        <module>JCB-Contact</module>
         <module>JCB-Authentication</module>
-        <module>JCB-kafka-email-sms</module>
         <module>JCB-API-Gateway</module>
     </modules>
     <parent>

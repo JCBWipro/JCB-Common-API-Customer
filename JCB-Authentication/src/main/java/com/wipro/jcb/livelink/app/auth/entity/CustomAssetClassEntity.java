@@ -7,9 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * Author: Rituraj Azad
@@ -17,7 +15,8 @@ import lombok.NoArgsConstructor;
  * Date:11-07-2024
  * project: JCB-Common-API-New
  */
-@Data
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -38,30 +37,5 @@ public class CustomAssetClassEntity {
     @OneToOne(targetEntity = ClientEntity.class)
     @JoinColumn(name = "Client_ID")
     private ClientEntity client_id;
-    
-	public int getCustom_Class_Id() {
-		return Custom_Class_Id;
-	}
-	public void setCustom_Class_Id(int custom_Class_Id) {
-		Custom_Class_Id = custom_Class_Id;
-	}
-	public CustomAssetClassEntity getParent_Class_Id() {
-		return Parent_Class_Id;
-	}
-	public void setParent_Class_Id(CustomAssetClassEntity parent_Class_Id) {
-		Parent_Class_Id = parent_Class_Id;
-	}
-	public String getCustom_class_Name() {
-		return Custom_class_Name;
-	}
-	public void setCustom_class_Name(String custom_class_Name) {
-		Custom_class_Name = custom_class_Name;
-	}
-	public ClientEntity getClient_id() {
-		return client_id;
-	}
-	public void setClient_id(ClientEntity client_id) {
-		this.client_id = client_id;
-	}
-    
+
 }

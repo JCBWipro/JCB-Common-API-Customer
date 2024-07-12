@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
  * project: JCB-Common-API-New
  */
 @Repository
-public interface AssetTypeRepo extends JpaRepository<AssetTypeEntity,Integer> {
+public interface AssetTypeRepo extends JpaRepository<AssetTypeEntity, Integer> {
 }

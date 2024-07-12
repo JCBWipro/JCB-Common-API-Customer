@@ -1,14 +1,7 @@
 package com.wipro.jcb.livelink.app.auth.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
 
 /**
@@ -17,9 +10,11 @@ import lombok.NoArgsConstructor;
  * Date:11-07-2024
  * project: JCB-Common-API-New
  */
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @AllArgsConstructor
-@NoArgsConstructor
 @Entity
 @Table(name = "address")
 public class AddressEntity {

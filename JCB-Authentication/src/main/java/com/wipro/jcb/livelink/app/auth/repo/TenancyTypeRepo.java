@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
  * project: JCB-Common-API-New
  */
 @Repository
-public interface TenancyTypeRepo extends JpaRepository<TenancyTypeEntity,Integer> {
+public interface TenancyTypeRepo extends JpaRepository<TenancyTypeEntity, Integer> {
 }

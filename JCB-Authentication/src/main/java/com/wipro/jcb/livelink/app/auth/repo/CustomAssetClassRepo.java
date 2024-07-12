@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
  * project: JCB-Common-API-New
  */
 @Repository
-public interface CustomAssetClassRepo extends JpaRepository<CustomAssetClassEntity,Integer> {
+public interface CustomAssetClassRepo extends JpaRepository<CustomAssetClassEntity, Integer> {
 }

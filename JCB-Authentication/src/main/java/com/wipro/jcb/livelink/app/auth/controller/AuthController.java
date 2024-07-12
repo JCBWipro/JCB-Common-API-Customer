@@ -1,18 +1,5 @@
 package com.wipro.jcb.livelink.app.auth.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.wipro.jcb.livelink.app.auth.dto.AuthRequest;
 import com.wipro.jcb.livelink.app.auth.dto.JwtResponse;
 import com.wipro.jcb.livelink.app.auth.dto.RefreshTokenRequest;
@@ -24,6 +11,13 @@ import com.wipro.jcb.livelink.app.auth.repo.ContactRepo;
 import com.wipro.jcb.livelink.app.auth.service.AuthService;
 import com.wipro.jcb.livelink.app.auth.service.JwtService;
 import com.wipro.jcb.livelink.app.auth.service.RefreshTokenService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -41,27 +35,27 @@ public class AuthController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
-    
+
     @Autowired
     private ContactRepo contactRepo;
-    
+
     @PostMapping("/register")
     public String saveContact(@RequestBody ContactEntity contactEntity) {
-    	
-    	contactEntity.setPassword(new BCryptPasswordEncoder().encode(contactEntity.getPassword()));
-    	System.out.println(contactEntity.getPassword());
-    	IndustryEntity industryEntity = new IndustryEntity();
-    	industryEntity.setIndustry_id(1);
-    	industryEntity.setIndustry_name("DIndustry");
-    	
-    	ClientEntity clientEntity = new ClientEntity();
-    	clientEntity.setClient_id(1);
-    	clientEntity.setClient_name("DClientname");
-    	clientEntity.setIndustry_id(industryEntity);
-    	
-    	contactEntity.setClient_id(clientEntity);
-    	contactRepo.save(contactEntity);
-    	return "Contact Saved !!!";
+
+        contactEntity.setPassword(new BCryptPasswordEncoder().encode(contactEntity.getPassword()));
+        System.out.println(contactEntity.getPassword());
+        IndustryEntity industryEntity = new IndustryEntity();
+        industryEntity.setIndustry_id(1);
+        industryEntity.setIndustry_name("DIndustry");
+
+        ClientEntity clientEntity = new ClientEntity();
+        clientEntity.setClient_id(1);
+        clientEntity.setClient_name("DClientname");
+        clientEntity.setIndustry_id(industryEntity);
+
+        contactEntity.setClient_id(clientEntity);
+        contactRepo.save(contactEntity);
+        return "Contact Saved !!!";
     }
 
     @PostMapping("/token")
