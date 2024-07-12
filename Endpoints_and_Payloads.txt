@@ -1,0 +1,26 @@
+POST:- http://localhost:9898/auth/register
+
+{
+    "contact_id":"Vikas123",
+    "password":"pwd123",
+    "primary_mobile_number":"1234567890",
+    "primary_email_id":"abc@gmail.com",
+    "first_name":"Vikas",
+    "last_name":"Singh"
+}
+
+
+POST:- http://localhost:8080/auth/token
+{
+    "username":"Vikas",
+    "password":"pwd123",
+    "role":"ROLE_ADMIN"
+}
+
+POST:- http://localhost:8080/auth/refreshToken
+{
+    "token":"aa95669c-9e85-432f-82dd-bc4cee3472af"
+}
+
+POST:- http://localhost:8080/auth/resetPassword
+Vikas123 //username from contact table

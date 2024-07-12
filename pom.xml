@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <modules>
+        <module>JCB-user</module>
+        <module>JCB-Service-Registry</module>
+        <module>JCB-Contact</module>
+        <module>JCB-Authentication</module>
+        <module>JCB-kafka-email-sms</module>
+        <module>JCB-API-Gateway</module>
+    </modules>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.6</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.wipro.jcb.livelink.app</groupId>
+    <artifactId>JCB-Parent</artifactId>
+    <packaging>pom</packaging>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>JCB-Parent</name>
+    <description>JCB-Parent file for application</description>
+    <properties>
+        <java.version>17</java.version>
+        <spring-cloud.version>2023.0.2</spring-cloud.version>
+    </properties>
+
+</project>
