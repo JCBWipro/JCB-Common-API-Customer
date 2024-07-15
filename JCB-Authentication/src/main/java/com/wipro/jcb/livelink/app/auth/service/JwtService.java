@@ -20,27 +20,22 @@ public class JwtService {
         Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token);
     }
 
-    //public String generateToken(String userName, String role) {
-    public String generateToken(String userName) {
+    public String generateToken(String userName, String roleName) {
         //All the combined components is called as a "Claims" in JWT
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userName);
+        return createToken(claims, userName, roleName);
     }
 
-    //private String createToken(Map<String, Object> claims, String userName, String role) {
-    private String createToken(Map<String, Object> claims, String userName) {
-        //Map<String, Object> rolesClaim = new HashMap<>();
-        //rolesClaim.put("roles", role);
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(userName)
-                //.setIssuer(role)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 2))
-                .signWith(getSignKey(), SignatureAlgorithm.HS256)
-               //.addClaims(rolesClaim)
-                .compact(); //Using HS256 Algorithm
-    }
+	private String createToken(Map<String, Object> claims, String userName, String roleName) {
+		 Map<String, Object> rolesClaim = new HashMap<>();
+		 rolesClaim.put("roles", roleName);
+		return Jwts.builder().setClaims(claims).setSubject(userName)
+				.setIssuedAt(new Date(System.currentTimeMillis()))
+				.setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 2))
+				.signWith(getSignKey(), SignatureAlgorithm.HS256)
+				.addClaims(rolesClaim)
+				.compact(); // Using HS256 Algorithm
+	}
 
     private Key getSignKey() {
         //This will provide the SignKey based on our own Secret. We are using Base64 Secret

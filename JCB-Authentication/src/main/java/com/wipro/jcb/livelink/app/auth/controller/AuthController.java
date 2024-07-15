@@ -1,5 +1,6 @@
 package com.wipro.jcb.livelink.app.auth.controller;
 
+import com.wipro.jcb.livelink.app.auth.commonutils.AuthCommonutils;
 import com.wipro.jcb.livelink.app.auth.dto.AuthRequest;
 import com.wipro.jcb.livelink.app.auth.dto.JwtResponse;
 import com.wipro.jcb.livelink.app.auth.dto.RefreshTokenRequest;
@@ -61,13 +62,12 @@ public class AuthController {
     @PostMapping("/token")
     public JwtResponse getToken(@RequestBody AuthRequest authRequest) {
         Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
-        //String roles = authenticate.getAuthorities().iterator().next().toString();
-        //if (authenticate.isAuthenticated() && roles.equals(authRequest.getRole())) {
-        if (authenticate.isAuthenticated()) {
+        String role = authenticate.getAuthorities().iterator().next().toString();
+        String roleName = AuthCommonutils.getRolesByID(role);
+        if (authenticate.isAuthenticated() && roleName.equals(authRequest.getRole())) {
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(authRequest.getUsername());
             JwtResponse jwtResponse = new JwtResponse();
-            //jwtResponse.setAccessToken(jwtService.generateToken(authRequest.getUsername(), authRequest.getRole()));
-            jwtResponse.setAccessToken(jwtService.generateToken(authRequest.getUsername()));
+            jwtResponse.setAccessToken(jwtService.generateToken(authRequest.getUsername(), roleName));
             jwtResponse.setToken(refreshToken.getToken());
             return jwtResponse;
         } else {
@@ -81,7 +81,8 @@ public class AuthController {
                 .map(refreshTokenService::verifyExpiration)
                 .map(RefreshToken::getContactEntity)
                 .map(contactEntity -> {
-                    String accessToken = jwtService.generateToken(contactEntity.getContact_id());
+                	String roleName = AuthCommonutils.getRolesByID(String.valueOf(contactEntity.getRole().getRole_id()));
+                    String accessToken = jwtService.generateToken(contactEntity.getContact_id(), roleName);
                     JwtResponse jwtResponse = new JwtResponse();
                     jwtResponse.setAccessToken(accessToken);
                     jwtResponse.setToken(refreshTokenRequest.getToken());

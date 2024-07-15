@@ -31,7 +31,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 	@Override
 	public GatewayFilter apply(Config config) {
 		return ((exchange, chain) -> {
-			//ServerHttpRequest role = null;
+			ServerHttpRequest role = null;
 			if (routeValidater.isSecured.test(exchange.getRequest())) {
 				// header contains token or not
 				if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
@@ -50,14 +50,12 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 //				}
 				try {
 					jwtUtils.validateToken(authHeader);
-					//role = exchange.getRequest().mutate().header("LoggedInUserRole", jwtUtils.extractRole(authHeader)).build();
+					role = exchange.getRequest().mutate().header("LoggedInUserRole", jwtUtils.extractRole(authHeader)).build();
 				}catch(Exception e) {
 					throw new RuntimeException("UnAuthorized Access to the Application");
 				}
 			}
-            //assert role != null;
-            //return chain.filter(exchange.mutate().request(role).build());
-            return chain.filter(exchange);
+            return chain.filter(exchange.mutate().request(role).build());
 		});
 	}
 
