@@ -1,14 +1,12 @@
 package com.wipro.jcb.livelink.app.auth.entity;
 
-import java.sql.Timestamp;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import lombok.*;
+import java.sql.Timestamp;
 
 @Getter
 @Setter
@@ -21,13 +19,28 @@ public class ContactEntity {
     @Id
     //@GeneratedValue(strategy = GenerationType.IDENTITY)
     private String contact_id;
-    @Column(name="Password")
+    @Column(name = "Password")
     private String password;
+    @Column(name = "Status")
     private boolean active_status;
-    private String department, primary_email_id, secondary_email_id;
-    @Column(name="First_Name")
+    @Column(name = "Department")
+    private String department;
+    @Column(name = "Primary_Email_ID")
+    private String primary_email_id;
+    @Column(name = "Secondary_Email_ID")
+    private String secondary_email_id;
+    @Column(name = "First_Name")
     private String first_name;
-    private String last_name, primary_phone_number, secondary_phone_number, primary_mobile_number, secondary_mobile_number;
+    @Column(name = "Last_Name")
+    private String last_name;
+    @Column(name = "Primary_Phone_Number")
+    private String primary_phone_number;
+    @Column(name = "Secondary_Phone_Number")
+    private String secondary_phone_number;
+    @Column(name = "Primary_Moblie_Number")
+    private String primary_mobile_number;
+    @Column(name = "Secondary_Mobile_Number")
+    private String secondary_mobile_number;
     @OneToOne(targetEntity = RoleEntity.class)
     @JoinColumn(name = "Role_ID")
     private RoleEntity role;
@@ -38,9 +51,15 @@ public class ContactEntity {
     @OneToOne(targetEntity = AddressEntity.class)
     @JoinColumn(name = "Address_ID")
     private AddressEntity Address_ID;
-    private String country, dob, nativeState, newPassword;
-    private String countryCode, language, timezone;
+    @Column(name = "countrycode")
+    private String countrycode;
+    @Column(name = "Language")
+    private String language;
+    @Column(name = "TimeZone")
+    private String timezone;
+    @Column(name = "sys_gen_password")
     private int sysGeneratedPassword;
+    @Column(name = "LastUpdatedTime")
     private Timestamp LastUpdatedTime;
     @OneToOne(targetEntity = ClientEntity.class)
     @JoinColumn(name = "Client_ID")

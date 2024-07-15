@@ -21,7 +21,9 @@ public class AssetClassEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "Asset_Class_ID")
     private int AssetClassId;
+    @Column(name = "Asset_Class_Name")
     private String AssetClassName;
     @OneToOne(targetEntity = ClientEntity.class)
     @JoinColumn(name = "Client_ID")
