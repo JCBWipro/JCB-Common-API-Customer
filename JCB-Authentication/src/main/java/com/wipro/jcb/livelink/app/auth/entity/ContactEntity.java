@@ -17,8 +17,8 @@ import java.sql.Timestamp;
 public class ContactEntity {
 
     @Id
-    //@GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String contact_id;
+    @Column(name = "Contact_ID")
+    private String contactId;
     @Column(name = "Password")
     private String password;
     @Column(name = "Status")

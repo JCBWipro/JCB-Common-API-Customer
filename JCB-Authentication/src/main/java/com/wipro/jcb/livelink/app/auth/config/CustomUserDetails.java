@@ -22,7 +22,7 @@ public class CustomUserDetails implements UserDetails {
 
     public CustomUserDetails(ContactEntity contactEntity) {
         super();
-        this.username = contactEntity.getContact_id();
+        this.username = contactEntity.getContactId();
         this.password = contactEntity.getPassword();
 		this.authorities = Arrays.stream(String.valueOf(contactEntity.getRole().getRole_id()).toString().split(","))
 				.map(SimpleGrantedAuthority::new).collect(Collectors.toList());

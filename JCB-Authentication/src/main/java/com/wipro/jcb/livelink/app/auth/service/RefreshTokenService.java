@@ -1,5 +1,6 @@
 package com.wipro.jcb.livelink.app.auth.service;
 
+import com.wipro.jcb.livelink.app.auth.commonutils.AuthCommonutils;
 import com.wipro.jcb.livelink.app.auth.entity.RefreshToken;
 import com.wipro.jcb.livelink.app.auth.repo.ContactRepo;
 import com.wipro.jcb.livelink.app.auth.repo.RefreshTokenRepository;
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,7 +23,8 @@ public class RefreshTokenService {
 
     public RefreshToken createRefreshToken(String username) {
         RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setContactEntity(contactRepo.findByContact_id(username).get());
+        List<Object[]> repoResult = contactRepo.findByContactId(username);
+        refreshToken.setContactEntity(AuthCommonutils.convertObjectToDTO(repoResult));
         refreshToken.setToken(UUID.randomUUID().toString());
         refreshToken.setExpiryDate(Instant.now().plusMillis(600000)); // 10
         return refreshTokenRepository.save(refreshToken);

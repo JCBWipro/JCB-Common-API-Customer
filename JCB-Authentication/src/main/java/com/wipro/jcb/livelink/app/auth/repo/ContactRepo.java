@@ -9,8 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
+import java.util.List;
 /**
  * Author: Rituraj Azad
  * User: RI20474447
@@ -20,8 +19,8 @@ import java.util.Optional;
 @Repository
 public interface ContactRepo extends JpaRepository<ContactEntity, String> {
 
-    @Query(nativeQuery = true, value = "SELECT * FROM wise.contact where Contact_ID=:username")
-    Optional<ContactEntity> findByContact_id(@Param("username") String username);
+    @Query(nativeQuery = true, value = "SELECT Contact_ID, Password, Role_ID FROM wise.contact where Contact_ID=:userName")
+    List<Object[]> findByContactId(@Param("userName") String userName);
 
     @Transactional
     @Modifying

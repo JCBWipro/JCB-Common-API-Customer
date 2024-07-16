@@ -12,6 +12,7 @@ import com.wipro.jcb.livelink.app.auth.repo.ContactRepo;
 import com.wipro.jcb.livelink.app.auth.service.AuthService;
 import com.wipro.jcb.livelink.app.auth.service.JwtService;
 import com.wipro.jcb.livelink.app.auth.service.RefreshTokenService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -74,7 +75,7 @@ public class AuthController {
             throw new UsernameNotFoundException("invalid User Request !!");
         }
     }
-
+    
     @PostMapping("/refreshToken")
     public JwtResponse refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
         return refreshTokenService.findByToken(refreshTokenRequest.getToken())
@@ -82,7 +83,7 @@ public class AuthController {
                 .map(RefreshToken::getContactEntity)
                 .map(contactEntity -> {
                 	String roleName = AuthCommonutils.getRolesByID(String.valueOf(contactEntity.getRole().getRole_id()));
-                    String accessToken = jwtService.generateToken(contactEntity.getContact_id(), roleName);
+                    String accessToken = jwtService.generateToken(contactEntity.getContactId() , roleName);
                     JwtResponse jwtResponse = new JwtResponse();
                     jwtResponse.setAccessToken(accessToken);
                     jwtResponse.setToken(refreshTokenRequest.getToken());
