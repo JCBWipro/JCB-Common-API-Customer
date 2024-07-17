@@ -12,7 +12,9 @@ import com.wipro.jcb.livelink.app.auth.repo.ContactRepo;
 import com.wipro.jcb.livelink.app.auth.service.AuthService;
 import com.wipro.jcb.livelink.app.auth.service.JwtService;
 import com.wipro.jcb.livelink.app.auth.service.RefreshTokenService;
-
+import com.wipro.jcb.livelink.app.auth.service.ResetPasswordService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     @Autowired
     private AuthService authService;
 
@@ -41,11 +44,17 @@ public class AuthController {
     @Autowired
     private ContactRepo contactRepo;
 
+    @Autowired
+    private ResetPasswordService resetPasswordService;
+
     @PostMapping("/register")
     public String saveContact(@RequestBody ContactEntity contactEntity) {
 
+        String username = AuthCommonutils.generateUsername(contactEntity.getFirst_name());
+        contactEntity.setContactId(username);
+        String autoGenPassword = resetPasswordService.generatePassword();
+        contactEntity.setPassword(autoGenPassword);
         contactEntity.setPassword(new BCryptPasswordEncoder().encode(contactEntity.getPassword()));
-        System.out.println(contactEntity.getPassword());
         IndustryEntity industryEntity = new IndustryEntity();
         industryEntity.setIndustry_id(1);
         industryEntity.setIndustry_name("DIndustry");
@@ -56,9 +65,10 @@ public class AuthController {
         clientEntity.setIndustry_id(industryEntity);
 
         contactEntity.setClient_id(clientEntity);
-        contactRepo.save(contactEntity);
+        //contactRepo.save(contactEntity);
         return "Contact Saved !!!";
     }
+
 
     @PostMapping("/token")
     public JwtResponse getToken(@RequestBody AuthRequest authRequest) {
@@ -75,15 +85,15 @@ public class AuthController {
             throw new UsernameNotFoundException("invalid User Request !!");
         }
     }
-    
+
     @PostMapping("/refreshToken")
     public JwtResponse refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
         return refreshTokenService.findByToken(refreshTokenRequest.getToken())
                 .map(refreshTokenService::verifyExpiration)
                 .map(RefreshToken::getContactEntity)
                 .map(contactEntity -> {
-                	String roleName = AuthCommonutils.getRolesByID(String.valueOf(contactEntity.getRole().getRole_id()));
-                    String accessToken = jwtService.generateToken(contactEntity.getContactId() , roleName);
+                    String roleName = AuthCommonutils.getRolesByID(String.valueOf(contactEntity.getRole().getRole_id()));
+                    String accessToken = jwtService.generateToken(contactEntity.getContactId(), roleName);
                     JwtResponse jwtResponse = new JwtResponse();
                     jwtResponse.setAccessToken(accessToken);
                     jwtResponse.setToken(refreshTokenRequest.getToken());
