@@ -9,13 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/user")
 public class UserController {
 
-    @GetMapping
-    public String getString(@RequestHeader("LoggedInUserRole") String role) {
-    	if(role.equals("JCB Account")) {
-    		return "User Verified!!!. LoggedIn User Role is "+role;
-    	} else {
-    		return "LoggedIn User Role is not Admin";
-    	}
-    }
+	@GetMapping
+	public String getString(@RequestHeader("LoggedInUserRole") String role) {
+		return "User Verified!!!. LoggedIn User Role is " + role;
+	}
 
 }

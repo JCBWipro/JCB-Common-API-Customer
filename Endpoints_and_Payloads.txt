@@ -1,4 +1,6 @@
-POST:- http://localhost:9898/auth/register
+For WebApp:
+-----------
+POST:- http://localhost:9898/auth/web/register
 
 {
     "contact_id":"Vikas123",
@@ -9,18 +11,47 @@ POST:- http://localhost:9898/auth/register
     "last_name":"Singh"
 }
 
-
-POST:- http://localhost:8080/auth/token
+POST:- http://localhost:8080/auth/web/token
 {
-    "username":"Vikas",
-    "password":"pwd123",
-    "role":"ROLE_ADMIN"
+    "username":"Vikas123",
+    "password":"bK1@yRegtHO4Q6",
+    "role":"JCB Account"
 }
 
-POST:- http://localhost:8080/auth/refreshToken
+POST:- http://localhost:8080/auth/web/refreshToken
 {
-    "token":"aa95669c-9e85-432f-82dd-bc4cee3472af"
+    "token":"58b32aa5-b649-4347-93d4-0614f6b477ee"
 }
 
-POST:- http://localhost:8080/auth/resetPassword
+POST:- http://localhost:8080/auth/web/resetPassword
 Vikas123 //username from contact table
+
+=====================================================================================
+
+For Mobile App; (Point Your DB Configurations to your Local MySQL)
+-------------------------------------------------------------------
+
+GET:- http://localhost:8080/auth/mob/registerUser
+
+POST:- http://localhost:8080/auth/mob/tokenLogin
+{
+    "enableMachineUpdate":true,
+    "enableNotification":true,
+    "language":"English",
+    "os":"Android",
+    "password":"eU3@U&lFQ8jF",
+    "pushNotificationToken":"eps8tUheQhGFi9cmrl8tao:APA91bHwUUW76PgwQIoayVM0kcHm1VC3xF3j_gyyLwjhfcJ6FvByrF-VLYGgYTogDfUiplFQZa7XKk8uU91DdN3hnCHj5LYMP4UA22xpofjnIirt2obdeKDmvyTBjzLcKFb9QfExmdLA",
+    "userAppVersion":"4.1.1",
+    "userName":"Ritu934400",
+    "userType":"Dealer"
+}
+
+POST:- http://localhost:8080/auth/mob/refreshToken
+{
+    "token":"f784be5b-9eda-44f3-b84c-7f6783f81e69"
+}
+
+=====================================================================================
+To Test the JWT Token of Web and Mobile APP, Below is the API
+
+GET:- http://localhost:8080/api/user     (From User Microservice)
