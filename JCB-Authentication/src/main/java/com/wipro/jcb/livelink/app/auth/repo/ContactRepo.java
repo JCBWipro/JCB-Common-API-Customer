@@ -26,4 +26,7 @@ public interface ContactRepo extends JpaRepository<ContactEntity, String> {
     @Modifying
     @Query(nativeQuery = true, value = "UPDATE wise.contact SET Password=:password WHERE Contact_ID=:userName")
     void updatePasswordWithContactID(@Param("password") String password, @Param("userName") String userName);
+    
+    @Query(nativeQuery = true, value = "select Contact_ID from wise.contact where Contact_ID=:userName")
+	String checkIfUserNameExists(@Param("userName") String userName);
 }

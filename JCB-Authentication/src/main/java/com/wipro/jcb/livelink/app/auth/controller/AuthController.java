@@ -1,5 +1,17 @@
 package com.wipro.jcb.livelink.app.auth.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.wipro.jcb.livelink.app.auth.commonutils.AuthCommonutils;
 import com.wipro.jcb.livelink.app.auth.dto.AuthRequest;
 import com.wipro.jcb.livelink.app.auth.dto.JwtResponse;
@@ -8,20 +20,10 @@ import com.wipro.jcb.livelink.app.auth.entity.ClientEntity;
 import com.wipro.jcb.livelink.app.auth.entity.ContactEntity;
 import com.wipro.jcb.livelink.app.auth.entity.IndustryEntity;
 import com.wipro.jcb.livelink.app.auth.entity.RefreshToken;
-import com.wipro.jcb.livelink.app.auth.repo.ContactRepo;
 import com.wipro.jcb.livelink.app.auth.service.AuthService;
 import com.wipro.jcb.livelink.app.auth.service.JwtService;
 import com.wipro.jcb.livelink.app.auth.service.RefreshTokenService;
 import com.wipro.jcb.livelink.app.auth.service.ResetPasswordService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -39,9 +41,6 @@ public class AuthController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private ContactRepo contactRepo;
 
     @Autowired
     private ResetPasswordService resetPasswordService;
@@ -71,18 +70,24 @@ public class AuthController {
 
     @PostMapping("/token")
     public JwtResponse getToken(@RequestBody AuthRequest authRequest) {
-        Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
-        String role = authenticate.getAuthorities().iterator().next().toString();
-        String roleName = AuthCommonutils.getRolesByID(role);
-        if (authenticate.isAuthenticated() && roleName.equals(authRequest.getRole())) {
-            RefreshToken refreshToken = refreshTokenService.createRefreshToken(authRequest.getUsername());
-            JwtResponse jwtResponse = new JwtResponse();
-            jwtResponse.setAccessToken(jwtService.generateToken(authRequest.getUsername(), roleName));
-            jwtResponse.setToken(refreshToken.getToken());
-            return jwtResponse;
-        } else {
-            throw new UsernameNotFoundException("invalid User Request !!");
+    	JwtResponse jwtResponse = new JwtResponse();
+    	try {
+    		Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
+            String role = authenticate.getAuthorities().iterator().next().toString();
+            String roleName = AuthCommonutils.getRolesByID(role);
+            if (authenticate.isAuthenticated() && roleName.equals(authRequest.getRole())) {
+                RefreshToken refreshToken = refreshTokenService.createRefreshToken(authRequest.getUsername());
+                jwtResponse.setAccessToken(jwtService.generateToken(authRequest.getUsername(), roleName));
+                jwtResponse.setToken(refreshToken.getToken());
+                return jwtResponse;
+            } else {
+            	jwtResponse.setError("Authentication failed. Invalid username, password, or role.");
+            }
+        } catch (Exception e) {
+        	jwtResponse.setError("Authentication failed. Invalid username, password, or role.");
+            System.out.println(e.getMessage());
         }
+    	return jwtResponse;
     }
 
     @PostMapping("/refreshToken")
