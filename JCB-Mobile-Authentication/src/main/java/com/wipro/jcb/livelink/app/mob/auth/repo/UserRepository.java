@@ -13,7 +13,8 @@ import jakarta.transaction.Transactional;
 
 public interface UserRepository extends JpaRepository<User, String>{
 	
-	 @Query(nativeQuery = true, value = "SELECT USER_ID, password, userType, roleName FROM microservices_db.LiveLinkUser where USER_ID=:userName")
+//	 @Query(nativeQuery = true, value = "SELECT USER_ID, password, userType, roleName FROM microservices_db.LiveLinkUser where USER_ID=:userName")
+	@Query(nativeQuery = true, value = "SELECT USER_ID,password,userType,roleName,firstName,lastName,email,phoneNumber,image,thumbnail,country,smsLanguage,timeZone,language FROM microservices_db.LiveLinkUser where USER_ID=:userName")
 	 List<Object[]> findByUserName(@Param("userName") String userName);
 	 
 	@Transactional
