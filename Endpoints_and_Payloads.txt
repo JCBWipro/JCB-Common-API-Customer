@@ -11,7 +11,7 @@ POST:- http://localhost:9898/auth/web/register
     "last_name":"Singh"
 }
 
-POST:- http://localhost:8080/auth/web/token
+POST:- http://localhost:8080/auth/web/login
 {
     "username":"Vikas123",
     "password":"wG8&bELCn&J7",
@@ -23,6 +23,7 @@ POST:- http://localhost:8080/auth/web/refreshToken
     "token":"58b32aa5-b649-4347-93d4-0614f6b477ee"
 }
 
+
 POST:- http://localhost:8080/auth/web/resetPassword
 Vikas123 //username from contact table
 
@@ -33,6 +34,9 @@ For Mobile App; (Point Your DB Configurations to your Local MySQL)
 -------------------------------------------------------------------
 
 GET:- http://localhost:8080/auth/mob/registerUser
+for example :
+username:Ritu178344
+autoGenPassword:fA4$vTcpEHCF
 
 POST:- http://localhost:8080/auth/mob/login
 {
@@ -56,3 +60,8 @@ POST:- http://localhost:8080/auth/mob/refreshToken
 To Test the JWT Token of Web and Mobile APP, Below is the API
 
 GET:- http://localhost:8080/api/user     (From User Microservice)
+
+
+fuser -n tcp <port_number>
+
+fuser -n tcp 8761

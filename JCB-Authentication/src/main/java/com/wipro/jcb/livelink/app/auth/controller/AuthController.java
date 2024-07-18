@@ -20,6 +20,8 @@ import com.wipro.jcb.livelink.app.auth.entity.ClientEntity;
 import com.wipro.jcb.livelink.app.auth.entity.ContactEntity;
 import com.wipro.jcb.livelink.app.auth.entity.IndustryEntity;
 import com.wipro.jcb.livelink.app.auth.entity.RefreshToken;
+import com.wipro.jcb.livelink.app.auth.entity.RoleEntity;
+import com.wipro.jcb.livelink.app.auth.repo.ContactRepo;
 import com.wipro.jcb.livelink.app.auth.service.AuthService;
 import com.wipro.jcb.livelink.app.auth.service.JwtService;
 import com.wipro.jcb.livelink.app.auth.service.RefreshTokenService;
@@ -44,15 +46,23 @@ public class AuthController {
 
     @Autowired
     private ResetPasswordService resetPasswordService;
+    
+    @Autowired
+    private ContactRepo contactRepo;
 
     @PostMapping("/register")
     public String saveContact(@RequestBody ContactEntity contactEntity) {
 
         String username = AuthCommonutils.generateUsername(contactEntity.getFirst_name());
         contactEntity.setContactId(username);
+        System.out.println("Username is :" + contactEntity.getContactId());
         String autoGenPassword = resetPasswordService.generatePassword();
         contactEntity.setPassword(autoGenPassword);
+        System.out.println("Password is :" + contactEntity.getPassword());
         contactEntity.setPassword(new BCryptPasswordEncoder().encode(contactEntity.getPassword()));
+        RoleEntity roleEntity = new RoleEntity();
+        
+        
         IndustryEntity industryEntity = new IndustryEntity();
         industryEntity.setIndustry_id(1);
         industryEntity.setIndustry_name("DIndustry");
@@ -63,12 +73,12 @@ public class AuthController {
         clientEntity.setIndustry_id(industryEntity);
 
         contactEntity.setClient_id(clientEntity);
-        //contactRepo.save(contactEntity);
+        contactRepo.save(contactEntity);
         return "Contact Saved !!!";
     }
 
 
-    @PostMapping("/token")
+    @PostMapping("/login")
     public JwtResponse getToken(@RequestBody AuthRequest authRequest) {
     	JwtResponse jwtResponse = new JwtResponse();
     	try {

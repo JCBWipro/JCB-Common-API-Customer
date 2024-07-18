@@ -16,6 +16,16 @@ public class AuthCommonutils {
 			user.setPassword(object[1].toString());
 			user.setUserType(UserType.valueOf(object[2].toString()));
 			user.setRoleName(object[3].toString());
+			user.setFirstName(object[4].toString());
+			user.setLastName(object[5].toString());
+			user.setEmail(object[6].toString());
+			user.setPhoneNumber(object[7].toString());
+			user.setImage(object[8].toString());
+			user.setThumbnail(object[9].toString());
+			user.setCountry(object[10].toString());
+			user.setSmsLanguage(object[11].toString());
+			user.setTimeZone(object[12].toString());
+			user.setLanguage(object[13].toString());
 		}
         return user;
     }

@@ -51,10 +51,10 @@ public class UserController {
         user.setLanguage("English");
         user.setUserAppVersion("4.1.1");
         user.setUserType(UserType.Dealer);
-        user.setFirstName("Rituraj");
-        user.setLastName("Azad");
-        user.setEmail("abc@gmail.com");
-        user.setPhoneNumber("9876543210");
+        user.setFirstName("Gokul");
+        user.setLastName("Aher");
+        user.setEmail("gokul.ahir@gmail.com");
+        user.setPhoneNumber("9890091680");
         user.setImage("abc.png");
         user.setThumbnail("abcd.png");
         user.setCountry("India");
@@ -88,6 +88,16 @@ public class UserController {
 	            loginResponse.setAccessToken(jwtService.generateToken(loginRequest.getUserName(), userType));
 	            loginResponse.setToken(refreshToken.getToken());
 	            loginResponse.setRoleName(refreshToken.getUser().getRoleName());
+	            loginResponse.setFirstName(refreshToken.getUser().getFirstName());
+	            loginResponse.setLastName(refreshToken.getUser().getLastName());
+	            loginResponse.setEmail(refreshToken.getUser().getEmail());
+	            loginResponse.setNumber(refreshToken.getUser().getPhoneNumber());
+	            loginResponse.setImage(refreshToken.getUser().getImage());
+	            loginResponse.setThumbnail(refreshToken.getUser().getThumbnail());
+	            loginResponse.setCountry(refreshToken.getUser().getCountry());
+	            loginResponse.setSmsLanguage(refreshToken.getUser().getSmsLanguage());
+	            loginResponse.setTimeZone(refreshToken.getUser().getTimeZone());
+	            loginResponse.setLanguage(refreshToken.getUser().getLanguage());
 	            return loginResponse;
 	        } else {
 	            loginResponse.setError("Authentication failed. Invalid username, password, or role.");
