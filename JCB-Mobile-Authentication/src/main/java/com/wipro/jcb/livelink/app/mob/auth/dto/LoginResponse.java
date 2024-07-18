@@ -37,10 +37,13 @@ public class LoginResponse {
     private Boolean isSecretQuestion;
     @ApiModelProperty(value = "User Language", example = "English", required = false)
     private String language;
+    private String error;
     
     public LoginResponse() {}
-
-	
+    
+	public LoginResponse(String error) {
+		this.error = "Authentication failed. Invalid username, password, or role.";
+	}
 
 	public LoginResponse(String accessToken, String token, String firstName, String lastName, String email,
 			String number, String image, String thumbnail, String country, String smsLanguage, String timeZone,
@@ -65,8 +68,6 @@ public class LoginResponse {
 		this.isSecretQuestion = isSecretQuestion;
 		this.language = language;
 	}
-
-
 
 	public String getAccessToken() {
 		return accessToken;
@@ -203,6 +204,13 @@ public class LoginResponse {
 	public void setLanguage(String language) {
 		this.language = language;
 	}
-    
+
+	public String getError() {
+		return error;
+	}
+
+	public void setError(String error) {
+		this.error = error;
+	}
     
 }

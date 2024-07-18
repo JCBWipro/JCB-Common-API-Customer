@@ -7,15 +7,19 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import com.wipro.jcb.livelink.app.mob.auth.repo.UserRepository;
 
 @Service
 public class ResetPasswordService {
 
     private static final Logger log = LoggerFactory.getLogger(ResetPasswordService.class);
 
-//    @Autowired
-//    private ContactRepo contactRepo;
+    @Autowired
+    private UserRepository userRepository;
 
     private static final String LOWER = "abcdefghijklmnopqrstuvwxyz";
     private static final String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -52,16 +56,16 @@ public class ResetPasswordService {
         return result.toString();
     }
 
-//    public void updateResetPassword(String password, String userName) {
-//        String encryptedPassword = new BCryptPasswordEncoder().encode(password);
-//        try {
-//            contactRepo.updatePasswordWithContactID(encryptedPassword, userName);
-//            log.info("Encrypted Password saved to DB and value is : {}", encryptedPassword);
-//        } catch (Exception e) {
-//            log.error("Error updating password for username {}: {}", userName, e.getMessage(), e);
-//            throw new PasswordUpdateException("Failed to update password", e);
-//        }
-//
-//    }
+    public void updateResetPassword(String password, String userName) {
+        String encryptedPassword = new BCryptPasswordEncoder().encode(password);
+        try {
+        	userRepository.updatePasswordWithContactID(encryptedPassword, userName);
+            log.info("Encrypted Password saved to DB and value is : {}", encryptedPassword);
+        } catch (Exception e) {
+            log.error("Error updating password for username {}: {}", userName, e.getMessage(), e);
+            throw new RuntimeException("Failed to update password", e);
+        }
+
+    }
 
 }

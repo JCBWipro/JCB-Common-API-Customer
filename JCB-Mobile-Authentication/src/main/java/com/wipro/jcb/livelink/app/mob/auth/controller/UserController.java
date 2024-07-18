@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -78,23 +77,34 @@ public class UserController {
 
     }
 	
-	@PostMapping("/tokenLogin")
+	@PostMapping("/login")
     public LoginResponse getToken(@RequestBody LoginRequest loginRequest) {
-        Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUserName(), loginRequest.getPassword()));
-        String userType = authenticate.getAuthorities().iterator().next().toString();
-        if (authenticate.isAuthenticated() && userType.equals(loginRequest.getUserType())){
-            RefreshToken refreshToken = refreshTokenService.createRefreshToken(loginRequest.getUserName());
-            LoginResponse loginresponse = new LoginResponse();
-            loginresponse.setAccessToken(jwtService.generateToken(loginRequest.getUserName(), userType));
-            loginresponse.setToken(refreshToken.getToken());
-            loginresponse.setRoleName(refreshToken.getUser().getRoleName());
-            return loginresponse;
-        } else {
-            throw new UsernameNotFoundException("invalid User Request !!");
-        }
+		LoginResponse loginResponse = new LoginResponse();
+		try {
+			Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUserName(), loginRequest.getPassword()));
+	        String userType = authenticate.getAuthorities().iterator().next().toString();
+	        if (authenticate.isAuthenticated() && userType.equals(loginRequest.getUserType())){
+	            RefreshToken refreshToken = refreshTokenService.createRefreshToken(loginRequest.getUserName());
+	            loginResponse.setAccessToken(jwtService.generateToken(loginRequest.getUserName(), userType));
+	            loginResponse.setToken(refreshToken.getToken());
+	            loginResponse.setRoleName(refreshToken.getUser().getRoleName());
+	            return loginResponse;
+	        } else {
+	            loginResponse.setError("Authentication failed. Invalid username, password, or role.");
+	        }
+		}catch(Exception e) {
+			loginResponse.setError("Authentication failed. Invalid username, password, or role.");
+			System.out.println(e.getMessage());
+		}
+		return loginResponse;
+        
     }
 	
-	@PostMapping("/refreshToken")
+	/*API to Refresh Token By Using the Access Token. Token: Random Generated Value
+	Token is used to refresh the Access token. Access_Token is generated Using UserName, password and UserType.
+	Whole Access_Token will be absolute and new Access_Token will be Generated with Extended Time.
+	*/
+	@PostMapping("/refreshToken") 
     public JwtResponse refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
         return refreshTokenService.findByToken(refreshTokenRequest.getToken())
                 .map(refreshTokenService::verifyExpiration)
