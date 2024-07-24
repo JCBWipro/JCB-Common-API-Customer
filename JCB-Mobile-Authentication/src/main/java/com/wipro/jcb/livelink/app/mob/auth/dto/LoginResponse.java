@@ -1,7 +1,11 @@
 package com.wipro.jcb.livelink.app.mob.auth.dto;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class LoginResponse {
     @ApiModelProperty(value = "Unique Accesstoken for user ", example = "alkhflajkhkcfla", required = true)
     private String accessToken;
@@ -69,148 +73,4 @@ public class LoginResponse {
 		this.language = language;
 	}
 
-	public String getAccessToken() {
-		return accessToken;
-	}
-
-	public void setAccessToken(String accessToken) {
-		this.accessToken = accessToken;
-	}
-	
-	public String getToken() {
-		return token;
-	}
-
-	public void setToken(String token) {
-		this.token = token;
-	}
-
-	public String getFirstName() {
-		return firstName;
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getNumber() {
-		return number;
-	}
-
-	public void setNumber(String number) {
-		this.number = number;
-	}
-
-	public String getImage() {
-		return image;
-	}
-
-	public void setImage(String image) {
-		this.image = image;
-	}
-
-	public String getThumbnail() {
-		return thumbnail;
-	}
-
-	public void setThumbnail(String thumbnail) {
-		this.thumbnail = thumbnail;
-	}
-
-	public String getCountry() {
-		return country;
-	}
-
-	public void setCountry(String country) {
-		this.country = country;
-	}
-
-	public String getSmsLanguage() {
-		return smsLanguage;
-	}
-
-	public void setSmsLanguage(String smsLanguage) {
-		this.smsLanguage = smsLanguage;
-	}
-
-	public String getTimeZone() {
-		return timeZone;
-	}
-
-	public void setTimeZone(String timeZone) {
-		this.timeZone = timeZone;
-	}
-
-	public Boolean getSysGenPassword() {
-		return sysGenPassword;
-	}
-
-	public void setSysGenPassword(Boolean sysGenPassword) {
-		this.sysGenPassword = sysGenPassword;
-	}
-
-	public String getRoleName() {
-		return roleName;
-	}
-
-	public void setRoleName(String roleName) {
-		this.roleName = roleName;
-	}
-
-	public String getBucketAccesskey() {
-		return bucketAccesskey;
-	}
-
-	public void setBucketAccesskey(String bucketAccesskey) {
-		this.bucketAccesskey = bucketAccesskey;
-	}
-
-	public String getBucketSecretkey() {
-		return bucketSecretkey;
-	}
-
-	public void setBucketSecretkey(String bucketSecretkey) {
-		this.bucketSecretkey = bucketSecretkey;
-	}
-
-	public Boolean getIsSecretQuestion() {
-		return isSecretQuestion;
-	}
-
-	public void setIsSecretQuestion(Boolean isSecretQuestion) {
-		this.isSecretQuestion = isSecretQuestion;
-	}
-
-	public String getLanguage() {
-		return language;
-	}
-
-	public void setLanguage(String language) {
-		this.language = language;
-	}
-
-	public String getError() {
-		return error;
-	}
-
-	public void setError(String error) {
-		this.error = error;
-	}
-    
 }
