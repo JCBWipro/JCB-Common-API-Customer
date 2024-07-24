@@ -1,17 +1,16 @@
 package com.wipro.jcb.livelink.app.mob.auth.service;
 
-
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.wipro.jcb.livelink.app.mob.auth.exception.PasswordUpdateException;
+import com.wipro.jcb.livelink.app.mob.auth.repo.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.wipro.jcb.livelink.app.mob.auth.repo.UserRepository;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ResetPasswordService {
@@ -56,14 +55,14 @@ public class ResetPasswordService {
         return result.toString();
     }
 
-    public void updateResetPassword(String password, String userName) {
+    public void resetPassword(String password, String userName) {
         String encryptedPassword = new BCryptPasswordEncoder().encode(password);
         try {
-        	userRepository.updatePasswordWithContactID(encryptedPassword, userName);
+            userRepository.updatePasswordWithContactID(encryptedPassword, userName);
             log.info("Encrypted Password saved to DB and value is : {}", encryptedPassword);
         } catch (Exception e) {
             log.error("Error updating password for username {}: {}", userName, e.getMessage(), e);
-            throw new RuntimeException("Failed to update password", e);
+            throw new PasswordUpdateException("Failed to update password", e);
         }
 
     }
