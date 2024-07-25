@@ -57,7 +57,7 @@ public class ResetPasswordServiceImpl extends ResetPasswordService {
             //SMS Send
             unicelSmsService.sendSms(smsTemplate);
 
-            return new SmsResponse("Password Generated and Sent to mobile Number", true);
+            return new SmsResponse("Password Generated and Sent to mobile Number : "+mobileNumber, true);
 
         } catch (PasswordUpdateException e) {
             log.error("Error resetting password: {}", e.getMessage(), e);

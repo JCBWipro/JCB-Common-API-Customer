@@ -47,7 +47,7 @@ public class ForgotUsernameServiceImpl extends ForgotUsernameService {
             //Send SMS
             unicelSmsService.sendSms(smsTemplate);
 
-            return new SmsResponse("Username Sent to mobile Number", true);
+            return new SmsResponse("Username Sent to mobile Number : "+mobileNumber, true);
 
         } catch (Exception e) {
             log.error("Error retrieving username: {}", e.getMessage(), e);
