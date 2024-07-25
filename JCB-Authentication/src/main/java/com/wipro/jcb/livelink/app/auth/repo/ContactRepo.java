@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
 /**
  * Author: Rituraj Azad
  * User: RI20474447
@@ -26,7 +27,14 @@ public interface ContactRepo extends JpaRepository<ContactEntity, String> {
     @Modifying
     @Query(nativeQuery = true, value = "UPDATE wise.contact SET Password=:password WHERE Contact_ID=:userName")
     void updatePasswordWithContactID(@Param("password") String password, @Param("userName") String userName);
-    
-    @Query(nativeQuery = true, value = "select Contact_ID from wise.contact where Contact_ID=:userName")
-	String checkIfUserNameExists(@Param("userName") String userName);
+
+    // Retrieves the primary mobile number associated with a given user ID.
+    // This query is executed as a native SQL query against the "wise.contact" table.
+    @Query(nativeQuery = true, value = "SELECT Primary_Moblie_Number FROM wise.contact WHERE Contact_ID=:userName")
+    String findMobileNumberByUserID(@Param("userName") String userName);
+
+    // Retrieves the contact ID associated with a given primary mobile number.
+    // This query is executed as a native SQL query against the "wise.contact" table.
+    @Query(nativeQuery = true, value = "SELECT Contact_ID FROM wise.contact WHERE Primary_Moblie_Number=:mobileNumber")
+    String findByMobileNumber(@Param("mobileNumber") String mobileNumber);
 }

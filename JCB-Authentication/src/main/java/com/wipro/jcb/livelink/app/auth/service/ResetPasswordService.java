@@ -55,7 +55,7 @@ public class ResetPasswordService {
         return result.toString();
     }
 
-    public void updateResetPassword(String password, String userName) {
+    public void resetPassword(String password, String userName) {
         String encryptedPassword = new BCryptPasswordEncoder().encode(password);
         try {
             contactRepo.updatePasswordWithContactID(encryptedPassword, userName);
