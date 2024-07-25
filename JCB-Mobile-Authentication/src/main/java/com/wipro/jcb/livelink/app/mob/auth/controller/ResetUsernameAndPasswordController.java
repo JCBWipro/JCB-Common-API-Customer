@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth/mob")
-public class ResetPasswordController {
+public class ResetUsernameAndPasswordController {
 
-    private static final Logger log = LoggerFactory.getLogger(ResetPasswordController.class);
+    private static final Logger log = LoggerFactory.getLogger(ResetUsernameAndPasswordController.class);
 
     @Autowired
     private ResetPasswordServiceImpl resetPasswordService;
