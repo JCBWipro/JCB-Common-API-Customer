@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.List;
 
 /**
  * Author: Rituraj Azad
@@ -54,18 +53,10 @@ public class ResetPasswordServiceImpl extends ResetPasswordService {
                     " . JCB LiveLink Team.; Dt:";
             smsTemplate.setMsgBody(Collections.singletonList(body));
 
-            // Send SMS
-            List<SmsResponse> smsResponses = unicelSmsService.sendSms(smsTemplate);
+            //SMS Send
+            unicelSmsService.sendSms(smsTemplate);
 
-            // Check if all SMS messages were sent successfully
-            boolean allSmsSuccessful = smsResponses.stream().allMatch(SmsResponse::isSuccess);
-
-            // Create response based on SMS sending outcome
-            if (allSmsSuccessful) {
-                return new SmsResponse("Password Generated and Sent to mobile Number", true);
-            } else {
-                return new SmsResponse("Password updated, but there were issues sending SMS.", false);
-            }
+            return new SmsResponse("Password Generated and Sent to mobile Number", true);
 
         } catch (PasswordUpdateException e) {
             log.error("Error resetting password: {}", e.getMessage(), e);
