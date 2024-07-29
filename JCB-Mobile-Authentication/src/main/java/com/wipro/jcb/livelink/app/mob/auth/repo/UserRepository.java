@@ -29,7 +29,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     // Retrieves the contact ID associated with a given Primary_Email_ID .
     // This query is executed as a native SQL query against the "wise.contact" table.
-    @Query(nativeQuery = true, value = "SELECT  Contact_ID FROM wise.contact WHERE Primary_Email_ID=:emailId")
+    @Query(nativeQuery = true, value = "SELECT USER_ID FROM microservices_db.LiveLinkUser WHERE email=:emailId")
     String findByEmailId(@Param("emailId") String emailId);
 
     @Query(nativeQuery = true, value = "SELECT firstName FROM microservices_db.LiveLinkUser WHERE email=:emailId")
