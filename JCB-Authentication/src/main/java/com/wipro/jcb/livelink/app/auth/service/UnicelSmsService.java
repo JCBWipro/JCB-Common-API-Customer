@@ -2,7 +2,7 @@ package com.wipro.jcb.livelink.app.auth.service;
 
 import com.wipro.jcb.livelink.app.auth.config.UnicelConfig;
 import com.wipro.jcb.livelink.app.auth.model.SMSTemplate;
-import com.wipro.jcb.livelink.app.auth.model.SmsResponse;
+import com.wipro.jcb.livelink.app.auth.model.MsgResponseTemplate;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -31,8 +31,8 @@ public class UnicelSmsService {
     @Autowired
     private UnicelConfig unicelConfig;
 
-    public List<SmsResponse> sendSms(SMSTemplate smsTemplate) throws IOException {
-        List<SmsResponse> responses = new ArrayList<>();
+    public void sendSms(SMSTemplate smsTemplate) throws IOException {
+        List<MsgResponseTemplate> responseTemplates = new ArrayList<>();
 
         for (int i = 0; i < smsTemplate.getTo().size(); i++) {
             String phoneNumber = smsTemplate.getTo().get(i);
@@ -49,19 +49,18 @@ public class UnicelSmsService {
                 ResponseEntity<String> response = restTemplate.getForEntity(finalUrl, String.class);
                 if (response.getStatusCode().is2xxSuccessful()) {
                     log.info("SMS Sent Successfully to {}", phoneNumber);
-                    responses.add(new SmsResponse("SMS sent successfully to " + phoneNumber, true));
+                    responseTemplates.add(new MsgResponseTemplate("SMS sent successfully to " + phoneNumber, true));
                 } else {
                     log.error("Failed to Send SMS to {}, Status Code: {}", phoneNumber, response.getStatusCode());
 
-                    responses.add(new SmsResponse("Failed to send SMS to " + phoneNumber + ". Status code: " + response.getStatusCode(), false));
+                    responseTemplates.add(new MsgResponseTemplate("Failed to send SMS to " + phoneNumber + ". Status code: " + response.getStatusCode(), false));
                 }
             } catch (Exception e) {
                 log.error("Error sending SMS to {}: {}", phoneNumber, e.getMessage());
-                responses.add(new SmsResponse("Error sending SMS to " + phoneNumber + ": " + e.getMessage(), false));
+                responseTemplates.add(new MsgResponseTemplate("Error sending SMS to " + phoneNumber + ": " + e.getMessage(), false));
             }
         }
 
-        return responses;
     }
 
     private String getSMSUrl(String phoneNumber, String encodedMessage) {

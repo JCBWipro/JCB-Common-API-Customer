@@ -37,4 +37,12 @@ public interface ContactRepo extends JpaRepository<ContactEntity, String> {
     // This query is executed as a native SQL query against the "wise.contact" table.
     @Query(nativeQuery = true, value = "SELECT Contact_ID FROM wise.contact WHERE Primary_Moblie_Number=:mobileNumber")
     String findByMobileNumber(@Param("mobileNumber") String mobileNumber);
+
+    // Retrieves the contact ID associated with a given Primary_Email_ID .
+    // This query is executed as a native SQL query against the "wise.contact" table.
+    @Query(nativeQuery = true, value = "SELECT  Contact_ID FROM wise.contact WHERE Primary_Email_ID=:emailId")
+    String findByEmailId(@Param("emailId") String emailId);
+
+    @Query(nativeQuery = true, value = "SELECT  First_Name FROM wise.contact WHERE Primary_Email_ID=:emailId")
+    String findFirstNameFromID(@Param("emailId") String emailId);
 }
