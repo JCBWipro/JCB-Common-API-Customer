@@ -1,4 +1,4 @@
-package com.wipro.jcb.livelink.app.auth.model;
+package com.wipro.jcb.livelink.app.mob.auth.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SmsResponse {
+public class MsgResponseTemplate {
     private String message;
     private boolean success;
 }

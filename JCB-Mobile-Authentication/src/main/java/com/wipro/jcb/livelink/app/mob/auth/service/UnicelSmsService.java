@@ -2,7 +2,7 @@ package com.wipro.jcb.livelink.app.mob.auth.service;
 
 import com.wipro.jcb.livelink.app.mob.auth.config.UnicelConfig;
 import com.wipro.jcb.livelink.app.mob.auth.model.SMSTemplate;
-import com.wipro.jcb.livelink.app.mob.auth.model.SmsResponse;
+import com.wipro.jcb.livelink.app.mob.auth.model.MsgResponseTemplate;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -33,8 +33,8 @@ public class UnicelSmsService {
     @Autowired
     private UnicelConfig unicelConfig;
 
-    public List<SmsResponse> sendSms(SMSTemplate smsTemplate) throws IOException {
-        List<SmsResponse> responses = new ArrayList<>();
+    public List<MsgResponseTemplate> sendSms(SMSTemplate smsTemplate) throws IOException {
+        List<MsgResponseTemplate> responses = new ArrayList<>();
 
         for (int i = 0; i < smsTemplate.getTo().size(); i++) {
             String phoneNumber = smsTemplate.getTo().get(i);
@@ -51,15 +51,15 @@ public class UnicelSmsService {
                 ResponseEntity<String> response = restTemplate.getForEntity(finalUrl, String.class);
                 if (response.getStatusCode().is2xxSuccessful()) {
                     log.info("SMS Sent Successfully to {}", phoneNumber);
-                    responses.add(new SmsResponse("SMS sent successfully to " + phoneNumber, true));
+                    responses.add(new MsgResponseTemplate("SMS sent successfully to " + phoneNumber, true));
                 } else {
                     log.error("Failed to Send SMS to {}, Status Code: {}", phoneNumber, response.getStatusCode());
 
-                    responses.add(new SmsResponse("Failed to send SMS to " + phoneNumber + ". Status code: " + response.getStatusCode(), false));
+                    responses.add(new MsgResponseTemplate("Failed to send SMS to " + phoneNumber + ". Status code: " + response.getStatusCode(), false));
                 }
             } catch (Exception e) {
                 log.error("Error sending SMS to {}: {}", phoneNumber, e.getMessage());
-                responses.add(new SmsResponse("Error sending SMS to " + phoneNumber + ": " + e.getMessage(), false));
+                responses.add(new MsgResponseTemplate("Error sending SMS to " + phoneNumber + ": " + e.getMessage(), false));
             }
         }
 

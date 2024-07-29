@@ -1,6 +1,6 @@
 package com.wipro.jcb.livelink.app.mob.auth.service;
 
-import com.wipro.jcb.livelink.app.mob.auth.model.SmsResponse;
+import com.wipro.jcb.livelink.app.mob.auth.model.MsgResponseTemplate;
 import com.wipro.jcb.livelink.app.mob.auth.repo.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,20 +21,20 @@ public class ForgotUsernameService {
     @Autowired
     private UserRepository userRepository;
 
-    public SmsResponse forgotUsername(String mobileNumber) {
+    public MsgResponseTemplate forgotUsername(String mobileNumber) {
         if (mobileNumber == null || mobileNumber.trim().isEmpty()) {
-            return new SmsResponse("Mobile number is required", false);
+            return new MsgResponseTemplate("Mobile number is required", false);
         }
         try {
             String username = userRepository.findByMobileNumber(mobileNumber);
             if (username != null) {
-                return new SmsResponse(username, true);
+                return new MsgResponseTemplate(username, true);
             } else {
-                return new SmsResponse("No user found with this mobile number", false);
+                return new MsgResponseTemplate("No user found with this mobile number", false);
             }
         } catch (DataAccessException e) {
             log.error("Error retrieving username for mobile number: {}", mobileNumber, e);
-            return new SmsResponse("Error retrieving username", false);
+            return new MsgResponseTemplate("Error retrieving username", false);
         }
     }
 }
