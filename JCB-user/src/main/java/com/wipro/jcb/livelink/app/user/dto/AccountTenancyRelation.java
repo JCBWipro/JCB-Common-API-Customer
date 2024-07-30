@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * This AccountTenancyRelation DTO is used to Handle Account and Tenancy Details response
+ */
 @Getter
 @Setter
 @ToString

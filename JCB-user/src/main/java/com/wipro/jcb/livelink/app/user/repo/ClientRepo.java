@@ -6,10 +6,10 @@ import org.springframework.stereotype.Repository;
 import com.wipro.jcb.livelink.app.user.entity.ClientEntity;
 
 /**
- * Author: Rituraj Azad
- * User: RI20474447
- * Date:12-07-2024
- * project: JCB-Common-API-New
+ * Author: Vikas Singh
+ * User: VI20475016
+ * Date:30-07-2024
+ * project: JCB-Common-API-Customer
  */
 @Repository
 public interface ClientRepo extends JpaRepository<ClientEntity, Integer> {
