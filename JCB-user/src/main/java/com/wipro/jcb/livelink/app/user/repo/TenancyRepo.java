@@ -8,6 +8,12 @@ import org.springframework.stereotype.Repository;
 
 import com.wipro.jcb.livelink.app.user.entity.TenancyEntity;
 
+/**
+ * Author: Vikas Singh
+ * User: VI20475016
+ * Date:30-07-2024
+ * project: JCB-Common-API-Customer
+ */
 @Repository
 public interface TenancyRepo extends JpaRepository<TenancyEntity, Integer> {
 	

@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * This UserAuthenticationRespContract DTO is used to Handle TenancyNames and other info Details as an response
+ */
 @Getter
 @Setter
 @ToString
