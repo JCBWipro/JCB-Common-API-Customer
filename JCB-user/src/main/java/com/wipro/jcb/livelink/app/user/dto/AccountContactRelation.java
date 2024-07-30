@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * This AccountContactRelation DTO is used to Handle Account and Contact Details response
+ */
 @Getter
 @Setter
 @ToString

@@ -6,6 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+
+/**
+ * This PseudoListResponse DTO is used to Handle Account and Contact Details response
+ */
 @Getter
 @Setter
 @ToString
