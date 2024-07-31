@@ -43,6 +43,47 @@ public interface ContactRepo extends JpaRepository<ContactEntity, String> {
     @Query(nativeQuery = true, value = "SELECT  Contact_ID FROM wise.contact WHERE Primary_Email_ID=:emailId")
     String findByEmailId(@Param("emailId") String emailId);
 
+    // Retrieves the First_Name associated with a given Primary_Email_ID .
+    // This query is executed as a native SQL query against the "wise.contact" table.
     @Query(nativeQuery = true, value = "SELECT  First_Name FROM wise.contact WHERE Primary_Email_ID=:emailId")
     String findFirstNameFromID(@Param("emailId") String emailId);
+
+    //For Reset Password attempts
+    // Retrieves the count associated with a given user ID .
+    // This query is executed as a native SQL query against the "wise.contact" table.
+    @Query(nativeQuery = true, value = "SELECT CAST(reset_pass_count AS UNSIGNED) FROM wise.contact WHERE Contact_ID=:userName")
+    int resetPasswordGetAttempts(@Param("userName") String userName);
+
+    //Increment the password reset attempt count for a user
+    @Transactional
+    @Modifying
+    @Query(nativeQuery = true, value = "UPDATE wise.contact SET reset_pass_count = reset_pass_count + 1 WHERE Contact_ID =:userName")
+    int resetPasswordIncrementAttempts(@Param("userName") String userName);
+
+    //For Login attempts
+    // Retrieves the count associated with a given user ID .
+    // This query is executed as a native SQL query against the "wise.contact" table.
+    @Query(nativeQuery = true, value = "SELECT CAST(errorLogCounter AS UNSIGNED) FROM wise.contact WHERE Contact_ID=:userName")
+    int userLoginGetAttempts(@Param("userName") String userName);
+
+    //Increment the password reset attempt count for a user
+    @Transactional
+    @Modifying
+    @Query(nativeQuery = true, value = "UPDATE wise.contact SET errorLogCounter = errorLogCounter + 1 WHERE Contact_ID =:userName")
+    void userLoginIncrementAttempts(@Param("userName") String userName);
+
+    //Reset the attempts count to Zero
+    @Transactional
+    @Modifying
+    @Query(nativeQuery = true, value = "UPDATE wise.contact SET errorLogCounter = 0 WHERE Contact_ID = :userName")
+    void userLoginResetAttempts(@Param("userName") String userName);
+
+    //check the status column value w.r.t contact_ID
+    @Query(nativeQuery = true, value = "SELECT sys_gen_password FROM wise.contact WHERE Contact_ID = :userName")
+    int checkSysGenPassByContactID(@Param("userName") String userName);
+
+
+    @Query(nativeQuery = true, value = "SELECT * FROM wise.contact WHERE Contact_ID = :username")
+    ContactEntity findByUserContactId(String username);
+
 }
