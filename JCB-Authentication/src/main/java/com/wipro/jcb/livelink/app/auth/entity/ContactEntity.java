@@ -64,4 +64,6 @@ public class ContactEntity {
     @OneToOne(targetEntity = ClientEntity.class)
     @JoinColumn(name = "Client_ID")
     private ClientEntity client_id;
+    @Column(name = "reset_pass_count")
+    private int resetPassCount;
 }
