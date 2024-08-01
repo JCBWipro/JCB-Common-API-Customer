@@ -1,6 +1,7 @@
 package com.wipro.jcb.livelink.app.util;
 
 import java.security.Key;
+import java.util.HashMap;
 import java.util.function.Function;
 
 import org.springframework.stereotype.Component;
@@ -27,8 +28,11 @@ public class JwtUtils {
     }
 
     public String extractRole(String token) {
-		extractClaim(token, Claims::getSubject);
-		return role;
+    	String userName = extractClaim(token, Claims::getSubject);
+    	HashMap<String, String> map = new HashMap<>();
+    	map.put("userName", userName);
+    	map.put("roleName", role);
+    	return map.toString();
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
