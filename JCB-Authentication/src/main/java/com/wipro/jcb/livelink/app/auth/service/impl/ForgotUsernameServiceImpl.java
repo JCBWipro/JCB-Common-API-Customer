@@ -7,16 +7,12 @@ import com.wipro.jcb.livelink.app.auth.repo.ContactRepo;
 import com.wipro.jcb.livelink.app.auth.service.AWSEmailService;
 import com.wipro.jcb.livelink.app.auth.service.ForgotUsernameService;
 import com.wipro.jcb.livelink.app.auth.service.UnicelSmsService;
-import jakarta.mail.internet.AddressException;
-import jakarta.mail.internet.InternetAddress;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Author: Rituraj Azad
@@ -30,10 +26,10 @@ public class ForgotUsernameServiceImpl extends ForgotUsernameService {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(ForgotUsernameServiceImpl.class);
     @Autowired
-    private ContactRepo contactRepo;
+    ContactRepo contactRepo;
 
     @Autowired
-    private UnicelSmsService unicelSmsService;
+    UnicelSmsService unicelSmsService;
 
     @Autowired
     private AWSEmailService awsEmailService;
@@ -68,10 +64,6 @@ public class ForgotUsernameServiceImpl extends ForgotUsernameService {
                 // Send email with username
                 EmailTemplate emailTemplate = new EmailTemplate();
                 emailTemplate.setTo(emailId);
-               /* String toList = emailId;
-                toList = toList + "," + "lli-support@wipro.com";
-                InternetAddress[] emailToList = getAddressList(toList);
-                emailTemplate.setTo(Arrays.toString(emailToList));*/
                 emailTemplate.setSubject("Your login details registered with JCB LiveLink");
                 String body = "<html><body>" +
                         "Hello " + firstName + ",<br><br>\n" +
@@ -96,23 +88,5 @@ public class ForgotUsernameServiceImpl extends ForgotUsernameService {
             log.error("Error retrieving username: {}", e.getMessage(), e);
             return new MsgResponseTemplate("An unexpected error occurred. Please try again later.", false);
         }
-    }
-
-    public InternetAddress[] getAddressList(String toList) {
-        List<InternetAddress> emails = new LinkedList<>();
-        String[] address = toList.split(",");
-
-        for (String tempAddress : address) {
-            tempAddress = tempAddress.trim();
-            if (!tempAddress.isEmpty()) {
-                try {
-                    emails.add(new InternetAddress(tempAddress));
-                } catch (AddressException e) {
-                    log.error("Exception: {}", e.getMessage());
-                }
-            }
-        }
-
-        return emails.toArray(new InternetAddress[0]);
     }
 }

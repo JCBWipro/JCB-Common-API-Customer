@@ -9,7 +9,6 @@ import com.wipro.jcb.livelink.app.auth.entity.*;
 import com.wipro.jcb.livelink.app.auth.exception.UsernameNotFoundException;
 import com.wipro.jcb.livelink.app.auth.model.MsgResponseTemplate;
 import com.wipro.jcb.livelink.app.auth.repo.ContactRepo;
-import com.wipro.jcb.livelink.app.auth.repo.UserRepository;
 import com.wipro.jcb.livelink.app.auth.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,28 +28,25 @@ public class AuthController {
 
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     @Autowired
-    private AuthService authService;
+    AuthService authService;
 
     @Autowired
-    private JwtService jwtService;
+    JwtService jwtService;
 
     @Autowired
-    private RefreshTokenService refreshTokenService;
+    RefreshTokenService refreshTokenService;
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    AuthenticationManager authenticationManager;
 
     @Autowired
-    private ResetPasswordService resetPasswordService;
+    ResetPasswordService resetPasswordService;
 
     @Autowired
-    private ContactRepo contactRepo;
+    ContactRepo contactRepo;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private ContactPasswordUpdateService contactPasswordUpdateService;
+    ContactPasswordUpdateService contactPasswordUpdateService;
 
     @PostMapping("/register")
     public String saveContact(@RequestBody ContactEntity contactEntity) {
@@ -62,9 +58,6 @@ public class AuthController {
         contactEntity.setPassword(autoGenPassword);
         System.out.println("Password is :" + contactEntity.getPassword());
         contactEntity.setPassword(new BCryptPasswordEncoder().encode(contactEntity.getPassword()));
-        String encrpyptPwd = contactEntity.getPassword();
-        RoleEntity roleEntity = new RoleEntity();
-
 
         IndustryEntity industryEntity = new IndustryEntity();
         industryEntity.setIndustry_id(1);

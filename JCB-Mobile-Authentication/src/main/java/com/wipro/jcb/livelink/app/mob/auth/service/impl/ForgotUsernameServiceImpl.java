@@ -68,10 +68,6 @@ public class ForgotUsernameServiceImpl extends ForgotUsernameService {
                 // Send email with username
                 EmailTemplate emailTemplate = new EmailTemplate();
                 emailTemplate.setTo(emailId);
-               /* String toList = emailId;
-                toList = toList + "," + "lli-support@wipro.com";
-                InternetAddress[] emailToList = getAddressList(toList);
-                emailTemplate.setTo(Arrays.toString(emailToList));*/
                 emailTemplate.setSubject("Your login details registered with JCB LiveLink");
                 String body = "<html><body>" +
                         "Hello " + firstName + ",<br><br>\n" +
@@ -96,23 +92,5 @@ public class ForgotUsernameServiceImpl extends ForgotUsernameService {
             log.error("Error retrieving username: {}", e.getMessage(), e);
             return new MsgResponseTemplate("An unexpected error occurred. Please try again later.", false);
         }
-    }
-
-    public InternetAddress[] getAddressList(String toList) {
-        List<InternetAddress> emails = new LinkedList<>();
-        String[] address = toList.split(",");
-
-        for (String tempAddress : address) {
-            tempAddress = tempAddress.trim();
-            if (!tempAddress.isEmpty()) {
-                try {
-                    emails.add(new InternetAddress(tempAddress));
-                } catch (AddressException e) {
-                    log.error("Exception: {}", e.getMessage());
-                }
-            }
-        }
-
-        return emails.toArray(new InternetAddress[0]);
     }
 }

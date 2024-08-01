@@ -1,8 +1,8 @@
-package com.wipro.jcb.livelink.app.auth.service;
+package com.wipro.jcb.livelink.app.mob.auth.service;
 
-import com.wipro.jcb.livelink.app.auth.entity.ContactEntity;
-import com.wipro.jcb.livelink.app.auth.exception.UsernameNotFoundException;
-import com.wipro.jcb.livelink.app.auth.repo.ContactRepo;
+import com.wipro.jcb.livelink.app.mob.auth.entity.User;
+import com.wipro.jcb.livelink.app.mob.auth.exception.UsernameNotFoundException;
+import com.wipro.jcb.livelink.app.mob.auth.repo.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,35 +12,36 @@ import org.springframework.stereotype.Service;
 /**
  * Author: Rituraj Azad
  * User: RI20474447
- * Date:30-07-2024
+ * Date:31-07-2024
  * project: JCB-Common-API-Customer
  */
 @Service
-public class ContactPasswordUpdateService {
+public class UserPasswordUpdateService {
 
-    private static final Logger log = LoggerFactory.getLogger(ContactPasswordUpdateService.class);
+    private static final Logger log = LoggerFactory.getLogger(UserPasswordUpdateService.class);
     @Autowired
-    ContactRepo contactRepo;
+    UserRepository userRepository;
 
     public int isFirstLogin(String userName) {
-        return contactRepo.checkSysGenPassByContactID(userName);
+        return userRepository.checkSysGenPassByUserID(userName);
     }
+
     public void updatePassword(String username, String newPassword) throws UsernameNotFoundException {
-        ContactEntity contactEntity=contactRepo.findByUserContactId(username);
-        if (contactEntity != null) {
-            contactEntity.setPassword(newPassword);
-            log.info("New Password is :{}",newPassword);
+        User user = userRepository.findByUserUserId(username);
+        if (user != null) {
+            user.setPassword(newPassword);
+            log.info("New Password is :{}", newPassword);
             // Reset the first login flag after updating the password
-            contactEntity.setSysGeneratedPassword(0);
-            contactEntity.setPassword(new BCryptPasswordEncoder().encode(newPassword));
-            contactRepo.save(contactEntity);
+            user.setSysGenPass(0);
+            user.setPassword(new BCryptPasswordEncoder().encode(newPassword));
+            userRepository.save(user);
         } else {
             throw new UsernameNotFoundException("User not found");
         }
     }
 
     public boolean isValidPassword(String password) {
-        if (password == null || password.length() < 12 || password.length() > 45) {
+        if (password == null || password.length() < 12 || password.length() > 20) {
             return false;
         }
 
