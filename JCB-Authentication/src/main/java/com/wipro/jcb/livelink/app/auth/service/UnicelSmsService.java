@@ -29,7 +29,7 @@ import java.util.List;
 public class UnicelSmsService {
     private static final Logger log = LoggerFactory.getLogger(UnicelSmsService.class);
     @Autowired
-    private UnicelConfig unicelConfig;
+    UnicelConfig unicelConfig;
 
     public void sendSms(SMSTemplate smsTemplate) throws IOException {
         List<MsgResponseTemplate> responseTemplates = new ArrayList<>();
@@ -68,7 +68,7 @@ public class UnicelSmsService {
         beforeUrl = beforeUrl.replaceAll("%", "%25");
         beforeUrl = beforeUrl.replaceAll("\\s", "%20");
         beforeUrl = beforeUrl.replaceAll("#", "%23");
-        beforeUrl = beforeUrl.replaceAll("@", "%40");
+        //beforeUrl = beforeUrl.replaceAll("@", "%40");
         beforeUrl = beforeUrl.replaceAll("!", "%21");
         beforeUrl = beforeUrl.replaceAll(">", "%3E");
         log.info("Unicel URL is : {}", beforeUrl);
