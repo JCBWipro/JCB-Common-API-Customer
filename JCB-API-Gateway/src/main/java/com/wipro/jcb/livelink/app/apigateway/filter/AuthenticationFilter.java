@@ -7,6 +7,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 
 import com.wipro.jcb.livelink.app.apigateway.config.BlackList;
+import com.wipro.jcb.livelink.app.apigateway.exception.TokenException;
 import com.wipro.jcb.livelink.app.util.JwtUtils;
 import com.google.common.net.HttpHeaders;
 
@@ -35,7 +36,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 			if (routeValidater.isSecured.test(exchange.getRequest())) {
 				// header contains token or not
 				if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
-					throw new RuntimeException("Missing Authorization Header");
+					throw new TokenException("Missing Authentication Header. Please Pass Token in Authentication Header");
 				}
 
 				// If Header contains the token, then get that header
@@ -52,7 +53,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 					jwtUtils.validateToken(authHeader);
 					role = exchange.getRequest().mutate().header("LoggedInUserRole", jwtUtils.extractRole(authHeader)).build();
 				}catch(Exception e) {
-					throw new RuntimeException("UnAuthorized Access to the Application");
+					throw new TokenException("Token is Expired. Please Login Again and Try Generating a New Token");
 				}
 			}
             return chain.filter(exchange.mutate().request(role).build());
