@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "72b8d952-6c19-47dd-be94-25520f1083a8",
 		"name": "01_JCB_Sprint1_Collection",
-		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "34553884"
 	},
 	"item": [
@@ -20,7 +20,19 @@
 						}
 					}
 				},
-				"url": "http://localhost:8088/auth/web/register"
+				"url": {
+					"raw": "http://localhost:8088/auth/web/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"auth",
+						"web",
+						"register"
+					]
+				}
 			},
 			"response": []
 		},
@@ -38,7 +50,19 @@
 						}
 					}
 				},
-				"url": "http://localhost:8088/auth/web/login"
+				"url": {
+					"raw": "http://localhost:8088/auth/web/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"auth",
+						"web",
+						"login"
+					]
+				}
 			},
 			"response": []
 		},
@@ -56,7 +80,19 @@
 						}
 					}
 				},
-				"url": "http://localhost:8088/auth/web/refreshToken"
+				"url": {
+					"raw": "http://localhost:8088/auth/web/refreshToken",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"auth",
+						"web",
+						"refreshToken"
+					]
+				}
 			},
 			"response": []
 		},
@@ -74,7 +110,19 @@
 						}
 					}
 				},
-				"url": "http://localhost:8088/auth/web/resetPassword"
+				"url": {
+					"raw": "http://localhost:8088/auth/web/resetPassword",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"auth",
+						"web",
+						"resetPassword"
+					]
+				}
 			},
 			"response": []
 		},
@@ -92,7 +140,19 @@
 						}
 					}
 				},
-				"url": "http://localhost:9898/auth/web/forgotUsername"
+				"url": {
+					"raw": "http://localhost:9898/auth/web/forgotUsername",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9898",
+					"path": [
+						"auth",
+						"web",
+						"forgotUsername"
+					]
+				}
 			},
 			"response": []
 		},
@@ -101,7 +161,19 @@
 			"request": {
 				"method": "GET",
 				"header": [],
-				"url": "http://localhost:8088/auth/mob/registerUser"
+				"url": {
+					"raw": "http://localhost:8088/auth/mob/registerUser",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"auth",
+						"mob",
+						"registerUser"
+					]
+				}
 			},
 			"response": []
 		},
@@ -119,7 +191,19 @@
 						}
 					}
 				},
-				"url": "http://localhost:8080/auth/mob/login"
+				"url": {
+					"raw": "http://localhost:8080/auth/mob/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"auth",
+						"mob",
+						"login"
+					]
+				}
 			},
 			"response": []
 		},
@@ -137,7 +221,19 @@
 						}
 					}
 				},
-				"url": "http://localhost:8088/auth/mob/refreshToken"
+				"url": {
+					"raw": "http://localhost:8088/auth/mob/refreshToken",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"auth",
+						"mob",
+						"refreshToken"
+					]
+				}
 			},
 			"response": []
 		},
@@ -146,7 +242,18 @@
 			"request": {
 				"method": "GET",
 				"header": [],
-				"url": "http://localhost:8088/api/user"
+				"url": {
+					"raw": "http://localhost:8088/api/user",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"api",
+						"user"
+					]
+				}
 			},
 			"response": []
 		},
@@ -164,7 +271,19 @@
 						}
 					}
 				},
-				"url": "http://localhost:8088/auth/mob/resetPassword"
+				"url": {
+					"raw": "http://localhost:8088/auth/mob/resetPassword",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"auth",
+						"mob",
+						"resetPassword"
+					]
+				}
 			},
 			"response": []
 		},
@@ -182,7 +301,79 @@
 						}
 					}
 				},
-				"url": "http://localhost:9899/auth/mob/forgotUsername"
+				"url": {
+					"raw": "http://localhost:9899/auth/mob/forgotUsername",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9899",
+					"path": [
+						"auth",
+						"mob",
+						"forgotUsername"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/auth/web/updatePassword",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\":\"Azad316858\",\r\n    \"newPassword\":\"123456@Azad1\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9898/auth/web/updatePassword",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9898",
+					"path": [
+						"auth",
+						"web",
+						"updatePassword"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/auth/mob/updatePassword",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\":\"Ritu388896\",\r\n    \"newPassword\":\"123456@Azad1\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9899/auth/mob/updatePassword",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9899",
+					"path": [
+						"auth",
+						"mob",
+						"updatePassword"
+					]
+				}
 			},
 			"response": []
 		}
