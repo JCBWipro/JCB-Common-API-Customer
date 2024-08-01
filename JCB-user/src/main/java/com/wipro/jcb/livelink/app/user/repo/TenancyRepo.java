@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.wipro.jcb.livelink.app.user.entity.TenancyEntity;
+import com.wipro.jcb.livelink.app.user.reponse.AccountTenancyReponse;
 
 /**
  * Author: Vikas Singh
@@ -17,6 +18,6 @@ import com.wipro.jcb.livelink.app.user.entity.TenancyEntity;
 @Repository
 public interface TenancyRepo extends JpaRepository<TenancyEntity, Integer> {
 	
-	@Query(nativeQuery = true, value = "select acc.Account_ID, acc.Account_Name, acc.Account_Code, acc.mapping_code,at.Tenancy_ID,ten.Tenancy_Name from wise.account acc, account_tenancy at,tenancy ten where acc.mapping_code in (select mapping_code from wise.account where MAFlag=1 ) and acc.account_id = at.account_id and at.Tenancy_ID = ten.Tenancy_ID")
-    List<Object[]> getPseudoTenancyList();
+	@Query(nativeQuery = true, value = "select acc.Account_ID as AccountId, acc.Account_Name as AccountName, acc.Account_Code as AccountCode, acc.mapping_code as MappingCode,at.Tenancy_ID as TenancyId,ten.Tenancy_Name as TenancyName from wise.account acc, account_tenancy at,tenancy ten where acc.mapping_code in (select mapping_code from wise.account where MAFlag=1 ) and acc.account_id = at.account_id and at.Tenancy_ID = ten.Tenancy_ID")
+    List<AccountTenancyReponse> getPseudoTenancyList();
 }

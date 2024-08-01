@@ -1,7 +1,5 @@
 package com.wipro.jcb.livelink.app.user.service;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +7,7 @@ import com.wipro.jcb.livelink.app.user.businessObject.UserDetailsBO;
 import com.wipro.jcb.livelink.app.user.entity.ContactEntity;
 import com.wipro.jcb.livelink.app.user.entity.RoleEntity;
 import com.wipro.jcb.livelink.app.user.repo.ContactRepo;
+import com.wipro.jcb.livelink.app.user.reponse.UserDetailsReponse;
 
 @Service
 public class UserDetailsBOService {
@@ -17,21 +16,22 @@ public class UserDetailsBOService {
 	private ContactRepo contactRepo;
 	
 	public UserDetailsBO getUserDetails(String userName) {
+		UserDetailsReponse repoResult = contactRepo.findContactByContactId(userName);
+		
 		ContactEntity contactEntity = new ContactEntity();
-		List<Object[]> repoResult = contactRepo.findContactByContactId(userName);
-		for(Object[] obj : repoResult) {
-			contactEntity.setContactId(obj[0].toString());
-			contactEntity.setFirst_name(obj[1].toString());
-			contactEntity.setLast_name(obj[2].toString());
-			contactEntity.setIs_tenancy_admin((int)obj[3]);
-			contactEntity.setSysGeneratedPassword((int)obj[4]);
-			RoleEntity roleEntity = new RoleEntity();
-            roleEntity.setRole_id((int) obj[5]);
-            contactEntity.setRole(roleEntity);
-		}
+		contactEntity.setContactId(repoResult.getContactId());
+		contactEntity.setFirst_name(repoResult.getFirstname());
+		contactEntity.setLast_name(repoResult.getLastname());
+		contactEntity.setIs_tenancy_admin(repoResult.getIsTenancyAdmin());
+		contactEntity.setSysGeneratedPassword(repoResult.getSysGeneratedPassword());
+		RoleEntity roleEntity = new RoleEntity();
+		roleEntity.setRole_id(repoResult.getRoleId());
+		contactEntity.setRole(roleEntity);
+
 		UserDetailsBO userDetailsBO = new UserDetailsBO();
 		userDetailsBO.setContact(contactEntity);
-		userDetailsBO.setAccount_id(contactRepo.getAccountObjByUsername(userName));
+		userDetailsBO.setAccount_id(contactRepo.getAccountDetailsByUsername(userName));
+		
 		return userDetailsBO;
 	}
 
