@@ -4,10 +4,15 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/java
 
 trigger:
-- main
+- Team-NextGen
 
 pool:
   vmImage: ubuntu-latest
+  
+variables:
+  springDatasourceUrl: 'jdbc:mysql://10.210.196.240:3306/wise'
+  springDatasourceUserName: 'root'
+  springDatasourcePassword: 'root@123#'
 
 steps:
 - task: Maven@3
