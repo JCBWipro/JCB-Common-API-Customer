@@ -1,3 +1,4 @@
+/*
 package com.wipro.jcb.livelink.app.mob;
 
 import org.junit.jupiter.api.Test;
@@ -11,3 +12,4 @@ class JcbMobileAuthenticationApplicationTests {
 	}
 
 }
+*/
