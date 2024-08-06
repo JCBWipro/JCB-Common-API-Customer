@@ -6,6 +6,7 @@
 
 trigger:
   - Team-NextGen
+  - main
 
 pool:
   vmImage: windows-latest
