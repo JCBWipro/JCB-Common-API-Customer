@@ -1,15 +1,16 @@
 package com.wipro.jcb.livelink.app.auth.repo;
 
 
-import com.wipro.jcb.livelink.app.auth.entity.ContactEntity;
-import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.wipro.jcb.livelink.app.auth.entity.ContactEntity;
+import com.wipro.jcb.livelink.app.auth.reponse.ContactResponse;
+
+import jakarta.transaction.Transactional;
 
 /**
  * Author: Rituraj Azad
@@ -20,8 +21,8 @@ import java.util.List;
 @Repository
 public interface ContactRepo extends JpaRepository<ContactEntity, String> {
 
-    @Query(nativeQuery = true, value = "SELECT Contact_ID, Password, Role_ID FROM wise.contact where Contact_ID=:userName")
-    List<Object[]> findByContactId(@Param("userName") String userName);
+    @Query(nativeQuery = true, value = "SELECT Contact_ID as ContactId, Password, Role_ID as RoleId FROM wise.contact where Contact_ID=:userName")
+    ContactResponse findByContactId(@Param("userName") String userName);
 
     @Transactional
     @Modifying
