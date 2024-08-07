@@ -98,8 +98,8 @@ public class AuthController {
                 // Reset login attempts on successful login
                 contactRepo.userLoginResetAttempts(username);
                 RefreshToken refreshToken = refreshTokenService.createRefreshToken(authRequest.getUsername());
-                jwtResponse.setAccessToken(jwtService.generateToken(authRequest.getUsername(), roleName));
-                jwtResponse.setToken(refreshToken.getToken());
+                jwtResponse.setJwtToken(jwtService.generateToken(authRequest.getUsername(), roleName));
+                jwtResponse.setTokenId(refreshToken.getToken());
                 return jwtResponse;
             } else {
 
@@ -145,10 +145,10 @@ public class AuthController {
                 .map(RefreshToken::getContactEntity)
                 .map(contactEntity -> {
                     String roleName = AuthCommonutils.getRolesByID(String.valueOf(contactEntity.getRole().getRole_id()));
-                    String accessToken = jwtService.generateToken(contactEntity.getContactId(), roleName);
+                    String jwtToken = jwtService.generateToken(contactEntity.getContactId(), roleName);
                     JwtResponse jwtResponse = new JwtResponse();
-                    jwtResponse.setAccessToken(accessToken);
-                    jwtResponse.setToken(refreshTokenRequest.getToken());
+                    jwtResponse.setJwtToken(jwtToken);
+                    jwtResponse.setTokenId(refreshTokenRequest.getToken());
                     return jwtResponse;
                 }).orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
     }

@@ -7,6 +7,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 
 import com.wipro.jcb.livelink.app.apigateway.config.BlackList;
+import com.wipro.jcb.livelink.app.apigateway.constants.ApiGatewayConstants;
 import com.wipro.jcb.livelink.app.apigateway.exception.TokenException;
 import com.wipro.jcb.livelink.app.util.JwtUtils;
 import com.google.common.net.HttpHeaders;
@@ -36,12 +37,12 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 			if (routeValidater.isSecured.test(exchange.getRequest())) {
 				// header contains token or not
 				if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
-					throw new TokenException("Missing Authentication Header. Please Pass Token in Authentication Header");
+					throw new TokenException(ApiGatewayConstants.MISSING_AUTHORIZATION_HEADER);
 				}
 
 				// If Header contains the token, then get that header
 				String authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
-				if(authHeader!=null && authHeader.startsWith("Bearer ")) {
+				if(authHeader!=null && authHeader.startsWith(ApiGatewayConstants.BEARER)) {
 					//Removing Extra 7 Spaces contains in Bearer Token
 					authHeader=authHeader.substring(7);
 				}
@@ -51,9 +52,9 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 //				}
 				try {
 					jwtUtils.validateToken(authHeader);
-					role = exchange.getRequest().mutate().header("LoggedInUserRole", jwtUtils.extractRole(authHeader)).build();
+					role = exchange.getRequest().mutate().header(ApiGatewayConstants.LOGGED_IN_USER_ROLE, jwtUtils.extractRole(authHeader)).build();
 				}catch(Exception e) {
-					throw new TokenException("Token is Expired. Please Login Again and Try Generating a New Token");
+					throw new TokenException(ApiGatewayConstants.INVALID_TOKEN);
 				}
 			}
             return chain.filter(exchange.mutate().request(role).build());
