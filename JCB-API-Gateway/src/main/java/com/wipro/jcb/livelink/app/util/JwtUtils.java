@@ -6,6 +6,8 @@ import java.util.function.Function;
 
 import org.springframework.stereotype.Component;
 
+import com.wipro.jcb.livelink.app.apigateway.constants.ApiGatewayConstants;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -30,14 +32,14 @@ public class JwtUtils {
     public String extractRole(String token) {
     	String userName = extractClaim(token, Claims::getSubject);
     	HashMap<String, String> map = new HashMap<>();
-    	map.put("userName", userName);
-    	map.put("roleName", role);
+    	map.put(ApiGatewayConstants.USERNAME, userName);
+    	map.put(ApiGatewayConstants.ROLENAME, role);
     	return map.toString();
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
-        role = claims.get("roles", String.class);
+        role = claims.get(ApiGatewayConstants.ROLES, String.class);
         return claimsResolver.apply(claims);
     }
 

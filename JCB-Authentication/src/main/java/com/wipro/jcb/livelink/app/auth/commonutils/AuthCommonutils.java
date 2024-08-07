@@ -1,12 +1,12 @@
 package com.wipro.jcb.livelink.app.auth.commonutils;
 
-import com.wipro.jcb.livelink.app.auth.entity.ContactEntity;
-import com.wipro.jcb.livelink.app.auth.entity.RoleEntity;
-
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import com.wipro.jcb.livelink.app.auth.entity.ContactEntity;
+import com.wipro.jcb.livelink.app.auth.entity.RoleEntity;
+import com.wipro.jcb.livelink.app.auth.reponse.ContactResponse;
 
 public class AuthCommonutils {
 
@@ -19,15 +19,14 @@ public class AuthCommonutils {
         return map.get(roleId);
     }
 
-    public static ContactEntity convertObjectToDTO(List<Object[]> objects) {
+    public static ContactEntity convertObjectToDTO(ContactResponse contactReponse) {
         ContactEntity contactEntity = new ContactEntity();
-        for (Object[] object : objects) {
-            contactEntity.setContactId(object[0].toString());
-            contactEntity.setPassword(object[1].toString());
-            RoleEntity roleEntity = new RoleEntity();
-            roleEntity.setRole_id((int) object[2]);
-            contactEntity.setRole(roleEntity);
-        }
+        contactEntity.setContactId(contactReponse.getContactId());
+        contactEntity.setPassword(contactReponse.getPassword());
+        RoleEntity roleEntity = new RoleEntity();
+        roleEntity.setRole_id(contactReponse.getRoleId());
+        contactEntity.setRole(roleEntity);
+        
         return contactEntity;
     }
 

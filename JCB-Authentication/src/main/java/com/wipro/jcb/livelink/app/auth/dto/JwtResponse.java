@@ -1,38 +1,39 @@
 package com.wipro.jcb.livelink.app.auth.dto;
 
 public class JwtResponse {
-	
-	private String accessToken;
-    private String token;
-    private String error;
-    
-    public JwtResponse(String error) {
-    	this.error = "Authentication failed. Invalid username, password, or role.";
-    }
-    
-    public JwtResponse() {}
 
-	public JwtResponse(String accessToken, String token, String error) {
-		super();
-		this.accessToken = accessToken;
-		this.token = token;
+	private String jwtToken;
+	private String tokenId;
+	private String error;
+
+	public JwtResponse(String error) {
 		this.error = "Authentication failed. Invalid username, password, or role.";
 	}
 
-	public String getAccessToken() {
-		return accessToken;
+	public JwtResponse() {
 	}
 
-	public void setAccessToken(String accessToken) {
-		this.accessToken = accessToken;
+	public JwtResponse(String jwtToken, String tokenId, String error) {
+		super();
+		this.jwtToken = jwtToken;
+		this.tokenId = tokenId;
+		this.error = "Authentication failed. Invalid username, password, or role.";
 	}
 
-	public String getToken() {
-		return token;
+	public String getJwtToken() {
+		return jwtToken;
 	}
 
-	public void setToken(String token) {
-		this.token = token;
+	public void setJwtToken(String jwtToken) {
+		this.jwtToken = jwtToken;
+	}
+
+	public String getTokenId() {
+		return tokenId;
+	}
+
+	public void setTokenId(String tokenId) {
+		this.tokenId = tokenId;
 	}
 
 	public String getError() {
@@ -42,7 +43,5 @@ public class JwtResponse {
 	public void setError(String error) {
 		this.error = error;
 	}
-	
-	
-    
+
 }
