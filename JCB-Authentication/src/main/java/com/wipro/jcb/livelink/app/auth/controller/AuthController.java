@@ -48,9 +48,16 @@ public class AuthController {
     @Autowired
     ContactPasswordUpdateService contactPasswordUpdateService;
 
-    @PostMapping("/register")
-    public String saveContact(@RequestBody ContactEntity contactEntity) {
-
+    @GetMapping("/register")
+    public String saveContact() {
+    	
+    	ContactEntity contactEntity = new ContactEntity();
+    	contactEntity.setFirst_name("Gokul");
+        contactEntity.setLast_name("Aher");
+    	contactEntity.setPrimary_email_id("gokul.aher@wipro.com");
+        contactEntity.setPrimary_mobile_number("+919890091680");
+        
+        
         String username = AuthCommonutils.generateUsername(contactEntity.getFirst_name());
         contactEntity.setContactId(username);
         System.out.println("Username is :" + contactEntity.getContactId());
@@ -58,22 +65,32 @@ public class AuthController {
         contactEntity.setPassword(autoGenPassword);
         System.out.println("Password is :" + contactEntity.getPassword());
         contactEntity.setPassword(new BCryptPasswordEncoder().encode(contactEntity.getPassword()));
-
+        
+        RoleEntity roleEntity = new RoleEntity();
+        if(username.startsWith("g") || username.startsWith("G")) {
+        	roleEntity.setRole_id(1);
+        	roleEntity.setRole_name("JCB Account");
+        } else {
+        	roleEntity.setRole_id(8);
+        	roleEntity.setRole_name("Customer");
+        }
+        
         IndustryEntity industryEntity = new IndustryEntity();
         industryEntity.setIndustry_id(1);
         industryEntity.setIndustry_name("DIndustry");
 
         ClientEntity clientEntity = new ClientEntity();
         clientEntity.setClient_id(1);
-        // roleEntity.setRole_id(roleEntity.getRole_id());
         clientEntity.setClient_name("DClientname");
         clientEntity.setIndustry_id(industryEntity);
 
         contactEntity.setClient_id(clientEntity);
-        //Setting and Saving login credential in Mobile DB
+        contactEntity.setRole(roleEntity);
         contactRepo.save(contactEntity);
-
-        return "Contact Saved !!!";
+        
+        String response = "Contact Saved. ContactID:-"+contactEntity.getContactId()+", Password:-"+autoGenPassword+
+        		", Role:-"+roleEntity.getRole_name();
+        return response;
     }
 
 
