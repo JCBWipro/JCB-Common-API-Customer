@@ -60,10 +60,10 @@ public class AuthController {
         
         String username = AuthCommonutils.generateUsername(contactEntity.getFirst_name());
         contactEntity.setContactId(username);
-        System.out.println("Username is :" + contactEntity.getContactId());
+        log.info("Username is : {} ", contactEntity.getContactId());
         String autoGenPassword = resetPasswordService.generatePassword();
         contactEntity.setPassword(autoGenPassword);
-        System.out.println("Password is :" + contactEntity.getPassword());
+        log.info("Password is : {} ", contactEntity.getPassword());
         contactEntity.setPassword(new BCryptPasswordEncoder().encode(contactEntity.getPassword()));
         
         RoleEntity roleEntity = new RoleEntity();
@@ -74,6 +74,7 @@ public class AuthController {
         	roleEntity.setRole_id(8);
         	roleEntity.setRole_name("Customer");
         }
+        log.info("Role Name is : {} ", roleEntity.getRole_name());
         
         IndustryEntity industryEntity = new IndustryEntity();
         industryEntity.setIndustry_id(1);
