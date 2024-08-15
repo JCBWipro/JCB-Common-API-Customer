@@ -3,11 +3,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <modules>
-        <module>JCB-user</module>
         <module>JCB-Service-Registry</module>
-        <module>JCB-Authentication</module>
         <module>JCB-API-Gateway</module>
+        <module>JCB-Authentication</module>
         <module>JCB-Mobile-Authentication</module>
+        <module>JCB-user</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

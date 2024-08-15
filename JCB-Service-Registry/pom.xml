@@ -11,6 +11,7 @@
 	<groupId>com.wipro.jcb.livelink.app</groupId>
 	<artifactId>JCB-Service-Registry</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>JCB-Service-Registry</name>
 	<description>JCB-Service-Registry For the application</description>
 	<properties>
