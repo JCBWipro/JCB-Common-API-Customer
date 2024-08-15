@@ -1,13 +1,18 @@
 package com.wipro.jcb.livelink.app.auth.service;
 
 import com.wipro.jcb.livelink.app.auth.entity.ContactEntity;
-import com.wipro.jcb.livelink.app.auth.exception.UsernameNotFoundException;
+import com.wipro.jcb.livelink.app.auth.model.EmailTemplate;
+import com.wipro.jcb.livelink.app.auth.model.MsgResponseTemplate;
+import com.wipro.jcb.livelink.app.auth.model.SMSTemplate;
 import com.wipro.jcb.livelink.app.auth.repo.ContactRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
 
 /**
  * Author: Rituraj Azad
@@ -22,20 +27,67 @@ public class ContactPasswordUpdateService {
     @Autowired
     ContactRepo contactRepo;
 
+    @Autowired
+    UnicelSmsService unicelSmsService;
+
+    @Autowired
+    AWSEmailService awsEmailService;
+
+    @Value("${jcb.account.url}")
+    String jcbAccountUrl;
+
     public int isFirstLogin(String userName) {
         return contactRepo.checkSysGenPassByContactID(userName);
     }
-    public void updatePassword(String username, String newPassword) throws UsernameNotFoundException {
-        ContactEntity contactEntity=contactRepo.findByUserContactId(username);
-        if (contactEntity != null) {
-            contactEntity.setPassword(newPassword);
-            log.info("New Password is :{}",newPassword);
+
+    public MsgResponseTemplate updatePassword(String username, String newPassword) {
+        try {
+            //String firstName = contactRepo.findFirstNameFromID(username);
+            ContactEntity contactEntity = contactRepo.findByUserContactId(username);
+            if (contactEntity == null) {
+                return new MsgResponseTemplate("User not found", false);
+            }
+
+            String mobileNumber = contactEntity.getPrimary_mobile_number();
+            String emailId = contactEntity.getPrimary_email_id();
+
+            // Prepare and send SMS
+            if (mobileNumber != null && !mobileNumber.trim().isEmpty()) {
+                SMSTemplate smsTemplate = new SMSTemplate();
+                smsTemplate.setTo(Collections.singletonList(mobileNumber));
+                String body = "Your new password registered with JCB LiveLink is " + newPassword +
+                        " . JCB LiveLink Team.; Dt:";
+                smsTemplate.setMsgBody(Collections.singletonList(body));
+                unicelSmsService.sendSms(smsTemplate);
+            }
+
+            // Prepare and send email
+            if (emailId != null && !emailId.trim().isEmpty()) {
+                EmailTemplate emailTemplate = new EmailTemplate();
+                emailTemplate.setTo(emailId);
+                emailTemplate.setSubject("Your new password for JCB LiveLink");
+                String emailBody = "<html><body>" +
+                        "Hello,<br><br>\n" +
+                        "Your password for JCB LiveLink has been updated.<br><br>" +
+                        "Your new password is: " + newPassword + "<br><br>" +
+                        "Please use this password when you log in to LiveLink application next time..<br><br><br>\n" +
+                        "Application URL : <a href=\"" + jcbAccountUrl + "\">" + jcbAccountUrl + "</a><br><br><br>\n" +
+                        "With regards,<br>\n" +
+                        "JCB LiveLink Team." +
+                        "</body></html>";
+                emailTemplate.setBody(emailBody);
+                awsEmailService.sendEmail(emailTemplate);
+            }
             // Reset the first login flag after updating the password
-            contactEntity.setSysGeneratedPassword(0);
             contactEntity.setPassword(new BCryptPasswordEncoder().encode(newPassword));
+            contactEntity.setSysGeneratedPassword(0);
             contactRepo.save(contactEntity);
-        } else {
-            throw new UsernameNotFoundException("User not found");
+
+            return new MsgResponseTemplate("Password updated successfully", true);
+
+        } catch (Exception e) {
+            log.error("Error updating password: {}", e.getMessage(), e);
+            return new MsgResponseTemplate("An unexpected error occurred. Please try again later.", false);
         }
     }
 

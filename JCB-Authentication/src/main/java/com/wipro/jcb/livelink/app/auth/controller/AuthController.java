@@ -21,6 +21,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/auth/web")
@@ -37,7 +39,7 @@ public class AuthController {
     RefreshTokenService refreshTokenService;
 
     @Autowired
-    AuthenticationManager authenticationManager;
+    LoginService loginService;
 
     @Autowired
     ResetPasswordService resetPasswordService;
@@ -47,6 +49,9 @@ public class AuthController {
 
     @Autowired
     ContactPasswordUpdateService contactPasswordUpdateService;
+
+    @Autowired
+    AccountUnlockService accountUnlockService;
 
     @GetMapping("/register")
     public String saveContact() {
@@ -96,42 +101,22 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public JwtResponse getToken(@RequestBody AuthRequest authRequest) {
-        JwtResponse jwtResponse = new JwtResponse();
+    public ResponseEntity<JwtResponse> getToken(@RequestBody AuthRequest authRequest) {
+        log.info("Received login request for user: {}", authRequest.getUsername());
         try {
-
-            String username = authRequest.getUsername();
-
-            // Check login attempts
-            int attempts = contactRepo.userLoginGetAttempts(username);
-            if (attempts >= 5) {
-                jwtResponse.setError("Maximum login attempts reached. Account locked.");
-                return jwtResponse;
-            }
-            Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
-            String role = authenticate.getAuthorities().iterator().next().toString();
-            String roleName = AuthCommonutils.getRolesByID(role);
-            if (authenticate.isAuthenticated() && roleName.equals(authRequest.getRole())) {
-
-                // Reset login attempts on successful login
-                contactRepo.userLoginResetAttempts(username);
-                RefreshToken refreshToken = refreshTokenService.createRefreshToken(authRequest.getUsername());
-                jwtResponse.setJwtToken(jwtService.generateToken(authRequest.getUsername(), roleName));
-                jwtResponse.setTokenId(refreshToken.getToken());
-                return jwtResponse;
+            JwtResponse jwtResponse = loginService.authenticateAndGenerateToken(authRequest);
+            if (jwtResponse.getError() == null) {
+                log.info("Login successful for user: {}", authRequest.getUsername());
             } else {
-
-                // Increment login attempts on failed login
-                contactRepo.userLoginIncrementAttempts(username);
-                jwtResponse.setError("Authentication failed. Invalid username, password, or role.");
+                log.error("Login unsuccessful for user: {}. Error: {}", authRequest.getUsername(), jwtResponse.getError());
             }
+            return ResponseEntity.ok(jwtResponse);
         } catch (Exception e) {
-
-            contactRepo.userLoginIncrementAttempts(authRequest.getUsername());
-            jwtResponse.setError("Authentication failed. Invalid username, password, or role.");
-            System.out.println(e.getMessage());
+            log.error("An unexpected error occurred during login for user: {}", authRequest.getUsername(), e);
+            JwtResponse errorResponse = new JwtResponse();
+            errorResponse.setError("An unexpected error occurred.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
-        return jwtResponse;
     }
 
     //method to update password after 1st login
@@ -141,7 +126,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new MsgResponseTemplate("Password does not meet the requirements.", false));
         }
         try {
-            if (contactPasswordUpdateService.isFirstLogin(request.getUsername())==1) {
+            if (contactPasswordUpdateService.isFirstLogin(request.getUsername()) == 1) {
                 contactPasswordUpdateService.updatePassword(request.getUsername(), request.getNewPassword());
                 return ResponseEntity.ok(new MsgResponseTemplate("Password updated successfully.", true));
             } else {
@@ -175,6 +160,28 @@ public class AuthController {
     public String validateToken(@RequestParam("token") String token) {
         authService.validateToken(token);
         return "Token is valid";
+    }
+
+    @GetMapping("/unlockAccountsManually")
+    public ResponseEntity<String> unlockAccountsManually() {
+        log.info("Received request to manually unlock accounts.");
+        try {
+            List<ContactEntity> lockedUsers = contactRepo.findLockedUsers(); // Get locked users
+
+            if (lockedUsers.isEmpty()) {
+                log.info("No locked accounts found.");
+                return ResponseEntity.ok("No locked accounts found.");
+            }
+
+            accountUnlockService.unlockAccounts();
+            log.info("Successfully unlocked accounts manually.");
+            return ResponseEntity.ok("Accounts unlocked manually.");
+
+        } catch (Exception e) {
+            log.error("An error occurred while manually unlocking accounts.", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to unlock accounts manually.");
+        }
     }
 
 }

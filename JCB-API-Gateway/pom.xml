@@ -12,6 +12,7 @@
 	<groupId>com.wipro.jcb.livelink.app</groupId>
 	<artifactId>JCB-API-Gateway</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>JCB-API-Gateway</name>
 	<description>JCB-API-Gateway For the application</description>
 	<properties>

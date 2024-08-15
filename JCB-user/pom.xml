@@ -11,6 +11,7 @@
 	<groupId>com.wipro.jcb.livelink.app</groupId>
 	<artifactId>JCB-user</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>JCB-user</name>
 	<description>JCB user who uses the application</description>
 	<properties>

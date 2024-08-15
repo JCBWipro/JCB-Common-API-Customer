@@ -1,16 +1,16 @@
 package com.wipro.jcb.livelink.app.auth.repo;
 
 
+import com.wipro.jcb.livelink.app.auth.entity.ContactEntity;
+import com.wipro.jcb.livelink.app.auth.reponse.ContactResponse;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.wipro.jcb.livelink.app.auth.entity.ContactEntity;
-import com.wipro.jcb.livelink.app.auth.reponse.ContactResponse;
-
-import jakarta.transaction.Transactional;
+import java.util.List;
 
 /**
  * Author: Rituraj Azad
@@ -49,9 +49,9 @@ public interface ContactRepo extends JpaRepository<ContactEntity, String> {
     @Query(nativeQuery = true, value = "SELECT  First_Name FROM wise.contact WHERE Primary_Email_ID=:emailId")
     String findFirstNameFromID(@Param("emailId") String emailId);
 
-   /* For Reset Password attempts
-      Retrieves the count associated with a given user ID .
-      This query is executed as a native SQL query against the "wise.contact" table.*/
+    /* For Reset Password attempts
+       Retrieves the count associated with a given user ID .
+       This query is executed as a native SQL query against the "wise.contact" table.*/
     @Query(nativeQuery = true, value = "SELECT CAST(reset_pass_count AS UNSIGNED) FROM wise.contact WHERE Contact_ID=:userName")
     int resetPasswordGetAttempts(@Param("userName") String userName);
 
@@ -83,8 +83,18 @@ public interface ContactRepo extends JpaRepository<ContactEntity, String> {
     @Query(nativeQuery = true, value = "SELECT sys_gen_password FROM wise.contact WHERE Contact_ID = :userName")
     int checkSysGenPassByContactID(@Param("userName") String userName);
 
-
+    //This query is executed as a native SQL query against the "wise.contact" table for getting the username
     @Query(nativeQuery = true, value = "SELECT * FROM wise.contact WHERE Contact_ID = :username")
     ContactEntity findByUserContactId(@Param("username") String username);
+
+    //check which user accounts are locked
+    @Query(nativeQuery = true, value = "SELECT * FROM wise.contact WHERE (lockedOutTime IS NOT NULL AND errorLogCounter > 0) OR (lockedOutTime IS NOT NULL AND reset_pass_count > 0)")
+    List<ContactEntity> findLockedUsers();
+
+    //reset the locked account to Zero/Null
+    @Transactional
+    @Modifying
+    @Query(nativeQuery = true, value = "UPDATE wise.contact SET lockedOutTime = NULL , errorLogCounter = 0, reset_pass_count = 0 WHERE Contact_ID=:userName")
+    void unlockUserAccount(@Param("userName") String userName);
 
 }

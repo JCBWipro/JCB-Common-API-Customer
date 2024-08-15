@@ -12,6 +12,7 @@
     <groupId>com.wipro.jcb.livelink.app.mob</groupId>
     <artifactId>JCB-Mobile-Authentication</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <name>JCB-Mobile-Authentication</name>
     <description>Authentication for the Mobile User authentication</description>
     <properties>

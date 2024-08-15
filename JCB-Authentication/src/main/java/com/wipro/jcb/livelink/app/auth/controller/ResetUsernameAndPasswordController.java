@@ -21,22 +21,22 @@ public class ResetUsernameAndPasswordController {
     private static final Logger log = LoggerFactory.getLogger(ResetUsernameAndPasswordController.class);
 
     @Autowired
-    private ResetPasswordServiceImpl resetPasswordService;
+    ResetPasswordServiceImpl resetPasswordService;
 
     @Autowired
-    private ForgotUsernameServiceImpl forgotUsername;
+    ForgotUsernameServiceImpl forgotUsername;
 
     //API to reset the password and send to the user.
     @PostMapping("/resetPassword")
     public ResponseEntity<MsgResponseTemplate> processResetPassword(@RequestBody String userName) {
         MsgResponseTemplate msgResponseTemplate = resetPasswordService.resetPassword(userName);
         if (msgResponseTemplate.isSuccess()) {
-            log.info("Status is : {}", msgResponseTemplate);
+            log.info("Status is :- {}", msgResponseTemplate);
             return ResponseEntity.ok(msgResponseTemplate);
         } else {
             // Determine appropriate HTTP status based on the error message in the response
             HttpStatus status = msgResponseTemplate.getMessage().contains("Invalid username") ? HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
-            log.error("Status is : {} ", status);
+            log.error("Status is :- {} ", status);
             return ResponseEntity.status(status).body(msgResponseTemplate);
         }
     }

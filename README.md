@@ -1,52 +1,43 @@
-# JCB-Common-API-Customer
+# JCBLiveLink Microservices
 
-The Repository consist of Common-API-Customer
+This repository contains the source code for the JCBLiveLink microservices architecture.
 
-## Authentication API Endpoints
+## Services
 
-This API provides endpoints for user registration, authentication, token refresh, and password reset.
+The following microservices are included in this repository:
 
-### 1. User Registration
+* **JCB-Common-API-Customer:** This is the parent project containing common code and configurations shared by other
+  services.
+* **JCB-API-Gateway:** The API gateway acts as a single entry point for all external requests, routing them to the
+  appropriate microservices.
+* **JCB-Authentication:** Handles user authentication and authorization.
+* **JCB-Mobile-Authentication:** Provides authentication services specifically for mobile clients.
+* **JCB-Service-Registry:** Eureka server for service discovery and registration.
+* **JCB-User:** Manages user data and related operations.
 
-**Endpoint:** POST http://localhost:8080/auth/register
+## Architecture
 
-**Request Body (JSON):**
+The microservices communicate with each other using REST APIs and are designed to be independently deployable and
+scalable. Service discovery is handled by the JCB-Service-Registry (Eureka server).
 
-json {
-"contact_id":"Vikas123",
-"password":"pwd123",
-"primary_mobile_number":"1234567890",
-"primary_email_id":"abc@gmail.com",
-"first_name":"Vikas",
-"last_name":"Singh"
-}
+## Getting Started
 
-### 2. Authentication (Token Generation)
+To run the microservices locally, follow these steps:
 
-**Endpoint:** POST http://localhost:8080/auth/token
+1. **Prerequisites:** Ensure you have Java 17, Git, and any IDE (IntelliJ, Eclipse) installed on your system.
+2. **Clone the repository:** `git clone https://github.com/JCBWipro/JCB-Common-API-Customer.git`
+3. **Build the services:** Navigate to each service directory and run `mvn clean install`.
+4. **Start the service registry:** Run the JCB-Service-Registry service first.
+5. **Start other services:** Start the remaining services in any order.
 
-**Request Body (JSON):**
+## Deployment
 
-{
-"username":"Vikas",
-"password":"pwd123",
-"role":"ROLE_ADMIN"
-}
+The microservices can be deployed to various environments, including cloud platforms like AWS or on-premise servers.
 
-### 3. Token Refresh
+## Contributing
 
-**Endpoint:** POST http://localhost:8080/auth/refreshToken
+Contributions are welcome! Please follow the standard GitHub workflow for submitting pull requests.
 
-**Request Body (JSON):**
+## Contact
 
-{
-"token":"aa95669c-9e85-432f-82dd-bc4cee3472af"
-}
-
-### 4. Password Reset
-
-**Endpoint:** POST http://localhost:8080/auth/resetPassword
-
-**Request Body (Plain Text):**
-
-Vikas123
+For any questions or issues, please contact **Team-NextGen** at **Team-NextGen@wipro.com**

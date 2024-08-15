@@ -59,6 +59,8 @@ public class ContactEntity {
     private String timezone;
     @Column(name = "sys_gen_password")
     private int sysGeneratedPassword;
+    @Column(name = "lockedOutTime")
+    private Timestamp lockedOutTime;
     @Column(name = "LastUpdatedTime")
     private Timestamp LastUpdatedTime;
     @OneToOne(targetEntity = ClientEntity.class)

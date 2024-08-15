@@ -19,7 +19,7 @@ public class ForgotUsernameService {
 
     private static final Logger log = LoggerFactory.getLogger(ForgotUsernameService.class);
     @Autowired
-    private ContactRepo contactRepo; // Assuming you have a UserRepository
+    ContactRepo contactRepo; // Assuming you have a UserRepository
 
     public MsgResponseTemplate forgotUsername(String mobileNumber) {
         if (mobileNumber == null || mobileNumber.trim().isEmpty()) {
