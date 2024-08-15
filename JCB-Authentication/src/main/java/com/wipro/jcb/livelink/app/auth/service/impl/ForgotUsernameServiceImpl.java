@@ -32,10 +32,10 @@ public class ForgotUsernameServiceImpl extends ForgotUsernameService {
     UnicelSmsService unicelSmsService;
 
     @Autowired
-    private AWSEmailService awsEmailService;
+    AWSEmailService awsEmailService;
 
     @Value("${jcb.account.url}")
-    private String jcbAccountUrl;
+    String jcbAccountUrl;
 
     public MsgResponseTemplate forgotUsername(String mobileNumber, String emailId) {
         try {

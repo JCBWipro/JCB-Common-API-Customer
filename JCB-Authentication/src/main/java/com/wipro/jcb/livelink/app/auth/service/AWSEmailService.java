@@ -24,10 +24,10 @@ public class AWSEmailService {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(AWSEmailService.class);
     @Autowired
-    private JavaMailSender javaMailSender;
+    JavaMailSender javaMailSender;
 
     @Autowired
-    private AWSConfig awsConfig;
+    AWSConfig awsConfig;
 
     public void sendEmail(EmailTemplate emailTemplate) {
         List<MsgResponseTemplate> responseTemplates = new ArrayList<>();
