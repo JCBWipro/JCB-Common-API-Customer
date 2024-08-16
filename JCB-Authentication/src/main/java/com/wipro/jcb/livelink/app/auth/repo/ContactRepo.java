@@ -87,9 +87,13 @@ public interface ContactRepo extends JpaRepository<ContactEntity, String> {
     @Query(nativeQuery = true, value = "SELECT * FROM wise.contact WHERE Contact_ID = :username")
     ContactEntity findByUserContactId(@Param("username") String username);
 
-    //check which user accounts are locked
+    //check which user accounts are locked or not
     @Query(nativeQuery = true, value = "SELECT * FROM wise.contact WHERE (lockedOutTime IS NOT NULL AND errorLogCounter > 0) OR (lockedOutTime IS NOT NULL AND reset_pass_count > 0)")
     List<ContactEntity> findLockedUsers();
+
+    //check Specific user account is locked or not
+    @Query(nativeQuery = true, value = "SELECT Contact_ID FROM wise.contact WHERE Contact_ID= :contactID AND lockedOutTime IS NOT NULL AND (errorLogCounter > 5 OR reset_pass_count > 5)")
+    String findLockedUserByID(@Param("contactID") String contactID);
 
     //reset the locked account to Zero/Null
     @Transactional

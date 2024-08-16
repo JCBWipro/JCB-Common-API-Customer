@@ -65,7 +65,7 @@ public class ResetPasswordServiceImpl extends ResetPasswordService {
                     } catch (Exception e) {
                         log.error("Error locking account: {}", userName, e);
                     }
-                    return new MsgResponseTemplate("Maximum attempts reached for resetting the password.", false);
+                    return new MsgResponseTemplate("Maximum attempts reached for resetting the password...Account locked, Try Again tomorrow", false);
                 } else {
                     log.error("User not found: {}", userName);
                     return new MsgResponseTemplate("User not found.", false);

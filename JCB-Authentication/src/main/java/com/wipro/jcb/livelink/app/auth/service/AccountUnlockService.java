@@ -45,15 +45,39 @@ public class AccountUnlockService {
             if (lastLocked != null && lastLocked.isBefore(now)) {
                 log.info("Unlocking user:- {}", contactEntity.getContactId());
                 contactRepo.unlockUserAccount(contactEntity.getContactId());
-            } else {
-                if (lastLocked == null) {
-                    log.warn("User {} has null lastLocked value", contactEntity.getContactId());
-                } else {
-                    log.debug("User {} is not eligible for unlocking yet", contactEntity.getContactId());
-                }
             }
         }
-
         log.info("UnlockAccounts job completed.");
     }
+
+    public boolean unlockAccountByUserID(String contactID) {
+        log.info("Starting unlockAccounts job..");
+        LocalDateTime now = LocalDateTime.now();
+        String lockedUser = contactRepo.findLockedUserByID(contactID);
+
+        if (lockedUser != null) {
+            ContactEntity contactEntity = contactRepo.findByUserContactId(lockedUser);
+            if (contactEntity != null) {
+                LocalDateTime lastLocked = contactEntity.getLockedOutTime().toLocalDateTime();
+                if (lastLocked != null && lastLocked.isBefore(now)) {
+                    log.info("Unlocking user: {}", contactEntity.getContactId());
+                    contactRepo.unlockUserAccount(contactEntity.getContactId());
+                    log.info("User {} unlocked successfully.", contactEntity.getContactId());
+                    return true; // Return true if unlocked
+                } else if (lastLocked != null) {
+                    log.debug("User {} is not eligible for unlocking yet", contactEntity.getContactId());
+                    return false; // Return false if not eligible
+                } else {
+                    return false; // Return false for other cases within this block
+                }
+            } else {
+                log.warn("User {} not found in database.", lockedUser);
+                return false; // Return false if user not found
+            }
+        } else {
+            log.info("No locked user found with ID: {}", contactID);
+            return false; // Return false if no locked user found
+        }
+    }
 }
+
