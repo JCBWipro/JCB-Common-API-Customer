@@ -61,7 +61,7 @@ public class ForgotUsernameServiceImpl extends ForgotUsernameService {
                 if (username == null) {
                     return new MsgResponseTemplate("No user found with this email ID.", false);
                 }
-                // Send email with username
+                /*Send email with username*/
                 EmailTemplate emailTemplate = new EmailTemplate();
                 emailTemplate.setTo(emailId);
                 emailTemplate.setSubject("Your login details registered with JCB LiveLink");

@@ -13,11 +13,9 @@ import com.wipro.jcb.livelink.app.auth.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,14 +53,14 @@ public class AuthController {
 
     @GetMapping("/register")
     public String saveContact() {
-    	
-    	ContactEntity contactEntity = new ContactEntity();
-    	contactEntity.setFirst_name("Gokul");
+
+        ContactEntity contactEntity = new ContactEntity();
+        contactEntity.setFirst_name("Gokul");
         contactEntity.setLast_name("Aher");
-    	contactEntity.setPrimary_email_id("gokul.aher@wipro.com");
+        contactEntity.setPrimary_email_id("gokul.aher@wipro.com");
         contactEntity.setPrimary_mobile_number("+919890091680");
-        
-        
+
+
         String username = AuthCommonutils.generateUsername(contactEntity.getFirst_name());
         contactEntity.setContactId(username);
         log.info("Username is : {} ", contactEntity.getContactId());
@@ -70,17 +68,17 @@ public class AuthController {
         contactEntity.setPassword(autoGenPassword);
         log.info("Password is : {} ", contactEntity.getPassword());
         contactEntity.setPassword(new BCryptPasswordEncoder().encode(contactEntity.getPassword()));
-        
+
         RoleEntity roleEntity = new RoleEntity();
-        if(username.startsWith("g") || username.startsWith("G")) {
-        	roleEntity.setRole_id(1);
-        	roleEntity.setRole_name("JCB Account");
+        if (username.startsWith("g") || username.startsWith("G")) {
+            roleEntity.setRole_id(1);
+            roleEntity.setRole_name("JCB Account");
         } else {
-        	roleEntity.setRole_id(8);
-        	roleEntity.setRole_name("Customer");
+            roleEntity.setRole_id(8);
+            roleEntity.setRole_name("Customer");
         }
         log.info("Role Name is : {} ", roleEntity.getRole_name());
-        
+
         IndustryEntity industryEntity = new IndustryEntity();
         industryEntity.setIndustry_id(1);
         industryEntity.setIndustry_name("DIndustry");
@@ -93,9 +91,9 @@ public class AuthController {
         contactEntity.setClient_id(clientEntity);
         contactEntity.setRole(roleEntity);
         contactRepo.save(contactEntity);
-        
-        String response = "Contact Saved. ContactID:-"+contactEntity.getContactId()+", Password:-"+autoGenPassword+
-        		", Role:-"+roleEntity.getRole_name();
+
+        String response = "Contact Saved. ContactID:-" + contactEntity.getContactId() + ", Password:-" + autoGenPassword +
+                ", Role:-" + roleEntity.getRole_name();
         return response;
     }
 
@@ -163,24 +161,44 @@ public class AuthController {
     }
 
     @GetMapping("/unlockAccountsManually")
+    //@PreAuthorize("hasRole('Super Admin') and hasAuthority('12')")
     public ResponseEntity<String> unlockAccountsManually() {
-        log.info("Received request to manually unlock accounts.");
+        log.info("Received request to manually unlock users accounts.");
         try {
             List<ContactEntity> lockedUsers = contactRepo.findLockedUsers(); // Get locked users
 
             if (lockedUsers.isEmpty()) {
-                log.info("No locked accounts found.");
-                return ResponseEntity.ok("No locked accounts found.");
+                log.info("No locked users found.");
+                return ResponseEntity.ok("No locked users found.");
             }
 
             accountUnlockService.unlockAccounts();
             log.info("Successfully unlocked accounts manually.");
-            return ResponseEntity.ok("Accounts unlocked manually.");
+            return ResponseEntity.ok("Users Accounts unlocked manually.");
 
         } catch (Exception e) {
             log.error("An error occurred while manually unlocking accounts.", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to unlock accounts manually.");
+                    .body("Failed to unlock users accounts manually.");
+        }
+    }
+
+    @PostMapping("/unlockAccountByUserID")
+    //@PreAuthorize("hasRole('Super Admin') and hasAuthority('12')")
+    public ResponseEntity<String> unlockAccountManuallyByUserID(@RequestBody @Param("contactID") String contactID) {
+        try {
+            log.info("Received request to unlock account for user: {}", contactID);
+
+            if (accountUnlockService.unlockAccountByUserID(contactID)) { // Check if unlock was successful
+                log.info("Account unlocked successfully for user: {}", contactID);
+                return ResponseEntity.ok("Account unlocked successfully for user: " + contactID);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No user found to unlock with ID: " + contactID);
+            }
+
+        } catch (Exception e) {
+            log.error("An error occurred while unlocking account for user: {}", contactID, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to process unlock request.");
         }
     }
 
