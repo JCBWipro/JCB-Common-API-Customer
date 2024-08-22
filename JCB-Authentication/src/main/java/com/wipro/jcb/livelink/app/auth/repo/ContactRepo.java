@@ -1,6 +1,5 @@
 package com.wipro.jcb.livelink.app.auth.repo;
 
-
 import com.wipro.jcb.livelink.app.auth.entity.ContactEntity;
 import com.wipro.jcb.livelink.app.auth.reponse.ContactResponse;
 import jakarta.transaction.Transactional;
@@ -87,8 +86,8 @@ public interface ContactRepo extends JpaRepository<ContactEntity, String> {
     @Query(nativeQuery = true, value = "SELECT * FROM wise.contact WHERE Contact_ID = :username")
     ContactEntity findByUserContactId(@Param("username") String username);
 
-    //check which user accounts are locked
-    @Query(nativeQuery = true, value = "SELECT * FROM wise.contact WHERE (lockedOutTime IS NOT NULL AND errorLogCounter > 0) OR (lockedOutTime IS NOT NULL AND reset_pass_count > 0)")
+    //check which user accounts are locked or not
+    @Query(nativeQuery = true, value = "SELECT * FROM wise.contact WHERE (lockedOutTime IS NOT NULL AND errorLogCounter > 5) OR (lockedOutTime IS NOT NULL AND reset_pass_count > 5)")
     List<ContactEntity> findLockedUsers();
 
     //reset the locked account to Zero/Null
@@ -96,5 +95,15 @@ public interface ContactRepo extends JpaRepository<ContactEntity, String> {
     @Modifying
     @Query(nativeQuery = true, value = "UPDATE wise.contact SET lockedOutTime = NULL , errorLogCounter = 0, reset_pass_count = 0 WHERE Contact_ID=:userName")
     void unlockUserAccount(@Param("userName") String userName);
+
+    //check which user accounts errorLogCounter and reset_pass_count is more than Zero (0)
+    @Query(nativeQuery = true, value = "SELECT * FROM wise.contact WHERE (errorLogCounter > 0 OR reset_pass_count > 0)")
+    List<ContactEntity> findErrLogResetCount();
+
+    //reset the errorLogCounter and reset_pass_count to Zero
+    @Transactional
+    @Modifying
+    @Query(nativeQuery = true, value = "UPDATE wise.contact SET errorLogCounter = 0, reset_pass_count = 0 WHERE (errorLogCounter > 0 OR reset_pass_count > 0)")
+    void resetToZero(@Param("userName") String userName);
 
 }
