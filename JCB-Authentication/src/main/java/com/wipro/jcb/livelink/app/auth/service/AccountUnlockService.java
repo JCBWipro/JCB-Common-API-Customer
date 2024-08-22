@@ -5,6 +5,8 @@ import com.wipro.jcb.livelink.app.auth.repo.ContactRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -27,57 +29,60 @@ public class AccountUnlockService {
     @Autowired
     ContactRepo contactRepo;
 
+
     @Scheduled(cron = "${unlock.accounts.cron}")
-    public void unlockAccounts() {
+    public ResponseEntity<String> unlockAccounts() {
         log.info("Starting unlockAccounts job");
-        LocalDateTime now = LocalDateTime.now();
-        List<ContactEntity> lockedUsers = contactRepo.findLockedUsers();
+        try {
+            boolean accountsUnlocked = false;
+            boolean countersReset = false;
 
-        if (lockedUsers.isEmpty()) {
-            log.info("No locked users found.");
-            return;
-        }
-
-        log.info("Found {} locked users", lockedUsers.size());
-
-        for (ContactEntity contactEntity : lockedUsers) {
-            LocalDateTime lastLocked = contactEntity.getLockedOutTime().toLocalDateTime();
-            if (lastLocked != null && lastLocked.isBefore(now)) {
-                log.info("Unlocking user:- {}", contactEntity.getContactId());
-                contactRepo.unlockUserAccount(contactEntity.getContactId());
-            }
-        }
-        log.info("UnlockAccounts job completed.");
-    }
-
-    public boolean unlockAccountByUserID(String contactID) {
-        log.info("Starting unlockAccounts job..");
-        LocalDateTime now = LocalDateTime.now();
-        String lockedUser = contactRepo.findLockedUserByID(contactID);
-
-        if (lockedUser != null) {
-            ContactEntity contactEntity = contactRepo.findByUserContactId(lockedUser);
-            if (contactEntity != null) {
-                LocalDateTime lastLocked = contactEntity.getLockedOutTime().toLocalDateTime();
-                if (lastLocked != null && lastLocked.isBefore(now)) {
-                    log.info("Unlocking user: {}", contactEntity.getContactId());
-                    contactRepo.unlockUserAccount(contactEntity.getContactId());
-                    log.info("User {} unlocked successfully.", contactEntity.getContactId());
-                    return true; // Return true if unlocked
-                } else if (lastLocked != null) {
-                    log.debug("User {} is not eligible for unlocking yet", contactEntity.getContactId());
-                    return false; // Return false if not eligible
-                } else {
-                    return false; // Return false for other cases within this block
+            LocalDateTime now = LocalDateTime.now();
+            List<ContactEntity> lockedUsers = contactRepo.findLockedUsers();
+            if (!lockedUsers.isEmpty()) {
+                log.info("Found {} locked users", lockedUsers.size());
+                for (ContactEntity contactEntity : lockedUsers) {
+                    LocalDateTime lastLocked = contactEntity.getLockedOutTime().toLocalDateTime();
+                    if (lastLocked != null && lastLocked.isBefore(now)) {
+                        log.info("Unlocking user:- {}", contactEntity.getContactId());
+                        contactRepo.unlockUserAccount(contactEntity.getContactId());
+                        log.info("Unlocking completed for the user:- {}", contactEntity.getContactId());
+                    }
                 }
+                accountsUnlocked = true;
             } else {
-                log.warn("User {} not found in database.", lockedUser);
-                return false; // Return false if user not found
+                log.info("No Locked users found in the DB ...!!");
             }
-        } else {
-            log.info("No locked user found with ID: {}", contactID);
-            return false; // Return false if no locked user found
+
+            /* Retrieve users with errorLogCounter or reset_pass_count > 0
+             and then reset back it to Zero(0) */
+            List<ContactEntity> usersToReset = contactRepo.findErrLogResetCount();
+            if (!usersToReset.isEmpty()) {
+                log.info("Found {} users with errorLogCounter or reset_pass_count > 0", usersToReset.size());
+                for (ContactEntity contactEntity : usersToReset) {
+                    log.info("Resetting counters for user:- {}", contactEntity.getContactId());
+                    //Resetting back to Zero
+                    contactRepo.resetToZero(contactEntity.getContactId());
+                }
+                countersReset = true;
+            }
+
+            if (!accountsUnlocked && !countersReset) {
+                log.info("No locked accounts found and no errorLogCounter or reset_pass_count > 0");
+                return ResponseEntity.ok("No actions taken. No locked accounts or counter resets needed.");
+            } else if (accountsUnlocked) {
+                log.info("Successfully unlocked accounts.");
+                return ResponseEntity.ok("Accounts unlocked Successfully.");
+            } else {
+                log.info("Successfully reset errorLogCounter or reset_pass_count.");
+                return ResponseEntity.ok("Counters reset successfully.");
+            }
+        } catch (Exception e) {
+            log.error("An error occurred while unlocking accounts.", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to unlock accounts.");
         }
     }
+
 }
 

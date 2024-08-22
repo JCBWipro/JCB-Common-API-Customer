@@ -1,10 +1,7 @@
 package com.wipro.jcb.livelink.app.auth.controller;
 
 import com.wipro.jcb.livelink.app.auth.commonutils.AuthCommonutils;
-import com.wipro.jcb.livelink.app.auth.dto.AuthRequest;
-import com.wipro.jcb.livelink.app.auth.dto.JwtResponse;
-import com.wipro.jcb.livelink.app.auth.dto.PasswordUpdateRequest;
-import com.wipro.jcb.livelink.app.auth.dto.RefreshTokenRequest;
+import com.wipro.jcb.livelink.app.auth.dto.*;
 import com.wipro.jcb.livelink.app.auth.entity.*;
 import com.wipro.jcb.livelink.app.auth.exception.UsernameNotFoundException;
 import com.wipro.jcb.livelink.app.auth.model.MsgResponseTemplate;
@@ -13,13 +10,10 @@ import com.wipro.jcb.livelink.app.auth.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 
 @RestController
@@ -158,48 +152,6 @@ public class AuthController {
     public String validateToken(@RequestParam("token") String token) {
         authService.validateToken(token);
         return "Token is valid";
-    }
-
-    @GetMapping("/unlockAccountsManually")
-    //@PreAuthorize("hasRole('Super Admin') and hasAuthority('12')")
-    public ResponseEntity<String> unlockAccountsManually() {
-        log.info("Received request to manually unlock users accounts.");
-        try {
-            List<ContactEntity> lockedUsers = contactRepo.findLockedUsers(); // Get locked users
-
-            if (lockedUsers.isEmpty()) {
-                log.info("No locked users found.");
-                return ResponseEntity.ok("No locked users found.");
-            }
-
-            accountUnlockService.unlockAccounts();
-            log.info("Successfully unlocked accounts manually.");
-            return ResponseEntity.ok("Users Accounts unlocked manually.");
-
-        } catch (Exception e) {
-            log.error("An error occurred while manually unlocking accounts.", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to unlock users accounts manually.");
-        }
-    }
-
-    @PostMapping("/unlockAccountByUserID")
-    //@PreAuthorize("hasRole('Super Admin') and hasAuthority('12')")
-    public ResponseEntity<String> unlockAccountManuallyByUserID(@RequestBody @Param("contactID") String contactID) {
-        try {
-            log.info("Received request to unlock account for user: {}", contactID);
-
-            if (accountUnlockService.unlockAccountByUserID(contactID)) { // Check if unlock was successful
-                log.info("Account unlocked successfully for user: {}", contactID);
-                return ResponseEntity.ok("Account unlocked successfully for user: " + contactID);
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No user found to unlock with ID: " + contactID);
-            }
-
-        } catch (Exception e) {
-            log.error("An error occurred while unlocking account for user: {}", contactID, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to process unlock request.");
-        }
     }
 
 }
