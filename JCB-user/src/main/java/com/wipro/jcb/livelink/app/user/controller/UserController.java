@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
+import com.wipro.jcb.livelink.app.user.commonUtils.UserCommonUtils;
 import com.wipro.jcb.livelink.app.user.dto.UserAuthenticationRespContract;
 import com.wipro.jcb.livelink.app.user.dto.UserDetails;
 import com.wipro.jcb.livelink.app.user.service.UserAuthenticationResponseService;
@@ -26,7 +27,9 @@ public class UserController {
 	public String getString(@RequestHeader("LoggedInUserRole") String userDetails) {
 		Gson gson = new Gson();
 		UserDetails userResponse = gson.fromJson(userDetails, UserDetails.class);
-		return "LoggedIn Role is:-" + userResponse.getRoleName() + " and UserName is:-" + userResponse.getUserName();
+		int roleId = Integer.parseInt(userResponse.getRoleName());  
+		String roleName = UserCommonUtils.getRolesByID(roleId);
+		return "LoggedIn Role is:-" + roleName + " and UserName is:-" + userResponse.getUserName();
 	}
 
 	/*
