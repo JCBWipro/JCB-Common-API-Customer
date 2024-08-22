@@ -48,9 +48,6 @@ public class AuthController {
     @Autowired
     ContactPasswordUpdateService contactPasswordUpdateService;
 
-    @Autowired
-    AccountUnlockService accountUnlockService;
-
     @GetMapping("/register")
     public String saveContact() {
 
@@ -159,47 +156,4 @@ public class AuthController {
         authService.validateToken(token);
         return "Token is valid";
     }
-
-    @GetMapping("/unlockAccountsManually")
-    //@PreAuthorize("hasRole('Super Admin') and hasAuthority('12')")
-    public ResponseEntity<String> unlockAccountsManually() {
-        log.info("Received request to manually unlock users accounts.");
-        try {
-            List<ContactEntity> lockedUsers = contactRepo.findLockedUsers(); // Get locked users
-
-            if (lockedUsers.isEmpty()) {
-                log.info("No locked users found.");
-                return ResponseEntity.ok("No locked users found.");
-            }
-
-            accountUnlockService.unlockAccounts();
-            log.info("Successfully unlocked accounts manually.");
-            return ResponseEntity.ok("Users Accounts unlocked manually.");
-
-        } catch (Exception e) {
-            log.error("An error occurred while manually unlocking accounts.", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to unlock users accounts manually.");
-        }
-    }
-
-    @PostMapping("/unlockAccountByUserID")
-    //@PreAuthorize("hasRole('Super Admin') and hasAuthority('12')")
-    public ResponseEntity<String> unlockAccountManuallyByUserID(@RequestBody @Param("contactID") String contactID) {
-        try {
-            log.info("Received request to unlock account for user: {}", contactID);
-
-            if (accountUnlockService.unlockAccountByUserID(contactID)) { // Check if unlock was successful
-                log.info("Account unlocked successfully for user: {}", contactID);
-                return ResponseEntity.ok("Account unlocked successfully for user: " + contactID);
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No user found to unlock with ID: " + contactID);
-            }
-
-        } catch (Exception e) {
-            log.error("An error occurred while unlocking account for user: {}", contactID, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to process unlock request.");
-        }
-    }
-
 }
