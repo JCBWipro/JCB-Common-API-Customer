@@ -11,7 +11,6 @@ import com.wipro.jcb.livelink.app.user.businessObject.TenancyBO;
 import com.wipro.jcb.livelink.app.user.dto.UserAuthenticationRespContract;
 import com.wipro.jcb.livelink.app.user.entity.AccountTenancyMapping;
 import com.wipro.jcb.livelink.app.user.entity.TenancyEntity;
-import com.wipro.jcb.livelink.app.user.repo.AccountRepo;
 import com.wipro.jcb.livelink.app.user.repo.AccountTenancyMappingRepo;
 
 @Service
@@ -19,9 +18,6 @@ public class TenancyService {
 	
 	@Autowired
 	private AccountTenancyMappingRepo accountTenancyMappingRepo;
-	
-	@Autowired
-	private AccountRepo accountRepo;
 	
 	public TenancyBO getUserTenancy(String loginId, int accountId) {
 		
@@ -49,10 +45,6 @@ public class TenancyService {
 		tenancyBO.setTenancyNameIDProxyUser(tenancyNameIDProxyUser);
 		return tenancyBO;
 		
-	}
-	
-	public String getLLAccountCode(String accountCode) {
-		return accountRepo.findLLCodeByAccountCode(accountCode);
 	}
 	
 	public UserAuthenticationRespContract getTenancyObj(TenancyBO tenancy, UserAuthenticationRespContract userAuthenticationResponse) {

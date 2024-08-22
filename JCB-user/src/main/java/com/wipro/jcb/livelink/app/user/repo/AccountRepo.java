@@ -19,6 +19,4 @@ public interface AccountRepo extends JpaRepository<AccountEntity,Integer> {
 	@Query(nativeQuery = true, value = "SELECT country_name FROM wise.country_codes where country_code=:countryCode")
     String findCountryNameByCode(@Param("countryCode") String countryCode);
 	
-	@Query(nativeQuery = true, value = "SELECT LL_Code FROM wise.account_mapping where ECC_Code=:accountCode or CRM_Code=:accountCode")
-    String findLLCodeByAccountCode(@Param("accountCode") String accountCode);
 }
