@@ -20,13 +20,8 @@ public class UserAuthenticationRespContract {
 	
 	String user_name;
 	String loginId;
-	String last_login_date;
 	String role_name;
 	int roleId;
-	int isTenancyAdmin;
-	int sysGeneratedPassword;
-	boolean isSMS;
-	boolean isMap;
 	List<String> tenancyNameIDProxyUser ;
 
 }
