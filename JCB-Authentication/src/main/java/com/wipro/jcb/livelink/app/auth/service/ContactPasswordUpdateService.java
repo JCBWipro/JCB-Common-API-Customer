@@ -8,10 +8,14 @@ import com.wipro.jcb.livelink.app.auth.repo.ContactRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 /**
@@ -33,8 +37,6 @@ public class ContactPasswordUpdateService {
     @Autowired
     AWSEmailService awsEmailService;
 
-    @Value("${jcb.account.url}")
-    String jcbAccountUrl;
 
     public int isFirstLogin(String userName) {
         return contactRepo.checkSysGenPassByContactID(userName);
@@ -42,7 +44,6 @@ public class ContactPasswordUpdateService {
 
     public MsgResponseTemplate updatePassword(String username, String newPassword) {
         try {
-            //String firstName = contactRepo.findFirstNameFromID(username);
             ContactEntity contactEntity = contactRepo.findByUserContactId(username);
             if (contactEntity == null) {
                 return new MsgResponseTemplate("User not found", false);
@@ -63,20 +64,22 @@ public class ContactPasswordUpdateService {
 
             // Prepare and send email
             if (emailId != null && !emailId.trim().isEmpty()) {
-                EmailTemplate emailTemplate = new EmailTemplate();
-                emailTemplate.setTo(emailId);
-                emailTemplate.setSubject("Your new password for JCB LiveLink");
-                String emailBody = "<html><body>" +
-                        "Hello,<br><br>\n" +
-                        "Your password for JCB LiveLink has been updated.<br><br>" +
-                        "Your new password is: " + newPassword + "<br><br>" +
-                        "Please use this password when you log in to LiveLink application next time..<br><br><br>\n" +
-                        "Application URL : <a href=\"" + jcbAccountUrl + "\">" + jcbAccountUrl + "</a><br><br><br>\n" +
-                        "With regards,<br>\n" +
-                        "JCB LiveLink Team." +
-                        "</body></html>";
-                emailTemplate.setBody(emailBody);
-                awsEmailService.sendEmail(emailTemplate);
+                try {
+                    // Load the HTML template
+                    Resource resource = new ClassPathResource("password_update_email.html");
+                    InputStream inputStream = resource.getInputStream();
+                    String emailBody = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+
+                    // Replace placeholders with actual values
+                    emailBody = emailBody.replace("{{newPassword}}", newPassword);
+                    EmailTemplate emailTemplate = new EmailTemplate();
+                    emailTemplate.setTo(emailId);
+                    emailTemplate.setSubject("Your new password for JCB LiveLink");
+                    emailTemplate.setBody(emailBody);
+                    awsEmailService.sendEmail(emailTemplate);
+                } catch (IOException e) {
+                    log.error("Error reading email template: {}", e.getMessage(), e);
+                }
             }
             // Reset the first login flag after updating the password
             contactEntity.setPassword(new BCryptPasswordEncoder().encode(newPassword));
