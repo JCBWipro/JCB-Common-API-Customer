@@ -61,7 +61,7 @@ public class UserController {
         Gson gson = new Gson();
         UserDetails userResponse = gson.fromJson(userDetails, UserDetails.class);
         try {
-            if (userResponse.getRoleName().equals("Super Admin")) {
+            if (userResponse.getRoleName().equals("12")) {
                 ResponseEntity<String> unlockResult = userRoleCheckService.unlockAccounts();
 
                 // Check the status code from the unlockAccounts method
@@ -98,7 +98,7 @@ public class UserController {
         UserDetails userResponse = gson.fromJson(userDetails, UserDetails.class);
 
         try {
-            if (userResponse.getRoleName().equals("Super Admin")) {
+            if (userResponse.getRoleName().equals("12")) {
                 String lockedUser = contactRepo.findLockedUserByID(contactID);
 
                 if (lockedUser != null) {
