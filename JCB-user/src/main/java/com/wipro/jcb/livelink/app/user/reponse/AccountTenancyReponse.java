@@ -5,16 +5,16 @@ package com.wipro.jcb.livelink.app.user.reponse;
  */
 public interface AccountTenancyReponse {
 
-	public String getAccountId();
+	 String getAccountId();
 
-	public String getAccountName();
+	 String getAccountName();
 
-	public String getAccountCode();
+	 String getAccountCode();
 
-	public String getMappingCode();
+	 String getMappingCode();
 
-	public String getTenancyId();
+	 String getTenancyId();
 
-	public String getTenancyName();
+	 String getTenancyName();
 
 }

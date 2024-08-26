@@ -1,8 +1,13 @@
 package com.wipro.jcb.livelink.app.user.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * This UserDetails DTO is used to Handle Role and Username
  */
+@Setter
+@Getter
 public class UserDetails {
 
 	private String userName;
@@ -17,23 +22,7 @@ public class UserDetails {
 		this.roleName = roleName;
 	}
 
-	public String getUserName() {
-		return userName;
-	}
-
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
-
-	public String getRoleName() {
-		return roleName;
-	}
-
-	public void setRoleName(String roleName) {
-		this.roleName = roleName;
-	}
-
-	@Override
+    @Override
 	public String toString() {
 		return "UserDetails [userName=" + userName + ", roleName=" + roleName + "]";
 	}

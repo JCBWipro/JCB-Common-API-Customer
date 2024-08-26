@@ -4,7 +4,7 @@
     <property name="APP_NAME" value="JCB-User"/>
 
     <!-- Define the log file path and name -->
-    <property name="LOG_PATH" value="D:/JCB-Common-API-Customer/JCB-Common-API-Customer/JCB-MS-Logs/${APP_NAME}"/>
+    <property name="LOG_PATH" value="D:/JCB-Common-API-Customer/JCB-Common-API-Customer/MS-Logs/${APP_NAME}"/>
     <!--<property name="LOG_PATH" value="/data4/JCB_New_API_Jars/logs/${APP_NAME}"/>-->
 
     <!-- Console appender -->

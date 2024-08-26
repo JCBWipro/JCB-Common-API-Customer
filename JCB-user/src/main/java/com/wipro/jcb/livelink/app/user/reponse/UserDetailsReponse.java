@@ -5,18 +5,18 @@ package com.wipro.jcb.livelink.app.user.reponse;
  */
 public interface UserDetailsReponse {
 	
-	public String getContactId();
+	String getContactId();
 	
-	public String getFirstname();
+	String getFirstname();
 
-	public String getLastname();
+	String getLastname();
 
-	public Integer getIsTenancyAdmin();
+	Integer getIsTenancyAdmin();
 	
-	public Integer getSysGeneratedPassword();
+	Integer getSysGeneratedPassword();
 
-	public Integer getRoleId();
+	Integer getRoleId();
 
-	public Integer getAccountId();
+	Integer getAccountId();
 
 }

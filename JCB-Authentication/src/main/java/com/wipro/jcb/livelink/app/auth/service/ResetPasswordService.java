@@ -18,7 +18,7 @@ public class ResetPasswordService {
     private static final Logger log = LoggerFactory.getLogger(ResetPasswordService.class);
 
     @Autowired
-    private ContactRepo contactRepo;
+    ContactRepo contactRepo;
 
     private static final String LOWER = "abcdefghijklmnopqrstuvwxyz";
     private static final String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";

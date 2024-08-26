@@ -50,9 +50,6 @@ public class AuthController {
     @Autowired
     ContactPasswordUpdateService contactPasswordUpdateService;
 
-    @Autowired
-    AccountUnlockService accountUnlockService;
-
     @GetMapping("/register")
     public String saveContact() {
     	
@@ -160,28 +157,6 @@ public class AuthController {
     public String validateToken(@RequestParam("token") String token) {
         authService.validateToken(token);
         return "Token is valid";
-    }
-
-    @GetMapping("/unlockAccountsManually")
-    public ResponseEntity<String> unlockAccountsManually() {
-        log.info("Received request to manually unlock accounts.");
-        try {
-            List<ContactEntity> lockedUsers = contactRepo.findLockedUsers(); // Get locked users
-
-            if (lockedUsers.isEmpty()) {
-                log.info("No locked accounts found.");
-                return ResponseEntity.ok("No locked accounts found.");
-            }
-
-            accountUnlockService.unlockAccounts();
-            log.info("Successfully unlocked accounts manually.");
-            return ResponseEntity.ok("Accounts unlocked manually.");
-
-        } catch (Exception e) {
-            log.error("An error occurred while manually unlocking accounts.", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to unlock accounts manually.");
-        }
     }
 
 }
