@@ -66,7 +66,7 @@ public class ContactPasswordUpdateService {
             if (emailId != null && !emailId.trim().isEmpty()) {
                 try {
                     // Load the HTML template
-                    Resource resource = new ClassPathResource("password_update_email.html");
+                    Resource resource = new ClassPathResource("html/password_update_email.html");
                     InputStream inputStream = resource.getInputStream();
                     String emailBody = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
 

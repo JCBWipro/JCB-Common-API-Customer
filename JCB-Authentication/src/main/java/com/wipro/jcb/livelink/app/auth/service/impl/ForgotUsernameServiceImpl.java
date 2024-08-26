@@ -69,7 +69,7 @@ public class ForgotUsernameServiceImpl extends ForgotUsernameService {
                 emailTemplate.setSubject("Your login details registered with JCB LiveLink");
 
                 try {
-                    Resource resource = new ClassPathResource("forgot_username_email.html");
+                    Resource resource = new ClassPathResource("html/forgot_username_email.html");
                     InputStream inputStream = resource.getInputStream();
                     String emailBody = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
 
