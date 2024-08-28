@@ -31,7 +31,9 @@ public class MachineGroupController {
     @Autowired
     ContactRepo contactRepo;
 
-
+    /*
+       This End Point is used to fetch the MachineGroupsDetails
+     */
     @GetMapping("/getMachineGroupDetails/{userName}")
     public ResponseEntity<?> getAllMachineGroups(@PathVariable String userName) {
         ContactEntity contactEntity = contactRepo.findByUserContactId(userName);
