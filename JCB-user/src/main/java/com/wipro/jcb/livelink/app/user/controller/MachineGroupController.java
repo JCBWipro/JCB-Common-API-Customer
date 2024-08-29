@@ -1,6 +1,8 @@
 package com.wipro.jcb.livelink.app.user.controller;
 
 import com.wipro.jcb.livelink.app.user.entity.ContactEntity;
+import com.wipro.jcb.livelink.app.user.exception.NoMachineGroupFoundException;
+import com.wipro.jcb.livelink.app.user.exception.UserNotFoundException;
 import com.wipro.jcb.livelink.app.user.repo.ContactRepo;
 import com.wipro.jcb.livelink.app.user.reponse.MachineGroupResponse;
 import com.wipro.jcb.livelink.app.user.service.MachineGroupService;
@@ -28,35 +30,23 @@ public class MachineGroupController {
 
     @Autowired
     MachineGroupService machineGroupService;
-    @Autowired
-    ContactRepo contactRepo;
-
-
+    /*
+       This End Point is used to fetch the MachineGroupsDetails with reference to the userName
+     */
     @GetMapping("/getMachineGroupDetails/{userName}")
     public ResponseEntity<?> getAllMachineGroups(@PathVariable String userName) {
-        ContactEntity contactEntity = contactRepo.findByUserContactId(userName);
-        Map<String, Object> response = new HashMap<>();
-        if (contactEntity == null) {
-            log.info("User not found in DB");
-            response.put("message", "Invalid user detail in header.");
-            response.put("success", false);
-            return ResponseEntity.badRequest().body(response); // 400 Bad Request
-        }
-
         try {
             List<MachineGroupResponse> machineGroups = machineGroupService.getAllMachineGroups(userName);
-            if (machineGroups.isEmpty()) {
-                response.put("message", "No machine groups found for this user.");
-                response.put("success", false);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-            }
-            return ResponseEntity.ok(machineGroups); // 200 OK
-
+            return ResponseEntity.ok(machineGroups);
+        } catch (UserNotFoundException e) {
+            log.info("User not found in DB: {}", userName);
+            return ResponseEntity.badRequest().body(Collections.singletonMap("message", "Invalid user detail in header."));
+        } catch (NoMachineGroupFoundException e) {
+            log.info("No machine groups found for user: {}", userName);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("message", "No machine groups found for this user."));
         } catch (Exception e) {
             log.error("Error fetching machine groups for user: {}", userName, e);
-            response.put("message", "Failed to fetch machine groups.");
-            response.put("success", false);
-            return ResponseEntity.internalServerError().body(response); // 500 Internal Server Error with message
+            return ResponseEntity.internalServerError().body(Collections.singletonMap("message", "Failed to fetch machine groups."));
         }
     }
 
