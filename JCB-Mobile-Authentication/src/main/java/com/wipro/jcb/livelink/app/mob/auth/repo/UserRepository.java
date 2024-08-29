@@ -69,8 +69,28 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Query(nativeQuery = true, value = "SELECT sysGenPass FROM microservices_db.LiveLinkUser WHERE USER_ID=:userName")
     int checkSysGenPassByUserID(@Param("userName") String userName);
 
-
+    //This query is executed as a native SQL query against the "microservices_db.LiveLinkUser" table for getting the username
     @Query(nativeQuery = true, value = "SELECT * FROM microservices_db.LiveLinkUser WHERE USER_ID=:username")
     User findByUserUserId(@Param("username") String username);
+
+    //check which user accounts are locked or not
+    @Query(nativeQuery = true, value = "SELECT * FROM microservices_db.LiveLinkUser WHERE (lockedOutTime IS NOT NULL AND login_failed_count > 5) OR (lockedOutTime IS NOT NULL AND reset_pass_count > 5)")
+    List<User> findLockedUsers();
+
+    //reset the locked account to Zero/Null
+    @Transactional
+    @Modifying
+    @Query(nativeQuery = true, value = "UPDATE microservices_db.LiveLinkUser SET lockedOutTime = NULL , login_failed_count = 0, reset_pass_count = 0 WHERE USER_ID =:userName")
+    void unlockUserAccount(@Param("userName") String userName);
+
+    //check which user accounts login_failed_count and reset_pass_count is more than Zero (0)
+    @Query(nativeQuery = true, value = "SELECT * FROM microservices_db.LiveLinkUser  WHERE (login_failed_count > 0 OR reset_pass_count > 0);")
+    List<User> findErrLogResetCount();
+
+    //reset the login_failed_count and reset_pass_count to Zero
+    @Transactional
+    @Modifying
+    @Query(nativeQuery = true, value = "UPDATE microservices_db.LiveLinkUser  SET login_failed_count = 0, reset_pass_count = 0 WHERE (login_failed_count > 0 OR reset_pass_count > 0)")
+    void resetToZero(@Param("userName") String userName);
 
 }

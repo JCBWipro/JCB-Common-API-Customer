@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -62,13 +63,16 @@ public class User implements Serializable {
     @Column(name = "login_failed_count")
     private int loginFailedCount;
 
+    @Column(name = "lockedOutTime")
+    private Timestamp lockedOutTime;
+
     public User() {
     }
 
     public User(String userName, String email, UserType userType, String firstName, String lastName, String phoneNumber,
                 String address, String smsLanguage, String timeZone, String image, String thumbnail, String country,
                 String password, int sysGenPass, String activityCompleted, List<String> livelinkPersonName,
-                String roleName, Boolean isSecretQuestion, String serviceHistoryStatus, Boolean machineUpdateNotificationEnabled, String language, int resetPassCount, int loginFailedCount) {
+                String roleName, Boolean isSecretQuestion, String serviceHistoryStatus, Boolean machineUpdateNotificationEnabled, String language, int resetPassCount, int loginFailedCount, Timestamp lockedOutTime) {
         super();
         this.userName = userName;
         this.email = email;
@@ -93,6 +97,7 @@ public class User implements Serializable {
         this.language = language;
         this.resetPassCount = resetPassCount;
         this.loginFailedCount = loginFailedCount;
+        this.lockedOutTime = lockedOutTime;
     }
 
     @Override
@@ -125,6 +130,7 @@ public class User implements Serializable {
                 ", language='" + language + '\'' +
                 ", resetPassCount=" + resetPassCount +
                 ", loginFailedCount=" + loginFailedCount +
+                ", lockedOutTime=" + lockedOutTime +
                 '}';
     }
 }

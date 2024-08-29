@@ -15,13 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 
 @RestController
@@ -90,10 +85,9 @@ public class AuthController {
         contactEntity.setClient_id(clientEntity);
         contactEntity.setRole(roleEntity);
         contactRepo.save(contactEntity);
-        
-        String response = "Contact Saved. ContactID:-"+contactEntity.getContactId()+", Password:-"+autoGenPassword+
+
+        return "Contact Saved. ContactID:-"+contactEntity.getContactId()+", Password:-"+autoGenPassword+
         		", Role:-"+roleEntity.getRole_name();
-        return response;
     }
 
 
@@ -127,7 +121,7 @@ public class AuthController {
                 contactPasswordUpdateService.updatePassword(request.getUsername(), request.getNewPassword());
                 return ResponseEntity.ok(new MsgResponseTemplate("Password updated successfully.", true));
             } else {
-                return ResponseEntity.badRequest().body(new MsgResponseTemplate("Not allowed to update password.", false));
+                return ResponseEntity.badRequest().body(new MsgResponseTemplate("Not allowed to update password, user already changed the password", false));
             }
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.badRequest().body(new MsgResponseTemplate("User not found.", false));
