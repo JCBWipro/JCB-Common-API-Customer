@@ -7,11 +7,15 @@ import com.wipro.jcb.livelink.app.auth.repo.ContactRepo;
 import com.wipro.jcb.livelink.app.auth.service.AWSEmailService;
 import com.wipro.jcb.livelink.app.auth.service.ForgotUsernameService;
 import com.wipro.jcb.livelink.app.auth.service.UnicelSmsService;
-import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 /**
@@ -24,7 +28,7 @@ import java.util.Collections;
 public class ForgotUsernameServiceImpl extends ForgotUsernameService {
 
 
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(ForgotUsernameServiceImpl.class);
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(ForgotUsernameServiceImpl.class);
     @Autowired
     ContactRepo contactRepo;
 
@@ -34,8 +38,6 @@ public class ForgotUsernameServiceImpl extends ForgotUsernameService {
     @Autowired
     AWSEmailService awsEmailService;
 
-    @Value("${jcb.account.url}")
-    String jcbAccountUrl;
 
     public MsgResponseTemplate forgotUsername(String mobileNumber, String emailId) {
         try {
@@ -65,21 +67,20 @@ public class ForgotUsernameServiceImpl extends ForgotUsernameService {
                 EmailTemplate emailTemplate = new EmailTemplate();
                 emailTemplate.setTo(emailId);
                 emailTemplate.setSubject("Your login details registered with JCB LiveLink");
-                String body = "<html><body>" +
-                        "Hello " + firstName + ",<br><br>\n" +
-                        "Please find your user name registered with JCB LiveLink :<br><br>" +
-                        "User Name : " + username + "<br><br>" +
-                        "Please use this login ID when you log in to LiveLink application next time.<br><br>" +
-                        "Application URL : <a href=\"" + jcbAccountUrl + "\">" + jcbAccountUrl + "</a><br><br><br>\n" +
-                        "With regards,<br>\n" +
-                        "JCB LiveLink Team." +
-                        "</body></html>";
-                emailTemplate.setBody(body);
-                awsEmailService.sendEmail(emailTemplate);
 
+                try {
+                    Resource resource = new ClassPathResource("templates/forgot_username_email.html");
+                    InputStream inputStream = resource.getInputStream();
+                    String emailBody = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
 
+                    emailBody = emailBody.replace("{{firstName}}", firstName);
+                    emailBody = emailBody.replace("{{username}}", username);
+                    emailTemplate.setBody(emailBody);
+                    awsEmailService.sendEmail(emailTemplate);
+                } catch (IOException e) {
+                    log.error("Error reading email template: {}", e.getMessage(), e);
+                }
                 return new MsgResponseTemplate("Username sent to email ID: " + emailId, true);
-
             } else {
                 return new MsgResponseTemplate("Either mobile number or email ID is required.", false);
             }
