@@ -8,18 +8,13 @@ import com.wipro.jcb.livelink.app.mob.auth.enums.UserType;
 import com.wipro.jcb.livelink.app.mob.auth.exception.UsernameNotFoundException;
 import com.wipro.jcb.livelink.app.mob.auth.model.MsgResponseTemplate;
 import com.wipro.jcb.livelink.app.mob.auth.repo.UserRepository;
-import com.wipro.jcb.livelink.app.mob.auth.service.JwtService;
-import com.wipro.jcb.livelink.app.mob.auth.service.RefreshTokenService;
-import com.wipro.jcb.livelink.app.mob.auth.service.ResetPasswordService;
-import com.wipro.jcb.livelink.app.mob.auth.service.UserPasswordUpdateService;
+import com.wipro.jcb.livelink.app.mob.auth.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,6 +40,9 @@ public class UserController {
 
     @Autowired
     UserPasswordUpdateService userPasswordUpdateService;
+
+    @Autowired
+    LoginServiceMobile loginServiceMobile;
 
     @GetMapping("/registerUser")
     public String saveUser() {
@@ -81,54 +79,23 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public LoginResponse getToken(@RequestBody LoginRequest loginRequest) {
-        LoginResponse loginResponse = new LoginResponse();
+    public ResponseEntity<LoginResponse> getToken(@RequestBody LoginRequest loginRequest) {
+        log.info("Received login request for user: {}", loginRequest.getUserName());
         try {
-            String username = loginRequest.getUserName();
-
-            // Check login attempts
-            int attempts = userRepository.userLoginGetAttempts(username);
-            if (attempts >= 5) {
-                loginResponse.setError("Maximum login attempts reached. Account locked.");
-                return loginResponse;
-            }
-
-            Authentication authenticate = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getUserName(), loginRequest.getPassword())
-            );
-            String userType = authenticate.getAuthorities().iterator().next().toString();
-            if (authenticate.isAuthenticated() && userType.equals(loginRequest.getUserType())) {
-
-                // Reset login attempts on successful login
-                userRepository.userLoginResetAttempts(username);
-
-                RefreshToken refreshToken = refreshTokenService.createRefreshToken(loginRequest.getUserName());
-                loginResponse.setAccessToken(jwtService.generateToken(loginRequest.getUserName(), userType));
-                loginResponse.setToken(refreshToken.getToken());
-                loginResponse.setRoleName(refreshToken.getUser().getRoleName());
-                loginResponse.setFirstName(refreshToken.getUser().getFirstName());
-                loginResponse.setLastName(refreshToken.getUser().getLastName());
-                loginResponse.setEmail(refreshToken.getUser().getEmail());
-                loginResponse.setNumber(refreshToken.getUser().getPhoneNumber());
-                loginResponse.setImage(refreshToken.getUser().getImage());
-                loginResponse.setThumbnail(refreshToken.getUser().getThumbnail());
-                loginResponse.setCountry(refreshToken.getUser().getCountry());
-                loginResponse.setSmsLanguage(refreshToken.getUser().getSmsLanguage());
-                loginResponse.setTimeZone(refreshToken.getUser().getTimeZone());
-                loginResponse.setLanguage(refreshToken.getUser().getLanguage());
-                return loginResponse;
+            LoginResponse loginResponse = loginServiceMobile.authenticateAndGenerateToken(loginRequest);
+            if (loginResponse.getError() == null) {
+                log.info("Login successful for user: {}", loginRequest.getUserName());
+                return ResponseEntity.ok(loginResponse);
             } else {
-                // Increment login attempts on failed login
-                userRepository.userLoginIncrementAttempts(username);
-                loginResponse.setError("Authentication failed. Invalid username, password, or role.");
+                log.error("Login unsuccessful for user: {}. Error: {}", loginRequest.getUserName(), loginResponse.getError());
+                return ResponseEntity.badRequest().body(loginResponse);
             }
         } catch (Exception e) {
-            userRepository.userLoginIncrementAttempts(loginRequest.getUserName());
-            loginResponse.setError("Authentication failed. Invalid username, password, or role.");
-            System.out.println(e.getMessage());
+            log.error("An unexpected error occurred during login for user: {}", loginRequest.getUserName(), e);
+            LoginResponse errorResponse = new LoginResponse();
+            errorResponse.setError("An unexpected error occurred.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
-        return loginResponse;
-
     }
 
     //method to update password after 1st login

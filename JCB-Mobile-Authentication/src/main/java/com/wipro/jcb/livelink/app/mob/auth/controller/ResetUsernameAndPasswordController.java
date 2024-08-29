@@ -19,24 +19,23 @@ import org.springframework.web.bind.annotation.RestController;
 public class ResetUsernameAndPasswordController {
 
     private static final Logger log = LoggerFactory.getLogger(ResetUsernameAndPasswordController.class);
+    @Autowired
+    ResetPasswordServiceImpl resetPasswordService;
 
     @Autowired
-    private ResetPasswordServiceImpl resetPasswordService;
-
-    @Autowired
-    private ForgotUsernameServiceImpl forgotUsername;
+    ForgotUsernameServiceImpl forgotUsername;
 
     //API to reset the password and send to the user.
     @PostMapping("/resetPassword")
     public ResponseEntity<MsgResponseTemplate> processResetPassword(@RequestBody String userName) {
         MsgResponseTemplate response = resetPasswordService.resetPassword(userName);
         if (response.isSuccess()) {
-            log.info("Status is : " + response);
+            log.info("Status is :- {}", response);
             return ResponseEntity.ok(response);
         } else {
             // Determine appropriate HTTP status based on the error message in the response
             HttpStatus status = response.getMessage().contains("Invalid username") ? HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
-            log.error("Status is : " + status);
+            log.error("Status is :- {}", status);
             return ResponseEntity.status(status).body(response);
         }
     }
