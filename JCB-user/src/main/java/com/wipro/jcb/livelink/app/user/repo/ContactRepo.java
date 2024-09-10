@@ -42,7 +42,7 @@ public interface ContactRepo extends JpaRepository<ContactEntity, String> {
     void resetToZero(@Param("userName") String userName);
 
     //check Specific user account is locked or not
-    @Query(nativeQuery = true, value = "SELECT * FROM wise.contact WHERE Contact_ID= :contactID AND lockedOutTime IS NOT NULL AND (errorLogCounter > 5 OR reset_pass_count > 5)")
+    @Query(nativeQuery = true, value = "SELECT * FROM wise.contact WHERE Contact_ID= :contactID AND lockedOutTime IS NOT NULL AND (errorLogCounter >= 5 OR reset_pass_count >= 5)")
     String findLockedUserByID(@Param("contactID") String contactID);
 
     //This query is executed as a native SQL query against the "wise.contact" table for getting the username
