@@ -48,7 +48,7 @@ public class LoginService {
         try {
             String username = authRequest.getUsername();
             int attempts = contactRepo.userLoginGetAttempts(username);
-            if (attempts > 5) {
+            if (attempts >= 5) {
                 ContactEntity contactEntity = contactRepo.findByUserContactId(username);
                 if (contactEntity != null) {
                     Calendar cal1 = Calendar.getInstance();

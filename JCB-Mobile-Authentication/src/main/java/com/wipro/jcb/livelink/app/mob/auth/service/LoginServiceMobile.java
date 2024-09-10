@@ -48,7 +48,7 @@ public class LoginServiceMobile {
         try {
             String username = loginRequest.getUserName();
             int attempts = userRepository.userLoginGetAttempts(username);
-            if (attempts > 5) {
+            if (attempts >= 5) {
                 User user = userRepository.findByUserUserId(username);
                 if (user != null) {
                     Calendar cal1 = Calendar.getInstance();
