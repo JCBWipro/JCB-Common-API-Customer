@@ -30,6 +30,7 @@ import java.util.TimeZone;
 public class LoginService {
 
     private static final Logger log = LoggerFactory.getLogger(LoginService.class);
+    private static final int MAX_ATTEMPTS = 5;
 
     @Autowired
     ContactRepo contactRepo;
@@ -48,7 +49,7 @@ public class LoginService {
         try {
             String username = authRequest.getUsername();
             int attempts = contactRepo.userLoginGetAttempts(username);
-            if (attempts >= 5) {
+            if (attempts >= MAX_ATTEMPTS) {
                 ContactEntity contactEntity = contactRepo.findByUserContactId(username);
                 if (contactEntity != null) {
                     Calendar cal1 = Calendar.getInstance();
@@ -79,13 +80,14 @@ public class LoginService {
                     return jwtResponse;
                 } else {
                     contactRepo.userLoginIncrementAttempts(username);
-                    jwtResponse.setError("Authentication failed. Invalid username, password, or role.");
+                    int remainingAttempts = MAX_ATTEMPTS - attempts - 1; // Calculate remaining attempts
+                    jwtResponse.setError("Authentication failed. Invalid username, password, or role. Total attempts left is : " + remainingAttempts);
                 }
             }
         } catch (Exception e) {
             contactRepo.userLoginIncrementAttempts(authRequest.getUsername());
-            jwtResponse.setError("Authentication failed. Invalid username, password, or role.");
-            System.out.println(e.getMessage());
+            int remainingAttempts = MAX_ATTEMPTS - contactRepo.userLoginGetAttempts(authRequest.getUsername()); // Recalculate after increment
+            jwtResponse.setError("Authentication failed. Invalid username, password, or role. Total attempts left is : " + remainingAttempts);
         }
         return jwtResponse;
     }
