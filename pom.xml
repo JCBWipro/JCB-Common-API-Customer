@@ -7,7 +7,8 @@
         <module>JCB-API-Gateway</module>
         <module>JCB-Authentication</module>
         <module>JCB-Mobile-Authentication</module>
-        <module>JCB-user</module>
+        <module>JCB-Machines</module>
+        <module>JCB-User</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
