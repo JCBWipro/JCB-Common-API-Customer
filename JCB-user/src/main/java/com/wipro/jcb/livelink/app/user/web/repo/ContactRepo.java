@@ -21,8 +21,8 @@ import java.util.List;
 @Repository
 public interface ContactRepo extends JpaRepository<ContactEntity, String> {
 
-	@Query(nativeQuery = true, value = "SELECT Contact_ID as ContactId,First_Name as Firstname,Last_Name as Lastname,Is_Tenancy_Admin as IsTenancyAdmin,sys_gen_password as SysGeneratedPassword,Role_ID as RoleId FROM wise.contact where Contact_ID=:userName")
-	UserDetailsReponse findContactByContactId(@Param("userName") String userName);
+    @Query(nativeQuery = true, value = "SELECT Contact_ID as ContactId,First_Name as Firstname,Last_Name as Lastname,Is_Tenancy_Admin as IsTenancyAdmin,sys_gen_password as SysGeneratedPassword,Role_ID as RoleId FROM wise.contact where Contact_ID=:userName")
+    UserDetailsReponse findContactByContactId(@Param("userName") String userName);
 
     @Query(nativeQuery = true, value = "SELECT Account_ID as AccountId FROM wise.account_contact where Contact_ID=:userName")
     int getAccountDetailsByUsername(@Param("userName") String userName);
@@ -61,5 +61,5 @@ public interface ContactRepo extends JpaRepository<ContactEntity, String> {
     @Modifying
     @Query(nativeQuery = true, value = "UPDATE wise.contact SET lockedOutTime = NULL , errorLogCounter = 0, reset_pass_count = 0")
     void unlockAllUserAccount(@Param("userName") String userName);
-    
+
 }
