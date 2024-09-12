@@ -29,6 +29,7 @@ import java.util.TimeZone;
 public class ResetPasswordServiceImpl extends ResetPasswordService {
 
     private static final Logger log = LoggerFactory.getLogger(ResetPasswordServiceImpl.class);
+    private static final int MAX_ATTEMPTS = 5;
 
     @Autowired
     UserRepository userRepository;
@@ -49,7 +50,8 @@ public class ResetPasswordServiceImpl extends ResetPasswordService {
 
             // Check password reset attempts
             int attempts = userRepository.resetPasswordGetAttempts(userName);
-            if (attempts > 5) {
+            int remainingAttempts = MAX_ATTEMPTS - attempts;
+            if (attempts >= MAX_ATTEMPTS) {
                 User user = userRepository.findByUserUserId(userName);
                 if (user != null) {
                     Calendar cal1 = Calendar.getInstance();
@@ -90,7 +92,7 @@ public class ResetPasswordServiceImpl extends ResetPasswordService {
             // Increment password reset attempts
             userRepository.resetPasswordIncrementAttempts(userName);
 
-            return new MsgResponseTemplate("Password Generated and Sent to mobile Number : " + mobileNumber, true);
+            return new MsgResponseTemplate("Password Generated and Sent to mobile Number : " + mobileNumber + "Total attempts left for the day is : " + remainingAttempts, true);
 
         } catch (PasswordUpdateException e) {
             log.error("Error resetting password: {}", e.getMessage(), e);
