@@ -9,11 +9,11 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.wipro.jcb.livelink.app</groupId>
-	<artifactId>JCB-user</artifactId>
+	<artifactId>JCB-User</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<name>JCB-user</name>
-	<description>JCB user who uses the application</description>
+	<name>JCB-User</name>
+	<description>JCB User who uses the application</description>
 	<properties>
 		<java.version>17</java.version>
 		<spring-cloud.version>2023.0.2</spring-cloud.version>
