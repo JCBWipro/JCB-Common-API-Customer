@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/auth/web")
+@RequestMapping("/auth")
 public class AuthController {
 
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
@@ -47,14 +47,14 @@ public class AuthController {
 
     @GetMapping("/register")
     public String saveContact() {
-    	
-    	ContactEntity contactEntity = new ContactEntity();
-    	contactEntity.setFirst_name("Gokul");
+
+        ContactEntity contactEntity = new ContactEntity();
+        contactEntity.setFirst_name("Gokul");
         contactEntity.setLast_name("Aher");
-    	contactEntity.setPrimary_email_id("gokul.aher@wipro.com");
+        contactEntity.setPrimary_email_id("gokul.aher@wipro.com");
         contactEntity.setPrimary_mobile_number("+919890091680");
-        
-        
+
+
         String username = AuthCommonutils.generateUsername(contactEntity.getFirst_name());
         contactEntity.setContactId(username);
         log.info("Username is : {} ", contactEntity.getContactId());
@@ -62,17 +62,17 @@ public class AuthController {
         contactEntity.setPassword(autoGenPassword);
         log.info("Password is : {} ", contactEntity.getPassword());
         contactEntity.setPassword(new BCryptPasswordEncoder().encode(contactEntity.getPassword()));
-        
+
         RoleEntity roleEntity = new RoleEntity();
-        if(username.startsWith("g") || username.startsWith("G")) {
-        	roleEntity.setRole_id(1);
-        	roleEntity.setRole_name("JCB Account");
+        if (username.startsWith("g") || username.startsWith("G")) {
+            roleEntity.setRole_id(1);
+            roleEntity.setRole_name("JCB Account");
         } else {
-        	roleEntity.setRole_id(8);
-        	roleEntity.setRole_name("Customer");
+            roleEntity.setRole_id(8);
+            roleEntity.setRole_name("Customer");
         }
         log.info("Role Name is : {} ", roleEntity.getRole_name());
-        
+
         IndustryEntity industryEntity = new IndustryEntity();
         industryEntity.setIndustry_id(1);
         industryEntity.setIndustry_name("DIndustry");
@@ -86,8 +86,8 @@ public class AuthController {
         contactEntity.setRole(roleEntity);
         contactRepo.save(contactEntity);
 
-        return "Contact Saved. ContactID:-"+contactEntity.getContactId()+", Password:-"+autoGenPassword+
-        		", Role:-"+roleEntity.getRole_name();
+        return "Contact Saved. ContactID:-" + contactEntity.getContactId() + ", Password:-" + autoGenPassword +
+                ", Role:-" + roleEntity.getRole_name();
     }
 
 

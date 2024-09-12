@@ -30,6 +30,7 @@ import java.util.TimeZone;
 public class LoginServiceMobile {
 
     private static final Logger log = LoggerFactory.getLogger(LoginServiceMobile.class);
+    private static final int MAX_ATTEMPTS = 5;
 
     @Autowired
     JwtService jwtService;
@@ -48,7 +49,7 @@ public class LoginServiceMobile {
         try {
             String username = loginRequest.getUserName();
             int attempts = userRepository.userLoginGetAttempts(username);
-            if (attempts >= 5) {
+            if (attempts >= MAX_ATTEMPTS){
                 User user = userRepository.findByUserUserId(username);
                 if (user != null) {
                     Calendar cal1 = Calendar.getInstance();
@@ -91,12 +92,14 @@ public class LoginServiceMobile {
                     return loginResponse;
                 } else {
                     userRepository.userLoginIncrementAttempts(username);
-                    loginResponse.setError("Authentication failed. Invalid username, password, or role.");
+                    int remainingAttempts = MAX_ATTEMPTS - attempts - 1;
+                    loginResponse.setError("Authentication failed. Invalid username, password, or role. Total attempts left is : " + remainingAttempts);
                 }
             }
         } catch (Exception e) {
             userRepository.userLoginIncrementAttempts(loginRequest.getUserName());
-            loginResponse.setError("Authentication failed. Invalid username, password, or role.");
+            int remainingAttempts = MAX_ATTEMPTS - userRepository.userLoginGetAttempts(loginRequest.getUserName());
+            loginResponse.setError("Authentication failed. Invalid username, password, or role. Total attempts left is : " + remainingAttempts);
             log.error("Authentication failed for user: {}. Error: {}", loginRequest.getUserName(), e.getMessage());
         }
         return loginResponse;

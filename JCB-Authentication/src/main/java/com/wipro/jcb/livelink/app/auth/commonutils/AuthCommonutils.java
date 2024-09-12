@@ -16,6 +16,7 @@ public class AuthCommonutils {
         map.put("6", "Dealer");
         map.put("8", "Customer");
         map.put("12", "Super Admin");
+        map.put("5",  "Dealer Admin");
         return map.get(roleId);
     }
 
