@@ -3,6 +3,9 @@ package com.wipro.jcb.livelink.app.user.web.commonUtils;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gson.Gson;
+import com.wipro.jcb.livelink.app.user.web.dto.UserDetails;
+
 public class UserCommonUtils {
 	
 	public static String getRolesByID(int roleId) {
@@ -21,6 +24,25 @@ public class UserCommonUtils {
 		map.put(12, "Super Admin");
 		map.put(13, "Government Admin");
 		return map.get(roleId);
+	}
+	
+	public static final String SUPER_ADMIN = "Super Admin";
+	public static final String JCB_ACCOUNT = "JCB Account";
+	public static final String JCB_HO = "JCB HO";
+	public static final String JCB_RO = "JCB RO";
+	public static final String DEALER = "Dealer";
+	public static final String DEALER_ADMIN = "Dealer Admin";
+	public static final String CUSTOMER = "Customer";
+	public static final String CUSTOMER_CARE = "Customer Care";
+	public static final String CUSTOMER_FLEET_MANAGER = "Customer Fleet Manager";
+	public static final String MA_MANAGER = "MA Manager";
+	
+	public static UserDetails getUserDetails(String userDetails) {
+		UserDetails userResponse = new Gson().fromJson(userDetails, UserDetails.class);
+		int roleId = Integer.parseInt(userResponse.getRoleName());
+		String roleName = UserCommonUtils.getRolesByID(roleId);
+		userResponse.setRoleName(roleName);
+		return userResponse;
 	}
 
 }
