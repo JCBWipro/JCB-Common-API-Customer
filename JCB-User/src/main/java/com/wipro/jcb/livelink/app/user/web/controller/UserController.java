@@ -1,28 +1,38 @@
 package com.wipro.jcb.livelink.app.user.web.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.wipro.jcb.livelink.app.user.web.commonUtils.UserCommonUtils;
-import com.wipro.jcb.livelink.app.user.web.dto.UserAuthenticationRespContract;
-import com.wipro.jcb.livelink.app.user.web.dto.UserDetails;
-import com.wipro.jcb.livelink.app.user.web.repo.ContactRepo;
-import com.wipro.jcb.livelink.app.user.web.service.UserAuthenticationResponseService;
-import com.wipro.jcb.livelink.app.user.web.service.UserRoleCheckService;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.wipro.jcb.livelink.app.user.web.commonUtils.UserCommonUtils;
+import com.wipro.jcb.livelink.app.user.web.dto.MapRespContract;
+import com.wipro.jcb.livelink.app.user.web.dto.UserAuthenticationRespContract;
+import com.wipro.jcb.livelink.app.user.web.dto.UserDetails;
+import com.wipro.jcb.livelink.app.user.web.repo.ContactRepo;
+import com.wipro.jcb.livelink.app.user.web.service.SearchByVinService;
+import com.wipro.jcb.livelink.app.user.web.service.UserAuthenticationResponseService;
+import com.wipro.jcb.livelink.app.user.web.service.UserRoleCheckService;
 
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
 
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    
     @Autowired
     UserAuthenticationResponseService userAuthenticationResponseService;
 
@@ -31,17 +41,17 @@ public class UserController {
 
     @Autowired
     UserRoleCheckService userRoleCheckService;
-
+    
+    @Autowired
+    private SearchByVinService searchByVinService;
+    
     /*
      * This End Point is used for the testing Purpose
      */
     @GetMapping
     public String getString(@RequestHeader("LoggedInUserRole") String userDetails) {
-        Gson gson = new Gson();
-        UserDetails userResponse = gson.fromJson(userDetails, UserDetails.class);
-        int roleId = Integer.parseInt(userResponse.getRoleName());
-        String roleName = UserCommonUtils.getRolesByID(roleId);
-        return "LoggedIn Role is:-" + roleName + " and UserName is:-" + userResponse.getUserName();
+    	UserDetails userResponse = UserCommonUtils.getUserDetails(userDetails);
+        return "LoggedIn Role is:-" + userResponse.getRoleName() + " and UserName is:-" + userResponse.getUserName();
     }
 
     /*
@@ -50,7 +60,6 @@ public class UserController {
     @GetMapping("/tenancyDetails/{userName}")
     public UserAuthenticationRespContract getTenancyDetails(@PathVariable String userName) {
         return userAuthenticationResponseService.getTenancyDetails(userName);
-
     }
 
     /*
@@ -137,4 +146,15 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
+    
+    /*
+     * This End Point is used to fetch Machine related Details by VIN Number
+     */
+    @GetMapping("/searchByVIN/{userName}/{vin}")
+    public List<MapRespContract> searchByVIN(@PathVariable String userName, @PathVariable String vin) {
+    	log.info("In UserController::searchByVIN() userName:{} and vin:{}", userName, vin);
+        return searchByVinService.getMap(userName, vin);
+    }
 }
+
+
