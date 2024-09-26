@@ -3,7 +3,7 @@ package com.wipro.jcb.livelink.app.machines.service.reports;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,40 +19,40 @@ import java.util.Date;
 @Getter
 public class FuelConsumptionDuty {
 
-    @ApiModelProperty(value = "Day", example = "2017-07-13", required = true)
+    @Schema(description = "Day", example = "2017-07-13", required = true)
     @JsonFormat(pattern = AppServerConstants.DateFormat, timezone = AppServerConstants.timezone)
     @JsonProperty("date")
     private Date day;
 
-    @ApiModelProperty(value = "Economy Mode", example = "1.1", required = true)
+    @Schema(description = "Economy Mode", example = "1.1", required = true)
     @JsonProperty("excavationMode")
     private Double excavationMode;
 
-    @ApiModelProperty(value = "Economy Mode Percentage", example = "1.1", required = true)
+    @Schema(description = "Economy Mode Percentage", example = "1.1", required = true)
     @JsonProperty("excavationModePercentage")
     private Double excavationModePercentage;
 
-    @ApiModelProperty(value = "Loading Mode", example = "1.1", required = true)
+    @Schema(description = "Loading Mode", example = "1.1", required = true)
     @JsonProperty("loadingMode")
     private Double loadingMode;
 
-    @ApiModelProperty(value = "Loading Mode Percentage", example = "1.1", required = true)
+    @Schema(description = "Loading Mode Percentage", example = "1.1", required = true)
     @JsonProperty("loadingModePercentage")
     private Double loadingModePercentage;
 
-    @ApiModelProperty(value = "Roading Mode ", example = "1.1", required = true)
+    @Schema(description = "Roading Mode ", example = "1.1", required = true)
     @JsonProperty("roadindMode")
     private Double roadindMode;
 
-    @ApiModelProperty(value ="Roading Mode Percentage", example = "1.1", required = true)
+    @Schema(description ="Roading Mode Percentage", example = "1.1", required = true)
     @JsonProperty("roadindModePercentage")
     private Double roadindModePercentage;
 
-    @ApiModelProperty(value = "Idle Mode", example = "1.1", required = true)
+    @Schema(description = "Idle Mode", example = "1.1", required = true)
     @JsonProperty("idleMode")
     private Double idleMode;
 
-    @ApiModelProperty(value = "Idle Mode Percentage", example = "1.1", required = true)
+    @Schema(description = "Idle Mode Percentage", example = "1.1", required = true)
     @JsonProperty("idleModePercentage")
     private Double idleModePercentage;
 

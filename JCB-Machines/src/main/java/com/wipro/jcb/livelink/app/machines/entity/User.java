@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
 import com.wipro.jcb.livelink.app.machines.constants.UserType;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.Getter;
@@ -36,35 +37,35 @@ public class User implements Serializable {
     @Serial
     private static final long serialVersionUID = 7647358402835262772L;
     @Id
-    @ApiModelProperty(value = "unique identifier for user", example = "Lorey_Holland", required = true)
+    @Schema(description = "unique identifier for user", example = "Lorey_Holland", required = true)
     @Column(name = "USER_ID", unique = true, columnDefinition = "VARCHAR(64)")
     private String userName;
     @Column(name = "email")
-    @ApiModelProperty(value = "Email Id of user", example = "lorey@mymail.com", required = true)
+    @Schema(description = "Email Id of user", example = "lorey@mymail.com", required = true)
     private String email;
-    @ApiModelProperty(value = "Role/Type of user", example = "Customer", required = true)
+    @Schema(description = "Role/Type of user", example = "Customer", required = true)
     private UserType userType;
-    @ApiModelProperty(value = "FirstName of user", example = "Lorey", required = true)
+    @Schema(description = "FirstName of user", example = "Lorey", required = true)
     private String firstName;
-    @ApiModelProperty(value = "Users lastname", example = "Hollandr", required = true)
+    @Schema(description = "Users lastname", example = "Hollandr", required = true)
     private String lastName;
-    @ApiModelProperty(value = "Contact of user", example = "1234567890", required = true)
+    @Schema(description = "Contact of user", example = "1234567890", required = true)
     private String phoneNumber;
-    @ApiModelProperty(value = "Address of User", example = "Pune", required = true)
+    @Schema(description = "Address of User", example = "Pune", required = true)
     private String address;
-    @ApiModelProperty(value = "User understandable language", example = "English", required = true)
+    @Schema(description = "User understandable language", example = "English", required = true)
     private String smsLanguage;
-    @ApiModelProperty(value = "Time Zone is a region of the globe that observes a uniform standard time", example = "UTC+05:30", required = true)
+    @Schema(description = "Time Zone is a region of the globe that observes a uniform standard time", example = "UTC+05:30", required = true)
     private String timeZone;
-    @ApiModelProperty(value = "User Photo", example = "user.png", required = true)
+    @Schema(description = "User Photo", example = "user.png", required = true)
     @JsonIgnore
     private String image;
-    @ApiModelProperty(value = "User thumbnail Photo", example = "user.png", required = true)
+    @Schema(description = "User thumbnail Photo", example = "user.png", required = true)
     private String thumbnail;
-    @ApiModelProperty(value = "Country in which user resides", example = "India", required = true)
+    @Schema(description = "Country in which user resides", example = "India", required = true)
     private String country;
     private String password;
-    @ApiModelProperty(value = "true if it is sys gen password", example = "true", required = true)
+    @Schema(description = "true if it is sys gen password", example = "true", required = true)
     private Boolean sysGenPass;
     @JsonIgnore
     private String activityCompleted;
@@ -75,7 +76,7 @@ public class User implements Serializable {
     private List<String> livelinkPersonName;
     @JsonIgnore
     private String roleName;
-    @ApiModelProperty(value = "true if Secret Question is set ", example = "true", required = true)
+    @Schema(description = "true if Secret Question is set ", example = "true", required = true)
     private Boolean isSecretQuestion;
 
     @JsonIgnore
@@ -93,14 +94,14 @@ public class User implements Serializable {
     @Column(name="analytic_last_visited_time")
     private Date analyticLastVistedTime;
 
-    @ApiModelProperty(value = "Day", example = "2017-07-13", required = false)
+    @Schema(description = "Day", example = "2017-07-13", required = false)
     @Temporal(TemporalType.DATE)
     @JsonFormat(pattern = AppServerConstants.DateFormat, timezone = AppServerConstants.timezone)
     @Column(name = "feed_date")
     private Date feedDate;
 
     @Column(name = "language")
-    @ApiModelProperty(value = "User Language", example = "English", required = true)
+    @Schema(description = "User Language", example = "English", required = true)
     private String language;
 
     public User(String userName, String email, UserType userType, String firstName, String lastName, String phoneNumber,

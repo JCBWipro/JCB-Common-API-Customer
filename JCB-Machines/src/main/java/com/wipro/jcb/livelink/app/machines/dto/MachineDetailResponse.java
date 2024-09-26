@@ -2,7 +2,7 @@ package com.wipro.jcb.livelink.app.machines.dto;
 
 import com.wipro.jcb.livelink.app.machines.entity.MachineFuelConsumptionData;
 import com.wipro.jcb.livelink.app.machines.entity.MachineUtilizationData;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,26 +19,26 @@ import java.util.List;
 @Getter
 @Data
 public class MachineDetailResponse {
-    @ApiModelProperty(value = "Machine details", required = true)
+    @Schema(description = "Machine details", required = true)
     private MachineDetailData machine;
-    @ApiModelProperty(value = "List of alerts of provided machine", required = true)
+    @Schema(description = "List of alerts of provided machine", required = true)
     private List<AlertData> alert;
-    @ApiModelProperty(value = "List of machine utilization of provided machine", required = true)
+    @Schema(description = "List of machine utilization of provided machine", required = true)
     private List<MachineUtilizationData> utilization;
-    @ApiModelProperty(value = "List of machine fuel consumption of provided machine", required = true)
+    @Schema(description = "List of machine fuel consumption of provided machine", required = true)
     private List<MachineFuelConsumptionData> fuel;
-    @ApiModelProperty(value = "List of machine performance of provided machine", required = true)
+    @Schema(description = "List of machine performance of provided machine", required = true)
     private List<MachinePerformanceData> performance;
 
     private int serviceAlertCount=0;
     private int normalAlertCount=0;
     private int alertWithRedEventLevel=0;
 
-    @ApiModelProperty(value = "List of machine utilization of provided machine with missing dates", required = true)
+    @Schema(description = "List of machine utilization of provided machine with missing dates", required = true)
     private List<MachineUtilizationData> updatedUtilizationList;
-    @ApiModelProperty(value = "List of machine fuel consumption of provided machine with missing dates", required = true)
+    @Schema(description = "List of machine fuel consumption of provided machine with missing dates", required = true)
     private List<MachineFuelConsumptionData> updatedFuelList;
-    @ApiModelProperty(value = "List of machine performance of provided machine with missing dates", required = true)
+    @Schema(description = "List of machine performance of provided machine with missing dates", required = true)
     private List<MachinePerformanceData> updatedPerformanceList;
 
     public MachineDetailResponse(MachineDetailData machine, List<AlertData> alert,

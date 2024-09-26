@@ -1,7 +1,7 @@
 package com.wipro.jcb.livelink.app.machines.exception;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 
@@ -22,13 +22,13 @@ import java.io.Serializable;
  */
 public class ApiError implements Serializable {
     private static final long serialVersionUID = -1122688221544728777L;
-    @ApiModelProperty(value = "Code representing HTTP response error code", example = "500", required = true)
+    @Schema(description = "Code representing HTTP response error code", example = "500", required = true)
     private int code;
     /*
      * optional Example : "string" string
      */
     @JsonIgnore
-    @ApiModelProperty(value = "error no is Internal errorno or error description for server", example = "-", required = false)
+    @Schema(description = "error no is Internal errorno or error description for server", example = "-", required = false)
     private String errno;
     /*
      * optional errno code for some internal errors in server. Since service
@@ -37,13 +37,13 @@ public class ApiError implements Serializable {
      * translated into human readable string like ENOENT or ENOMEM, not pure integer
      * value. Example : "string"
      */
-    @ApiModelProperty(value = "Description about error", example = "-", required = false)
+    @Schema(description = "Description about error", example = "-", required = false)
     private String message;
     /*
      * required Example : "string" string
      */
     @JsonIgnore
-    @ApiModelProperty(value = "Stacktrace of error", example = "-", required = false)
+    @Schema(description = "Stacktrace of error", example = "-", required = false)
     private String stack;
 
     /*

@@ -3,7 +3,7 @@ package com.wipro.jcb.livelink.app.machines.service.reports;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.Date;
@@ -16,20 +16,20 @@ import java.util.Date;
  */
 @Data
 public class MachineCompassBHL {
-    @ApiModelProperty(value = "Day", example = "2017-07-13", required = true)
+    @Schema(description = "Day", example = "2017-07-13", required = true)
     @JsonFormat(pattern = AppServerConstants.DateFormat, timezone = AppServerConstants.timezone)
     @JsonProperty("date")
     private Date day;
 
-    @ApiModelProperty(value = "forwardDirection", example = "1.1", required = true)
+    @Schema(description = "forwardDirection", example = "1.1", required = true)
     @JsonProperty("forwardDirection")
     private Double forwardDirection;
 
-    @ApiModelProperty(value = "reverseDirection", example = "1.1", required = true)
+    @Schema(description = "reverseDirection", example = "1.1", required = true)
     @JsonProperty("reverseDirection")
     private Double reverseDirection;
 
-    @ApiModelProperty(value = "neutralDirection", example = "1.1", required = true)
+    @Schema(description = "neutralDirection", example = "1.1", required = true)
     @JsonProperty("neutralDirection")
     private Double neutralDirection;
 

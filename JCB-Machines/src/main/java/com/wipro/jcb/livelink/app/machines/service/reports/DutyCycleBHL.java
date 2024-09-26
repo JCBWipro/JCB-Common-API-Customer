@@ -3,7 +3,7 @@ package com.wipro.jcb.livelink.app.machines.service.reports;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.Date;
@@ -16,28 +16,28 @@ import java.util.Date;
  */
 @Data
 public class DutyCycleBHL {
-    @ApiModelProperty(value = "Day", example = "2017-07-13", required = true)
+    @Schema(description = "Day", example = "2017-07-13", required = true)
     @JsonFormat(pattern = AppServerConstants.DateFormat, timezone = AppServerConstants.timezone)
     @JsonProperty("date")
     private Date day;
 
-    @ApiModelProperty(value = "travel attachment", example = "1.1", required = true)
+    @Schema(description = "travel attachment", example = "1.1", required = true)
     @JsonProperty("attachment")
     private Double attachment;
 
-    @ApiModelProperty(value = "idling", example = "1.1", required = true)
+    @Schema(description = "idling", example = "1.1", required = true)
     @JsonProperty("idling")
     private Double idling;
 
-    @ApiModelProperty(value = "excavation", example = "1.1", required = true)
+    @Schema(description = "excavation", example = "1.1", required = true)
     @JsonProperty("excavation")
     private Double excavation;
 
-    @ApiModelProperty(value = "loading", example = "1.1", required = true)
+    @Schema(description = "loading", example = "1.1", required = true)
     @JsonProperty("loading")
     private Double loading;
 
-    @ApiModelProperty(value = "roading", example = "1.1", required = true)
+    @Schema(description = "roading", example = "1.1", required = true)
     @JsonProperty("roading")
     private Double roading;
 

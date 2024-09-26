@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -32,7 +32,7 @@ public class MachineBHLData implements Serializable {
     @Id
     @JsonIgnore
     private String vinId;
-    @ApiModelProperty(value = "Day", example = "2017-07-13", required = true)
+    @Schema(description = "Day", example = "2017-07-13", required = true)
     @Temporal(TemporalType.DATE)
     @JsonProperty("date")
     @JsonFormat(pattern = AppServerConstants.DateFormat, timezone = AppServerConstants.timezone)
@@ -50,12 +50,12 @@ public class MachineBHLData implements Serializable {
      * optional Example : "string" string
      */
 
-    @ApiModelProperty(value = "travel attachment", example = "1.1", required = true)
+    @Schema(description = "travel attachment", example = "1.1", required = true)
     @JsonProperty("attachment")
     private Double attachment;
 
 
-    @ApiModelProperty(value = "loading", example = "1.1", required = true)
+    @Schema(description = "loading", example = "1.1", required = true)
     @JsonProperty("loading")
     private Double loading;
 
@@ -65,55 +65,55 @@ public class MachineBHLData implements Serializable {
     @Column(columnDefinition = "timestamp default current_timestamp", insertable = false, updatable = false)
     protected Date creationAt;
 
-    @ApiModelProperty(value = "excavation", example = "1.1", required = true)
+    @Schema(description = "excavation", example = "1.1", required = true)
     @JsonProperty("excavation")
     private Double excavation;
 
-    @ApiModelProperty(value = "roading", example = "1.1", required = true)
+    @Schema(description = "roading", example = "1.1", required = true)
     @JsonProperty("roading")
     private Double roading;
 
-    @ApiModelProperty(value = "idling", example = "1.1", required = true)
+    @Schema(description = "idling", example = "1.1", required = true)
     @JsonProperty("idling")
     private Double idling;
 
-    @ApiModelProperty(value = "economyModeHrs", example = "1.1", required = true)
+    @Schema(description = "economyModeHrs", example = "1.1", required = true)
     @JsonProperty("economy_mode_hrs")
     private Double economyModeHrs;
 
-    @ApiModelProperty(value = "powerModeHrs", example = "1.1", required = true)
+    @Schema(description = "powerModeHrs", example = "1.1", required = true)
     @JsonProperty("power_mode_hrs")
     private Double powerModeHrs;
 
-    @ApiModelProperty(value = "activeModeHrs", example = "1.1", required = true)
+    @Schema(description = "activeModeHrs", example = "1.1", required = true)
     @JsonProperty("active_mode_hrs")
     private Double activeModeHrs;
 
-    @ApiModelProperty(value = "gear1Utilization", example = "1.1", required = true)
+    @Schema(description = "gear1Utilization", example = "1.1", required = true)
     @JsonProperty("gear1Utilization")
     private Double gear1Utilization;
 
-    @ApiModelProperty(value = "gear2Utilization", example = "1.1", required = true)
+    @Schema(description = "gear2Utilization", example = "1.1", required = true)
     @JsonProperty("gear2Utilization")
     private Double gear2Utilization;
 
-    @ApiModelProperty(value = "gear3Utilization", example = "1.1", required = true)
+    @Schema(description = "gear3Utilization", example = "1.1", required = true)
     @JsonProperty("gear3Utilization")
     private Double gear3Utilization;
 
-    @ApiModelProperty(value = "gear4Utilization", example = "1.1", required = true)
+    @Schema(description = "gear4Utilization", example = "1.1", required = true)
     @JsonProperty("gear4Utilization")
     private Double gear4Utilization;
 
-    @ApiModelProperty(value = "forwardDirection", example = "1.1", required = true)
+    @Schema(description = "forwardDirection", example = "1.1", required = true)
     @JsonProperty("forward_direction")
     private Double forwardDirection;
 
-    @ApiModelProperty(value = "reverseDirection", example = "1.1", required = true)
+    @Schema(description = "reverseDirection", example = "1.1", required = true)
     @JsonProperty("reverse_direction")
     private Double reverseDirection;
 
-    @ApiModelProperty(value = "neutralDirection", example = "1.1", required = true)
+    @Schema(description = "neutralDirection", example = "1.1", required = true)
     @JsonProperty("neutral_direction")
     private Double neutralDirection;
 
@@ -123,93 +123,93 @@ public class MachineBHLData implements Serializable {
     @JsonIgnore
     private Machine machine;
 
-    @ApiModelProperty(value = "fuelUsedInLowIdle", example = "1.1", required = true)
+    @Schema(description = "fuelUsedInLowIdle", example = "1.1", required = true)
     @JsonProperty("fuel_used_in_low_idle")
     private Double fuelUsedInLowIdle;
 
-    @ApiModelProperty(value = "fuelUsedInLowIdlePerct", example = "1.1", required = true)
+    @Schema(description = "fuelUsedInLowIdlePerct", example = "1.1", required = true)
     @JsonProperty("fuel_used_in_low_idle_perct")
     private Double fuelUsedInLowIdlePerct;
 
-    @ApiModelProperty(value = "fuelUsedAtHighIdle", example = "1.1", required = true)
+    @Schema(description = "fuelUsedAtHighIdle", example = "1.1", required = true)
     @JsonProperty("fuel_used_at_high_idle")
     private Double fuelUsedAtHighIdle;
 
-    @ApiModelProperty(value = "fuelUsedAtHighIdlePerct", example = "1.1", required = true)
+    @Schema(description = "fuelUsedAtHighIdlePerct", example = "1.1", required = true)
     @JsonProperty("fuel_used_at_highidle_perct")
     private Double fuelUsedAtHighIdlePerct;
 
-    @ApiModelProperty(value = "fuelUsedAtExcavationEcoMode", example = "1.1", required = true)
+    @Schema(description = "fuelUsedAtExcavationEcoMode", example = "1.1", required = true)
     @JsonProperty("fuel_used_at_excavation_eco_mode")
     private Double fuelUsedAtExcavationEcoMode;
 
-    @ApiModelProperty(value = "fuelUsedAtExcavationEcoModePerct", example = "1.1", required = true)
+    @Schema(description = "fuelUsedAtExcavationEcoModePerct", example = "1.1", required = true)
     @JsonProperty("fuel_used_at_excavation_eco_mode_perct")
     private Double fuelUsedAtExcavationEcoModePerct;
 
-    @ApiModelProperty(value = "fuelUsedAtLoadingMode", example = "1.1", required = true)
+    @Schema(description = "fuelUsedAtLoadingMode", example = "1.1", required = true)
     @JsonProperty("fuel_used_at_loading_mode")
     private Double fuelUsedAtLoadingMode;
 
-    @ApiModelProperty(value = "fuelUsedAtLoadingModePerct", example = "1.1", required = true)
+    @Schema(description = "fuelUsedAtLoadingModePerct", example = "1.1", required = true)
     @JsonProperty("fuel_used_at_loading_mode_perct")
     private Double fuelUsedAtLoadingModePerct;
 
-    @ApiModelProperty(value = "fuelUsedAtRoadingMode", example = "1.1", required = true)
+    @Schema(description = "fuelUsedAtRoadingMode", example = "1.1", required = true)
     @JsonProperty("fuel_used_at_roading_mode")
     private Double fuelUsedAtRoadingMode;
 
-    @ApiModelProperty(value = "fuelUsedAtRoadingModePerct", example = "1.1", required = true)
+    @Schema(description = "fuelUsedAtRoadingModePerct", example = "1.1", required = true)
     @JsonProperty("fuel_used_at_roading_mode_perct")
     private Double fuelUsedAtRoadingModePerct;
 
-    @ApiModelProperty(value = "totalFuelUsedInLtrs", example = "1.1", required = true)
+    @Schema(description = "totalFuelUsedInLtrs", example = "1.1", required = true)
     @JsonProperty("total_fuel_used_in_ltrs")
     private Double totalFuelUsedInLtrs;
 
-    @ApiModelProperty(value = "averageFuelConsumption", example = "1.1", required = true)
+    @Schema(description = "averageFuelConsumption", example = "1.1", required = true)
     @JsonProperty("average_fuel_consumption")
     private Double averageFuelConsumption;
 
-    @ApiModelProperty(value = "subidFuelUsedAtExcavationStandardMode", example = "1.1", required = true)
+    @Schema(description = "subidFuelUsedAtExcavationStandardMode", example = "1.1", required = true)
     @JsonProperty("subid_fuel_used_at_excavationstandard_mode")
     private Double subidFuelUsedAtExcavationStandardMode;
 
-    @ApiModelProperty(value = "subidFuelUsedAtExcavationStandardModePerct", example = "1.1", required = true)
+    @Schema(description = "subidFuelUsedAtExcavationStandardModePerct", example = "1.1", required = true)
     @JsonProperty("subid_fuel_used_at_excavation_standard_mode_perct")
     private Double subidFuelUsedAtExcavationStandardModePerct;
 
-    @ApiModelProperty(value = "subidFuelUsedAtExcavationPlusMode", example = "1.1", required = true)
+    @Schema(description = "subidFuelUsedAtExcavationPlusMode", example = "1.1", required = true)
     @JsonProperty("subid_fuel_used_at_excavation_plus_mode")
     private Double subidFuelUsedAtExcavationPlusMode;
 
-    @ApiModelProperty(value = "subidFuelUsedAtExcavationPlusModePerct", example = "1.1", required = true)
+    @Schema(description = "subidFuelUsedAtExcavationPlusModePerct", example = "1.1", required = true)
     @JsonProperty("subid_fuel_used_at_excavation_plus_mode_perct")
     private Double subidFuelUsedAtExcavationPlusModePerct;
 
     //V6 API column
 
-    @ApiModelProperty(value = "distanceTravelledInRoading", example = "1.1", required = true)
+    @Schema(description = "distanceTravelledInRoading", example = "1.1", required = true)
     @JsonProperty("distance_travelled_in_roading")
     private Double distanceTravelledInRoading;
 
-    @ApiModelProperty(value = "averageSpeedInRoading", example = "1.1", required = true)
+    @Schema(description = "averageSpeedInRoading", example = "1.1", required = true)
     @JsonProperty("average_speed_in_roading")
     private Double averageSpeedInRoading;
 
-    @ApiModelProperty(value = "fuelUsedInExcavation", example = "1.1", required = true)
+    @Schema(description = "fuelUsedInExcavation", example = "1.1", required = true)
     @JsonProperty("fuel_used_in_excavation")
     private Double fuelUsedInExcavation;
 
-    @ApiModelProperty(value = "fuelUsedInExcavationPerct", example = "1.1", required = true)
+    @Schema(description = "fuelUsedInExcavationPerct", example = "1.1", required = true)
     @JsonProperty("fuel_used_in_excavation_perct")
     private Double fuelUsedInExcavationPerct;
 
-    @ApiModelProperty(value = "fuelUsedInIdle", example = "1.1", required = true)
+    @Schema(description = "fuelUsedInIdle", example = "1.1", required = true)
     @JsonProperty("fuel_used_in_idle")
     private Double fuelUsedInIdle;
 
-    @ApiModelProperty(value = "fuelUsedInIdlePerct", example = "1.1", required = true)
+    @Schema(description = "fuelUsedInIdlePerct", example = "1.1", required = true)
     @JsonProperty("fuel_used_in_idle_perct")
     private Double fuelUsedInIdlePerct;
 
@@ -597,80 +597,80 @@ public class MachineBHLData implements Serializable {
 		}*/
 
 
-    @ApiModelProperty(value = "prb1", example = "1.1", required = true)
+    @Schema(description = "prb1", example = "1.1", required = true)
     @JsonProperty("prb1")
     private Double prb1;
 
-    @ApiModelProperty(value = "prb2", example = "1.1", required = true)
+    @Schema(description = "prb2", example = "1.1", required = true)
     @JsonProperty("prb2")
     private Double prb2;
 
-    @ApiModelProperty(value = "prb3", example = "1.1", required = true)
+    @Schema(description = "prb3", example = "1.1", required = true)
     @JsonProperty("prb3")
     private Double prb3;
 
-    @ApiModelProperty(value = "prb4", example = "1.1", required = true)
+    @Schema(description = "prb4", example = "1.1", required = true)
     @JsonProperty("prb4")
     private Double prb4;
 
-    @ApiModelProperty(value = "prb5", example = "1.1", required = true)
+    @Schema(description = "prb5", example = "1.1", required = true)
     @JsonProperty("prb5")
     private Double prb5;
 
-    @ApiModelProperty(value = "prb6", example = "1.1", required = true)
+    @Schema(description = "prb6", example = "1.1", required = true)
     @JsonProperty("prb6")
     private Double prb6;
 
-    @ApiModelProperty(value = "prbem1", example = "1.1", required = true)
+    @Schema(description = "prbem1", example = "1.1", required = true)
     @JsonProperty("prbem1")
     private Double prbem1;
 
-    @ApiModelProperty(value = "prbem2", example = "1.1", required = true)
+    @Schema(description = "prbem2", example = "1.1", required = true)
     @JsonProperty("prbem2")
     private Double prbem2;
 
-    @ApiModelProperty(value = "prbem3", example = "1.1", required = true)
+    @Schema(description = "prbem3", example = "1.1", required = true)
     @JsonProperty("prbem3")
     private Double prbem3;
 
-    @ApiModelProperty(value = "prbem4", example = "1.1", required = true)
+    @Schema(description = "prbem4", example = "1.1", required = true)
     @JsonProperty("prbem4")
     private Double prbem4;
 
-    @ApiModelProperty(value = "prbem5", example = "1.1", required = true)
+    @Schema(description = "prbem5", example = "1.1", required = true)
     @JsonProperty("prbem5")
     private Double prbem5;
 
-    @ApiModelProperty(value = "prbem6", example = "1.1", required = true)
+    @Schema(description = "prbem6", example = "1.1", required = true)
     @JsonProperty("prbem6")
     private Double prbem6;
 
-    @ApiModelProperty(value = "pdrbem1", example = "1.1", required = true)
+    @Schema(description = "pdrbem1", example = "1.1", required = true)
     @JsonProperty("pdrbem1")
     private Double pdrbem1;
 
 
-    @ApiModelProperty(value = "pdrbem2", example = "1.1", required = true)
+    @Schema(description = "pdrbem2", example = "1.1", required = true)
     @JsonProperty("pdrbem2")
     private Double pdrbem2;
 
 
-    @ApiModelProperty(value = "pdrbem3", example = "1.1", required = true)
+    @Schema(description = "pdrbem3", example = "1.1", required = true)
     @JsonProperty("pdrbem3")
     private Double pdrbem3;
 
 
-    @ApiModelProperty(value = "pdrbem4", example = "1.1", required = true)
+    @Schema(description = "pdrbem4", example = "1.1", required = true)
     @JsonProperty("pdrbem4")
     private Double pdrbem4;
 
 
-    @ApiModelProperty(value = "pdrbem5", example = "1.1", required = true)
+    @Schema(description = "pdrbem5", example = "1.1", required = true)
     @JsonProperty("pdrbem5")
     private Double pdrbem5;
 
 
-    @ApiModelProperty(value = "pdrbem6", example = "1.1", required = true)
+    @Schema(description = "pdrbem6", example = "1.1", required = true)
     @JsonProperty("pdrbem6")
     private Double pdrbem6;
 

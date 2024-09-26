@@ -1,6 +1,6 @@
 package com.wipro.jcb.livelink.app.machines.service.response;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class Filter {
-    @ApiModelProperty(value = "filter attribute", example = "2DX Super ecoXcellence", required = true)
+    @Schema(description = "filter attribute", example = "2DX Super ecoXcellence", required = true)
     String filter;
 
     public Filter(String filter) {

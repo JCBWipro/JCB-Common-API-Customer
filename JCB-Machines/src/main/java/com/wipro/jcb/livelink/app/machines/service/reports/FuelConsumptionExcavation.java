@@ -3,7 +3,7 @@ package com.wipro.jcb.livelink.app.machines.service.reports;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Date;
 
@@ -15,32 +15,32 @@ import java.util.Date;
  */
 public class FuelConsumptionExcavation {
 
-    @ApiModelProperty(value = "Day", example = "2017-07-13", required = true)
+    @Schema(description = "Day", example = "2017-07-13", required = true)
     @JsonFormat(pattern = AppServerConstants.DateFormat, timezone = AppServerConstants.timezone)
     @JsonProperty("date")
     private Date day;
 
-    @ApiModelProperty(value = "Economy Mode", example = "1.1", required = true)
+    @Schema(description = "Economy Mode", example = "1.1", required = true)
     @JsonProperty("economyMode")
     private Double economyMode;
 
-    @ApiModelProperty(value = "Economy Mode Percentage", example = "1.1", required = true)
+    @Schema(description = "Economy Mode Percentage", example = "1.1", required = true)
     @JsonProperty("economyModePercentage")
     private Double economyModePercentage;
 
-    @ApiModelProperty(value = "Standard Mode", example = "1.1", required = true)
+    @Schema(description = "Standard Mode", example = "1.1", required = true)
     @JsonProperty("standardMode")
     private Double standardMode;
 
-    @ApiModelProperty(value = "Standard Mode Percentage", example = "1.1", required = true)
+    @Schema(description = "Standard Mode Percentage", example = "1.1", required = true)
     @JsonProperty("standardModePercentage")
     private Double standardModePercentage;
 
-    @ApiModelProperty(value = "Plus Mode", example = "1.1", required = true)
+    @Schema(description = "Plus Mode", example = "1.1", required = true)
     @JsonProperty("plusMode")
     private Double plusMode;
 
-    @ApiModelProperty(value = "Standard Mode Percentage", example = "1.1", required = true)
+    @Schema(description = "Standard Mode Percentage", example = "1.1", required = true)
     @JsonProperty("plusModePercentage")
     private Double plusModePercentage;
 

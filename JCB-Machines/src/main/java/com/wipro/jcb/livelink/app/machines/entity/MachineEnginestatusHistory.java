@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
 import com.wipro.jcb.livelink.app.machines.dto.EngineStatusHistoryDataId;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -41,7 +41,7 @@ public class MachineEnginestatusHistory implements Serializable {
 
     @Id
     @Temporal(TemporalType.TIMESTAMP)
-    @ApiModelProperty(value = "Generated Time", example = "2017-07-13 12:44:20", required = true)
+    @Schema(description = "Generated Time", example = "2017-07-13 12:44:20", required = true)
     @JsonFormat(pattern = AppServerConstants.DateTimeFormat, timezone = AppServerConstants.timezone)
     private Date dateTime;
 

@@ -1,5 +1,7 @@
 package com.wipro.jcb.livelink.app.machines.constants;
 
+import lombok.Getter;
+
 import java.util.*;
 
 /**
@@ -11,6 +13,7 @@ import java.util.*;
 public class FuelLevelNAConstant {
 
     private static final Map<String, List<String>> fuelLevelNAConfig;
+    @Getter
     private static final List<String> exceptionMachines;
 
     static {
@@ -31,7 +34,4 @@ public class FuelLevelNAConstant {
         return fuelLevelNAConfig;
     }
 
-    public static List<String> getExceptionMachines() {
-        return exceptionMachines;
-    }
 }

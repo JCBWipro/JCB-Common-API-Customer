@@ -3,7 +3,7 @@ package com.wipro.jcb.livelink.app.machines.service.reports;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -18,16 +18,16 @@ public class FuelConsumption implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "Day", example = "2017-07-13", required = true)
+    @Schema(description = "Day", example = "2017-07-13", required = true)
     @JsonFormat(pattern = AppServerConstants.DateFormat, timezone = AppServerConstants.timezone)
     @JsonProperty("date")
     private Date date;
 
-    @ApiModelProperty(value = "Total Fuel Used", example = "0.0", required = true)
+    @Schema(description = "Total Fuel Used", example = "0.0", required = true)
     @JsonProperty("totalFuelUsed")
     private Double totalFuelUsed;
 
-    @ApiModelProperty(value = "Fuel Average", example = "0.0", required = true)
+    @Schema(description = "Fuel Average", example = "0.0", required = true)
     @JsonProperty("fuelAverage")
     private Double fuelAverage;
 

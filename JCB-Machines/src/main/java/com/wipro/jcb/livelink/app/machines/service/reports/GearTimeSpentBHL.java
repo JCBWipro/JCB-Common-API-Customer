@@ -3,7 +3,7 @@ package com.wipro.jcb.livelink.app.machines.service.reports;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.Date;
@@ -16,24 +16,24 @@ import java.util.Date;
  */
 @Data
 public class GearTimeSpentBHL {
-    @ApiModelProperty(value = "Day", example = "2017-07-13", required = true)
+    @Schema(description = "Day", example = "2017-07-13", required = true)
     @JsonFormat(pattern = AppServerConstants.DateFormat, timezone = AppServerConstants.timezone)
     @JsonProperty("date")
     private Date day;
 
-    @ApiModelProperty(value = "firstGear", example = "1.1", required = true)
+    @Schema(description = "firstGear", example = "1.1", required = true)
     @JsonProperty("firstGear")
     private Double firstGear;
 
-    @ApiModelProperty(value = "secoundGear", example = "1.1", required = true)
+    @Schema(description = "secoundGear", example = "1.1", required = true)
     @JsonProperty("secoundGear")
     private Double secoundGear;
 
-    @ApiModelProperty(value = "thirdGear", example = "1.1", required = true)
+    @Schema(description = "thirdGear", example = "1.1", required = true)
     @JsonProperty("thirdGear")
     private Double thirdGear;
 
-    @ApiModelProperty(value = "forthGear", example = "1.1", required = true)
+    @Schema(description = "forthGear", example = "1.1", required = true)
     @JsonProperty("forthGear")
     private Double forthGear;
 

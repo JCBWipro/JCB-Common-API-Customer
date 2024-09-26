@@ -1048,7 +1048,7 @@ public interface MachineRepository extends JpaRepository<Machine, String> {
 			+ "AND m.center_lat > 0.0 and m.center_long > 0.0 and res.vin is null order by m.vin", nativeQuery = true)
 	public List<String> findGeoFenceMachines(String eventName);*/
 
-    @Query(value = "SELECT m FROM Machine m join m.users u where ?2 = u.userName  AND m.vin=?1", nativeQuery = true)
+    @Query(value = "select * from machine where vin in (select vin from machin_user where user_id=:userName AND vin=:vin)",nativeQuery = true)
     public Machine findByVinAndUserName(String vin, String userName);
 
     @Query("SELECT DISTINCT m.model FROM Machine m join m.users u where ?1 = u.userName")
