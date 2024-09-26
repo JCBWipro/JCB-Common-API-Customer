@@ -57,6 +57,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 					throw new TokenException(ApiGatewayConstants.INVALID_TOKEN);
 				}
 			}
+            assert role != null;
             return chain.filter(exchange.mutate().request(role).build());
 		});
 	}

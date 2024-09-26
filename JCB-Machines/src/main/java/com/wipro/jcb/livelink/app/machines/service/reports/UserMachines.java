@@ -1,6 +1,6 @@
 package com.wipro.jcb.livelink.app.machines.service.reports;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 /**
@@ -15,17 +15,17 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserMachines {
-    @ApiModelProperty(value = "Machine unique identifier", example = "PUNJD22CV0000IIII", required = true)
+    @Schema(description = "Machine unique identifier", example = "PUNJD22CV0000IIII", required = true)
     private String vin;
-    @ApiModelProperty(value = "Model", example = "3DX Super ecoXcellence", required = true)
+    @Schema(description = "Model", example = "3DX Super ecoXcellence", required = true)
     private String model;
-    @ApiModelProperty(value = "platform", example = "Backhoe Loader", required = true)
+    @Schema(description = "platform", example = "Backhoe Loader", required = true)
     private String platform;
-    @ApiModelProperty(value = "Reg. No/Location/Nickname", example = "-", required = true)
+    @Schema(description = "Reg. No/Location/Nickname", example = "-", required = true)
     private String tag;
-    @ApiModelProperty(value = "Machine thumbnail image", example = "Image URL/Path", required = true)
+    @Schema(description = "Machine thumbnail image", example = "Image URL/Path", required = true)
     private String thumbnail;
-    @ApiModelProperty(value = "mahcine location", example = "Pune", required = true)
+    @Schema(description = "mahcine location", example = "Pune", required = true)
     private String location;
 
 

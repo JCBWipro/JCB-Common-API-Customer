@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
 import com.wipro.jcb.livelink.app.machines.dto.UtilizationDataId;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Setter;
 
@@ -29,7 +29,7 @@ public class MachineUtilizationData implements Serializable {
     @Serial
     private static final long serialVersionUID = -5689331260927188209L;
     @Id
-    @ApiModelProperty(value = "Day", example = "2017-07-13", required = true)
+    @Schema(description = "Day", example = "2017-07-13", required = true)
     @Temporal(TemporalType.DATE)
     @JsonFormat(pattern = AppServerConstants.DateFormat, timezone = AppServerConstants.timezone)
     @JsonProperty("date")
@@ -38,7 +38,7 @@ public class MachineUtilizationData implements Serializable {
     /*
      * optional Example : "string" string
      */
-    @ApiModelProperty(value = "Idle hours", example = "20.0", required = true)
+    @Schema(description = "Idle hours", example = "20.0", required = true)
     @JsonProperty("idle")
     private Double idleHours;
     /*
@@ -48,7 +48,7 @@ public class MachineUtilizationData implements Serializable {
     /*
      * optional Example : "string" string
      */
-    @ApiModelProperty(value = "Off hours", example = "10.0", required = true)
+    @Schema(description = "Off hours", example = "10.0", required = true)
     @JsonProperty("off")
     private Double offHours;
     /*
@@ -67,7 +67,7 @@ public class MachineUtilizationData implements Serializable {
     /*
      * optional Example : "string" string
      */
-    @ApiModelProperty(value = "Working hours", example = "120.0", required = true)
+    @Schema(description = "Working hours", example = "120.0", required = true)
     @JsonProperty("working")
     private Double workingHours;
 

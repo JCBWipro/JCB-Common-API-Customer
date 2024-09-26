@@ -8,7 +8,7 @@ import com.wipro.jcb.livelink.app.machines.dto.*;
 import com.wipro.jcb.livelink.app.machines.entity.*;
 import com.wipro.jcb.livelink.app.machines.enums.NormalAlertSeverity;
 import com.wipro.jcb.livelink.app.machines.enums.ServiceStatus;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.text.DecimalFormat;
@@ -23,61 +23,61 @@ import java.util.List;
  */
 @Data
 public class MachineResponse {
-    @ApiModelProperty(value = "Unique identifier for machine", example = "PUNJD22CV0000IIII", required = true)
+    @Schema(description = "Unique identifier for machine", example = "PUNJD22CV0000IIII", required = true)
     private String vin;
-    @ApiModelProperty(value = "Status as on time", example = "2017-07-13 12:44:20", required = true)
+    @Schema(description = "Status as on time", example = "2017-07-13 12:44:20", required = true)
     @JsonFormat(pattern = AppServerConstants.DateTimeFormat, timezone = AppServerConstants.timezone)
     private Date statusAsOnTime;
-    @ApiModelProperty(value="Server Timezone", example = "UTC", required = true)
+    @Schema(description ="Server Timezone", example = "UTC", required = true)
     private String serverTimezone = AppServerConstants.timezone;
-    @ApiModelProperty(value = "Total machine hours", example = "280Hrs", required = true)
+    @Schema(description = "Total machine hours", example = "280Hrs", required = true)
     private String machineHours;
-    @ApiModelProperty(value = "Fuel percentage", example = "55%", required = true)
+    @Schema(description = "Fuel percentage", example = "55%", required = true)
     private String fuelPercentage;
-    @ApiModelProperty(value = "Latitude", example = "18.5204", required = true)
+    @Schema(description = "Latitude", example = "18.5204", required = true)
     private Double latitude;
-    @ApiModelProperty(value = "Longitude", example = "73.8567", required = true)
+    @Schema(description = "Longitude", example = "73.8567", required = true)
     private Double longitude;
-    @ApiModelProperty(value = "Location", example = "Pune, Maharashtra, India", required = true)
+    @Schema(description = "Location", example = "Pune, Maharashtra, India", required = true)
     private String location;
-    @ApiModelProperty(value = "Zone", example = "North Regional Off", required = true)
+    @Schema(description = "Zone", example = "North Regional Off", required = true)
     private String zone;
-    @ApiModelProperty(value = "Model", example = "3DX", required = true)
+    @Schema(description = "Model", example = "3DX", required = true)
     private String model;
-    @ApiModelProperty(value = "Reg. No/Location/Nickname", example = "-", required = true)
+    @Schema(description = "Reg. No/Location/Nickname", example = "-", required = true)
     private String tag;
-    @ApiModelProperty(value = "Requested time range", example = "26 June 17 - 2 july 17", required = true)
+    @Schema(description = "Requested time range", example = "26 June 17 - 2 july 17", required = true)
     private String dateRange;
-    @ApiModelProperty(value = "Staic value", example = "8 AM - 8 PM", required = true)
+    @Schema(description = "Staic value", example = "8 AM - 8 PM", required = true)
     private String hours;
     @JsonIgnore
-    @ApiModelProperty(value = "Machine image", example = "Image URL/Path", required = true)
+    @Schema(description = "Machine image", example = "Image URL/Path", required = true)
     private String image;
-    @ApiModelProperty(value = "Flag representing normal alert status", example = "true", allowableValues = "true,false", required = true)
+    @Schema(description = "Flag representing normal alert status", example = "true", allowableValues = "true,false", required = true)
     private Boolean normalAlert;
-    @ApiModelProperty(value = "Flag representing service alert status", example = "true", allowableValues = "true,false", required = true)
+    @Schema(description = "Flag representing service alert status", example = "true", allowableValues = "true,false", required = true)
     private Boolean serviceAlert;
-    @ApiModelProperty(value = "Flag representing service alert status", example = "RED", allowableValues = "RED,GREEN,YELLOW", required = true)
+    @Schema(description = "Flag representing service alert status", example = "RED", allowableValues = "RED,GREEN,YELLOW", required = true)
     private NormalAlertSeverity normalAlertSeverity;
-    @ApiModelProperty(value = "Fuel level color indicator", example = "high", allowableValues = "high,low,normal", required = true)
+    @Schema(description = "Fuel level color indicator", example = "high", allowableValues = "high,low,normal", required = true)
     private String fuelLevel;
-    @ApiModelProperty(value = "Type of platform", example = "Backhoe Loader", required = true)
+    @Schema(description = "Type of platform", example = "Backhoe Loader", required = true)
     private String platform;
-    @ApiModelProperty(value = "Machine thumbnail image", example = "Image URL/Path", required = true)
+    @Schema(description = "Machine thumbnail image", example = "Image URL/Path", required = true)
     private String thumbnail;
-    @ApiModelProperty(value = "Machine details", required = true)
+    @Schema(description = "Machine details", required = true)
     private MachineDetailData machineStatus;
-    @ApiModelProperty(value = "List of alerts of provided machine", required = true)
+    @Schema(description = "List of alerts of provided machine", required = true)
     private List<AlertData> alert;
-    @ApiModelProperty(value = "List of machine utilization of provided machine", required = true)
+    @Schema(description = "List of machine utilization of provided machine", required = true)
     private List<MachineUtilizationData> utilization;
-    @ApiModelProperty(value = "List of machine fuel consumption of provided machine", required = true)
+    @Schema(description = "List of machine fuel consumption of provided machine", required = true)
     private List<MachineFuelConsumptionData> fuel;
-    @ApiModelProperty(value = "List of machine performance of provided machine", required = true)
+    @Schema(description = "List of machine performance of provided machine", required = true)
     private List<MachinePerformanceData> performance;
-    @ApiModelProperty(value = "Machine service status", required = true)
+    @Schema(description = "Machine service status", required = true)
     private String serviceStatus;
-    @ApiModelProperty(value = "Machine service reason ", required = true)
+    @Schema(description = "Machine service reason ", required = true)
     private String serviceReason;
     private FuelHistoryDataList fuelHistoryDataList;
     private EngineHistoryDataList engineHistoryDataList;
@@ -85,46 +85,6 @@ public class MachineResponse {
     private boolean supportFeatures;
 
     private boolean activeFlag;
-	/*public MachineResponse(String vin, Date statusAsOnTime, String machineHours, String fuelPercentage, Double latitude,
-			Double longitude, String location, String zone, String model, String tag, String dateRange, String hours,
-			String image, Boolean normalAlert, Boolean serviceAlert, NormalAlertSeverity normalAlertSeverity,
-			String fuelLevel, String platform, String thumbnail, MachineDetailData machineStatus, List<AlertData> alert,
-			List<MachineUtilizationData> utilization, List<MachineFuelConsumptionData> fuel,
-			List<MachinePerformanceData> performance, String serviceStatus, String serviceReason,
-			FuelHistoryDataList fuelHistoryDataList, EngineHistoryDataList engineHistoryDataList) {
-		super();
-		this.vin = vin;
-		this.statusAsOnTime = statusAsOnTime;
-		this.machineHours = machineHours;
-		this.fuelPercentage = fuelPercentage;
-		this.latitude = latitude;
-		this.longitude = longitude;
-		this.location = location;
-		this.zone = zone;
-		this.model = model;
-		this.tag = tag;
-		this.dateRange = dateRange;
-		this.hours = hours;
-		this.image = image;
-		this.normalAlert = normalAlert;
-		this.serviceAlert = serviceAlert;
-		this.normalAlertSeverity = normalAlertSeverity;
-		this.fuelLevel = fuelLevel;
-		this.platform = platform;
-		this.thumbnail = thumbnail;
-		this.machineStatus = machineStatus;
-		this.alert = alert;
-		this.utilization = utilization;
-		this.fuel = fuel;
-		this.performance = performance;
-		this.serviceStatus = serviceStatus;
-		this.serviceReason = serviceReason;
-		this.fuelHistoryDataList = fuelHistoryDataList;
-		this.engineHistoryDataList = engineHistoryDataList;
-
-	}*/
-
-
 
     public MachineResponse(Builder builder) {
         super();

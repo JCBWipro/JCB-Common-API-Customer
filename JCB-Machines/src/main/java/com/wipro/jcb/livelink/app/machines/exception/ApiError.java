@@ -1,10 +1,13 @@
 package com.wipro.jcb.livelink.app.machines.exception;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -20,15 +23,24 @@ import java.io.Serializable;
  * from server. And, some 500 errors can have system errno instead of useless "internal". Like other
  * errors, details are hidden in message.
  */
+@Setter
+@Getter
 public class ApiError implements Serializable {
+    @Serial
     private static final long serialVersionUID = -1122688221544728777L;
-    @ApiModelProperty(value = "Code representing HTTP response error code", example = "500", required = true)
+    /*
+     * optional stack trace for this error. Server should not include stack trace in
+     * production and client should not print or show this stack to user. This
+     * property should be used in 'developer mode' only, for debugging. Example :
+     * "string"
+     */
+    @Schema(description = "Code representing HTTP response error code", example = "500", required = true)
     private int code;
     /*
      * optional Example : "string" string
      */
     @JsonIgnore
-    @ApiModelProperty(value = "error no is Internal errorno or error description for server", example = "-", required = false)
+    @Schema(description = "error no is Internal errorno or error description for server", example = "-", required = false)
     private String errno;
     /*
      * optional errno code for some internal errors in server. Since service
@@ -37,23 +49,16 @@ public class ApiError implements Serializable {
      * translated into human readable string like ENOENT or ENOMEM, not pure integer
      * value. Example : "string"
      */
-    @ApiModelProperty(value = "Description about error", example = "-", required = false)
+    @Schema(description = "Description about error", example = "-", required = false)
     private String message;
     /*
      * required Example : "string" string
      */
     @JsonIgnore
-    @ApiModelProperty(value = "Stacktrace of error", example = "-", required = false)
+    @Schema(description = "Stacktrace of error", example = "-", required = false)
     private String stack;
 
-    /*
-     * optional stack trace for this error. Server should not include stack trace in
-     * production and client should not print or show this stack to user. This
-     * property should be used in 'developer mode' only, for debugging. Example :
-     * "string"
-     */
-    public int getCode() {
-        return code;
+    public ApiError(HttpStatus httpStatus, String message) {
     }
 
     @Override
@@ -96,32 +101,5 @@ public class ApiError implements Serializable {
         this.stack = stack;
     }
 
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public String getErrno() {
-        return errno;
-    }
-
-    public void setErrno(String errno) {
-        this.errno = errno;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String getStack() {
-        return stack;
-    }
-
-    public void setStack(String stack) {
-        this.stack = stack;
-    }
 }
 

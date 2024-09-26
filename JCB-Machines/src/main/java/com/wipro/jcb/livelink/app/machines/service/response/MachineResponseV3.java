@@ -4,7 +4,7 @@ import com.wipro.jcb.livelink.app.machines.dto.*;
 import com.wipro.jcb.livelink.app.machines.entity.Machine;
 import com.wipro.jcb.livelink.app.machines.entity.MachineFuelConsumptionData;
 import com.wipro.jcb.livelink.app.machines.entity.MachineUtilizationData;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.Getter;
 
@@ -20,7 +20,7 @@ import java.util.Objects;
 @Getter
 @Data
 public class MachineResponseV3 {
-    @ApiModelProperty(value = "Unique identifier for machine", example = "PUNJD22CV0000IIII", required = true)
+    @Schema(description = "Unique identifier for machine", example = "PUNJD22CV0000IIII", required = true)
     private String vin;
     private Boolean pdfView;
     private String machineType;

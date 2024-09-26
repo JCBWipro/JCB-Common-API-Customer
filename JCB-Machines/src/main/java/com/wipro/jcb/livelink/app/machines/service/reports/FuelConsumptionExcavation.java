@@ -3,7 +3,11 @@ package com.wipro.jcb.livelink.app.machines.service.reports;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Date;
 
@@ -13,117 +17,40 @@ import java.util.Date;
  * Date:14-09-2024
  * project: JCB-Common-API-Customer
  */
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class FuelConsumptionExcavation {
 
-    @ApiModelProperty(value = "Day", example = "2017-07-13", required = true)
+    @Schema(description = "Day", example = "2017-07-13", required = true)
     @JsonFormat(pattern = AppServerConstants.DateFormat, timezone = AppServerConstants.timezone)
     @JsonProperty("date")
     private Date day;
 
-    @ApiModelProperty(value = "Economy Mode", example = "1.1", required = true)
+    @Schema(description = "Economy Mode", example = "1.1", required = true)
     @JsonProperty("economyMode")
     private Double economyMode;
 
-    @ApiModelProperty(value = "Economy Mode Percentage", example = "1.1", required = true)
+    @Schema(description = "Economy Mode Percentage", example = "1.1", required = true)
     @JsonProperty("economyModePercentage")
     private Double economyModePercentage;
 
-    @ApiModelProperty(value = "Standard Mode", example = "1.1", required = true)
+    @Schema(description = "Standard Mode", example = "1.1", required = true)
     @JsonProperty("standardMode")
     private Double standardMode;
 
-    @ApiModelProperty(value = "Standard Mode Percentage", example = "1.1", required = true)
+    @Schema(description = "Standard Mode Percentage", example = "1.1", required = true)
     @JsonProperty("standardModePercentage")
     private Double standardModePercentage;
 
-    @ApiModelProperty(value = "Plus Mode", example = "1.1", required = true)
+    @Schema(description = "Plus Mode", example = "1.1", required = true)
     @JsonProperty("plusMode")
     private Double plusMode;
 
-    @ApiModelProperty(value = "Standard Mode Percentage", example = "1.1", required = true)
+    @Schema(description = "Standard Mode Percentage", example = "1.1", required = true)
     @JsonProperty("plusModePercentage")
     private Double plusModePercentage;
-
-    public Date getDay() {
-        return day;
-    }
-
-
-    public Double getEconomyMode() {
-        return economyMode;
-    }
-
-
-    public void setEconomyMode(Double economyMode) {
-        this.economyMode = economyMode;
-    }
-
-
-    public Double getStandardMode() {
-        return standardMode;
-    }
-
-    public Double getStandardModePercentage() {
-        return standardModePercentage;
-    }
-
-    public Double getPlusMode() {
-        return plusMode;
-    }
-
-    public Double getPlusModePercentage() {
-        return plusModePercentage;
-    }
-
-    public void setDay(Date day) {
-        this.day = day;
-    }
-
-
-
-    public Double getEconomyModePercentage() {
-        return economyModePercentage;
-    }
-
-
-    public void setEconomyModePercentage(Double economyModePercentage) {
-        this.economyModePercentage = economyModePercentage;
-    }
-
-
-    public void setStandardMode(Double standardMode) {
-        this.standardMode = standardMode;
-    }
-
-    public void setStandardModePercentage(Double standardModePercentage) {
-        this.standardModePercentage = standardModePercentage;
-    }
-
-    public void setPlusMode(Double plusMode) {
-        this.plusMode = plusMode;
-    }
-
-    public void setPlusModePercentage(Double plusModePercentage) {
-        this.plusModePercentage = plusModePercentage;
-    }
-
-    public FuelConsumptionExcavation() {
-        super();
-    }
-
-
-    public FuelConsumptionExcavation(Date day, Double economyMode, Double economyModePercentage, Double standardMode,
-                                     Double standardModePercentage, Double plusMode, Double plusModePercentage) {
-        super();
-        this.day = day;
-        this.economyMode = economyMode;
-        this.economyModePercentage = economyModePercentage;
-        this.standardMode = standardMode;
-        this.standardModePercentage = standardModePercentage;
-        this.plusMode = plusMode;
-        this.plusModePercentage = plusModePercentage;
-    }
-
 
     @Override
     public String toString() {

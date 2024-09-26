@@ -1,7 +1,13 @@
 package com.wipro.jcb.livelink.app.machines.config;
 
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.security.SecuritySchemes;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Author: Rituraj Azad
@@ -9,8 +15,12 @@ import io.swagger.annotations.ApiImplicitParams;
  * Date:14-09-2024
  * project: JCB-Common-API-Customer
  */
-@ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", defaultValue = "Basic bGl2ZWxpbms6fGleZXxpXms=", example = "Basic bGl2ZWxpbms6fGleZXxpXms=", value = "Authorization", required = true, dataType = "string", paramType = "header"), })
-@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+@SecuritySchemes(value = {
+        @SecurityScheme(name = "basicAuth",
+                type = SecuritySchemeType.HTTP,
+                scheme = "basic")
+})
+@OpenAPIDefinition(info = @Info(title = "Authorization API", version = "1.0"))
+@Retention(RetentionPolicy.RUNTIME)
 public @interface AddAuthorization {
 }

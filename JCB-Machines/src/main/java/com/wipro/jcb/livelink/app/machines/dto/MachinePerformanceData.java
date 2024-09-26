@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
 import com.wipro.jcb.livelink.app.machines.entity.Machine;
 import com.wipro.jcb.livelink.app.machines.entity.MachineUtilizationData;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Setter;
 
@@ -33,7 +33,7 @@ public class MachinePerformanceData implements Serializable {
     @Id
     @JsonIgnore
     private String vinId;
-    @ApiModelProperty(value = "Day", example = "2017-07-13", required = true)
+    @Schema(description = "Day", example = "2017-07-13", required = true)
     @Temporal(TemporalType.DATE)
     @JsonProperty("date")
     @JsonFormat(pattern = AppServerConstants.DateFormat, timezone = AppServerConstants.timezone)
@@ -50,19 +50,19 @@ public class MachinePerformanceData implements Serializable {
     /*
      * optional Example : "string" string
      */
-    @ApiModelProperty(value = "Powerband high in hours", example = "12.0", required = true)
+    @Schema(description = "Powerband high in hours", example = "12.0", required = true)
     @JsonProperty("high")
     private Double powerBandHighInHours;
     /*
      * optional Example : 0.0 number (double)
      */
-    @ApiModelProperty(value = "Powerband low in hours", example = "13.0", required = true)
+    @Schema(description = "Powerband low in hours", example = "13.0", required = true)
     @JsonProperty("low")
     private Double powerBandLowInHours;
     /*
      * optional Example : 0.0 number (double)
      */
-    @ApiModelProperty(value = "Powerband medium in hours", example = "40.0", required = true)
+    @Schema(description = "Powerband medium in hours", example = "40.0", required = true)
     @JsonProperty("medium")
     private Double powerBandMediumInHours;
     /*

@@ -19,7 +19,7 @@ public class AppServerConstants {
     public static final String DateFormatWithTime = "yyyy-MM-dd HH:mm";
     public static final String DateTimeFormat = "yyyy-MM-dd HH:mm:ss";
     public static final String ExpireDateTimeFormat = "dd/MM/yyyy, hh:mm a ";
-    public static final String timezone = "IST";
+    public static final String timezone = "Asia/Kolkata";
     public static String livelinkAppServerBaseUrl;
     public static String livelinkAppServerOrgKey;
     // Server send heartbeat after every

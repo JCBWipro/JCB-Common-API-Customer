@@ -1,7 +1,7 @@
 package com.wipro.jcb.livelink.app.machines.service.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,15 +17,15 @@ import lombok.Setter;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AlertCount {
-    @ApiModelProperty(value = "service", example = "300", required = false)
+    @Schema(description = "service", example = "300")
     private Integer service = 0;
-    @ApiModelProperty(value = "health", example = "500", required = false)
+    @Schema(description = "health", example = "500")
     private Integer health =0;
-    @ApiModelProperty(value = "security", example = "200", required = false)
+    @Schema(description = "security", example = "200")
     private Integer security= 0;
-    @ApiModelProperty(value = "utilization", example = "300", required = false)
+    @Schema(description = "utilization", example = "300")
     private Integer utilization=0;
-    @ApiModelProperty(value = "location", example = "800", required = false)
+    @Schema(description = "location", example = "800")
     private Integer location =0;
 
     public AlertCount() {
