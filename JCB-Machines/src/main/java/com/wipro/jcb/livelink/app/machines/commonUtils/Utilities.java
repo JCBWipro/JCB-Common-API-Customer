@@ -50,12 +50,13 @@ public class Utilities {
 
     @Value("${livelinkserver.connectTimeout}")
     int connectTimeout;
+    
     @Value("${livelinkserver.readTimeout}")
     int readTimeout;
 
     private static RestTemplate restTemplate;
     private static HttpEntity<?> request;
-
+    
     public String getUserNamebyAppToken(String token) {
         return appServerTokenService.getUsernameByToken(token);
     }
@@ -191,6 +192,11 @@ public class Utilities {
             return new AddressResponse(address);
         }
     }
+    
+	public String getUniqueID() {
+		final UUID idOne = UUID.randomUUID();
+		return idOne.toString();
+	}
 
 }
 

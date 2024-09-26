@@ -25,7 +25,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public interface MachineRepository extends JpaRepository<Machine, String> {
+public interface MachineRepository extends CrudRepository<Machine, String> {
     /**
      * Find Machine by vin
      *
@@ -1048,7 +1048,8 @@ public interface MachineRepository extends JpaRepository<Machine, String> {
 			+ "AND m.center_lat > 0.0 and m.center_long > 0.0 and res.vin is null order by m.vin", nativeQuery = true)
 	public List<String> findGeoFenceMachines(String eventName);*/
 
-    @Query(value = "SELECT m FROM Machine m join m.users u where ?2 = u.userName  AND m.vin=?1", nativeQuery = true)
+    //@Query(value = "SELECT m FROM Machine m join m.users u where ?2 = u.userName  AND m.vin=?1", nativeQuery = true)
+    @Query(nativeQuery = true, value = "Select * From microservices_db.machine where vin = (Select vin from microservices_db.machin_user where vin=:vin and USER_ID=:userName)")
     public Machine findByVinAndUserName(String vin, String userName);
 
     @Query("SELECT DISTINCT m.model FROM Machine m join m.users u where ?1 = u.userName")
@@ -1082,7 +1083,8 @@ public interface MachineRepository extends JpaRepository<Machine, String> {
     @Query(value = "SELECT new com.jcb.livelinkappserver.api.response.RdVinImeiResponse(m.vin, substring(m.imeiNumber,5)) FROM Machine m WHERE m.renewalFlag = true and m.rolloffDate>= ?1 and m.rolloffDate <= ?2", nativeQuery = true)
     public List<RdVinImeiResponse> getNewMachines(Date startDate, Date endDate);
 
-    @Query(value = "SELECT firmware_version FROM machine where vin = :vin", nativeQuery = true)
+    //@Query(value = "SELECT firmware_version FROM machine where vin = :vin", nativeQuery = true)
+    @Query(value = "SELECT firmware_version FROM microservices_db.machine where vin = :vin", nativeQuery = true)
     public String getFirmwareVersionByVin(@Param("vin") String vin);
 
 

@@ -54,5 +54,5 @@ public interface MachineResponseService {
      * @throws ProcessCustomError If an error occurs during processing.
      */
     MachineResponseV3 getMachineDetailsListV3(String userName, String vin) throws ProcessCustomError;
-
+    public String getMachinetype(String vin);
 }
