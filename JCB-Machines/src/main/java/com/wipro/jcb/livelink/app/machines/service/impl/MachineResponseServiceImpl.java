@@ -3,6 +3,7 @@ package com.wipro.jcb.livelink.app.machines.service.impl;
 import com.wipro.jcb.livelink.app.machines.commonUtils.DateValue;
 import com.wipro.jcb.livelink.app.machines.commonUtils.DoubleValue;
 import com.wipro.jcb.livelink.app.machines.commonUtils.IntegerValue;
+import com.wipro.jcb.livelink.app.machines.commonUtils.MachineConstants;
 import com.wipro.jcb.livelink.app.machines.commonUtils.Utilities;
 import com.wipro.jcb.livelink.app.machines.constants.FuelLevelNAConstant;
 import com.wipro.jcb.livelink.app.machines.constants.MessagesList;
@@ -635,4 +636,34 @@ public class MachineResponseServiceImpl implements MachineResponseService {
             log.info("Exception occurred for MachinesV3 API :{} VIN {} Exception -{}", userName, vin, e.getMessage());
         }
     }
+    
+    /**
+     * This getMachinetype() is to fetch MachineType by vin
+     */
+	public String getMachinetype(String vin) {
+		String machineType = "";
+		try {
+			String firmware_version = machineRepository.getFirmwareVersionByVin(vin);
+			if (firmware_version != null && !firmware_version.isEmpty()) {
+				log.info("Response : Vin {} Firmware Version {}", vin, firmware_version);
+				Integer versionValues = Integer.parseInt(firmware_version.split("\\.")[0]);
+				log.info("versionValues" + versionValues);
+				if (versionValues >= 07 && versionValues < 30) {
+					machineType = MachineConstants.LL2;
+				} else if (versionValues >= 30 && versionValues <= 50) {
+					machineType = MachineConstants.LL4;
+				} else if (versionValues > 50) {
+					machineType = MachineConstants.LL2;
+				}
+
+			} else {
+				machineType = MachineConstants.NO_FIRMWARE;
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error("Exception occured at getMachinetype " + vin);
+		}
+		return machineType;
+	}
 }

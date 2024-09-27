@@ -1,13 +1,19 @@
 package com.wipro.jcb.livelink.app.machines.controller;
 
+import com.wipro.jcb.livelink.app.machines.commonUtils.MachineConstants;
+import com.wipro.jcb.livelink.app.machines.commonUtils.MachineUtils;
 import com.wipro.jcb.livelink.app.machines.commonUtils.Utilities;
 import com.wipro.jcb.livelink.app.machines.config.AddAuthorization;
 import com.wipro.jcb.livelink.app.machines.constants.ConstantConfig;
+import com.wipro.jcb.livelink.app.machines.constants.MessagesList;
+import com.wipro.jcb.livelink.app.machines.dto.UserDetails;
 import com.wipro.jcb.livelink.app.machines.exception.ApiError;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponse;
+import com.wipro.jcb.livelink.app.machines.service.MachineProfileService;
 import com.wipro.jcb.livelink.app.machines.service.MachineResponseService;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponseV2;
+import com.wipro.jcb.livelink.app.machines.service.response.MachineProfile;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineResponseV3;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,6 +23,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+
+import java.net.HttpURLConnection;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
@@ -36,13 +45,26 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @PropertySource("application.properties")
 @Tag(name = "Customer", description = "Customer Machine API")
-@RequestMapping(value = "/user", produces = {MediaType.APPLICATION_JSON_VALUE})
+@RequestMapping(value = "/user/machines", produces = {MediaType.APPLICATION_JSON_VALUE})
 public class MachineController {
 
     @Autowired
     MachineResponseService machineResponseService;
+    
+    @Autowired
+    private MachineProfileService machineProfileService;
+    
     @Autowired
     Utilities utilities;
+    
+    /*
+     * This End Point is used for the testing Purpose
+     */
+    @GetMapping
+    public String getString(@RequestHeader(MachineConstants.LoggedInUserRole) String userDetails) {
+    	UserDetails userResponse = MachineUtils.getUserDetails(userDetails);
+        return "LoggedIn Role is:-" + userResponse.getRoleName() + " and UserName is:-" + userResponse.getUserName();
+    }
 
     @CrossOrigin
     @Operation(summary = "List all machines for the current user", description = "Retrieves a paginated list of machines associated with the authenticated user.")
@@ -116,4 +138,36 @@ public class MachineController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    /*
+     * This End Point is used to get MachineProfile related details
+     */
+    @CrossOrigin
+	@Transactional(readOnly = true)
+    @GetMapping("/machineprofile")
+	public ResponseEntity<?> getMachineProfile(@RequestHeader(MachineConstants.LoggedInUserRole) String userDetails, @RequestParam(required=false) String vin) {
+    	UserDetails userResponse = MachineUtils.getUserDetails(userDetails);
+    	String userName = userResponse.getUserName();
+    	try {
+			if (userName != null) {
+				log.info("machineprofile:GET Request from user {}", userName);
+				return new ResponseEntity<MachineProfile>(machineProfileService.getMachineProfile(userName, vin),
+						HttpStatus.OK);
+			} else {
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+		} catch (final ProcessCustomError e) {
+			log.error("machineprofile:GET Request failed for machineprofile with fields for " + vin);
+			log.info("Exception occured for Machineprofile API :"+userName+"-"+vin+"Exception -"+e.getMessage());
+			return new ResponseEntity<ApiError>(e.getApiMessages(), HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (final Exception e) {
+			log.error("machineprofile:GET Request failed for machineprofile with fields for " + vin);
+			log.info("Exception occured for Machineprofile API :"+userName+"-"+vin+"Exception -"+e.getMessage());
+			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
 }

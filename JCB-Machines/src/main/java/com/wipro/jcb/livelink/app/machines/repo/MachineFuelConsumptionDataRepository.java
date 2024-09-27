@@ -26,8 +26,6 @@ public interface MachineFuelConsumptionDataRepository extends CrudRepository<Mac
 	 */
 	public MachineFuelConsumptionData findByDayAndVin(Date day, String vin);
 
-	/*public List<MachineFuelConsumptionData> findDistinctByMachineAndDayBetweenOrderByDayAsc(Machine machine,
-			Date startDate, Date endDate);*/
 	public List<MachineFuelConsumptionData> findByVinAndDayBetweenOrderByDayAsc(String vin,
 			Date startDate, Date endDate);
 
@@ -37,7 +35,6 @@ public interface MachineFuelConsumptionDataRepository extends CrudRepository<Mac
 
 	public MachineFuelConsumptionData findTop1ByMachineInOrderByDayDesc(List<Machine> machines);
 
-	/*@Async*/
 	public <S extends MachineFuelConsumptionData> Iterable<S> save(Iterable<S> entities);
 
 	@Override
@@ -54,8 +51,11 @@ public interface MachineFuelConsumptionDataRepository extends CrudRepository<Mac
 	public void deletByDate(@Param("day")Date day);
 	
 	
-	
-	@Query(value="SELECT machine_type FROM machinefuelconsumption_data where ?1 = vin_id limit 1", nativeQuery=true)
+	/**
+	 * Find MachineType by vin
+	 * @param vin
+	 */
+	@Query(value="SELECT machineType FROM microservices_db.machinefuelconsumptionData where vinId=:vin limit 1", nativeQuery=true)
 	public String getMachineTypeByVin(String vin);
 
 	@Query(value="SELECT COUNT(m.vin) FROM machinefuelconsumption_data m WHERE m.vin= :vin and m.day = :day and m.fuel_consumed= :fuelConsumed and m.fuel_level= :fuelLevel ",nativeQuery=true)

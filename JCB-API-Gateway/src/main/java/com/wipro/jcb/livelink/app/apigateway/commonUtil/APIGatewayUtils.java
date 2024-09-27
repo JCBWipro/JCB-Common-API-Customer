@@ -20,6 +20,7 @@ public class APIGatewayUtils {
 		map.put("MA Manager",11);
 		map.put("Super Admin",12);
 		map.put("Government Admin",13);
+		map.put("JCB",14);
 		return map.get(roleName);
 	}
 
