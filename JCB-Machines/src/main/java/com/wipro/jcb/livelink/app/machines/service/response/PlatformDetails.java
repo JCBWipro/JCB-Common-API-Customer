@@ -1,6 +1,6 @@
 package com.wipro.jcb.livelink.app.machines.service.response;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,9 +17,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlatformDetails {
-    @ApiModelProperty(value = "Machine Platform", example = "Backhoe Loader", required = true)
+    @Schema(description = "Machine Platform", example = "Backhoe Loader", required = true)
     private String platform;
-    @ApiModelProperty(value = "Number of machine belong to this platform", example = "3", required = true)
+    @Schema(description = "Number of machine belong to this platform", example = "3", required = true)
     private Long count;
 
     @Override

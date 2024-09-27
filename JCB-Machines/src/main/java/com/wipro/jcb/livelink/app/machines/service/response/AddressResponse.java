@@ -1,6 +1,6 @@
 package com.wipro.jcb.livelink.app.machines.service.response;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 /**
@@ -17,7 +17,7 @@ import lombok.*;
 @NoArgsConstructor
 public class AddressResponse {
 
-    @ApiModelProperty(value = "Chennai", required = true)
+    @Schema(description = "Location", example = "Chennai", required = true)
     private String location;
 
     @Override

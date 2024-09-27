@@ -11,7 +11,6 @@ import java.util.Date;
 import java.util.List;
 
 public interface MachineFeedLocationRepo extends CrudRepository<MachineFeedLocation, String> {
-    //@Override
     @Async
     public <S extends MachineFeedLocation> Iterable<S> save(Iterable<S> entities);
 
@@ -25,20 +24,10 @@ public interface MachineFeedLocationRepo extends CrudRepository<MachineFeedLocat
     @Query("select m from MachineFeedLocation m  where m.statusAsOnTime > ?1 and m.lastModifiedDate between ?2 and ?3 and m.lastModifiedDate is not null")
     public List<MachineFeedLocation> getLastedMachines(Date todayDate, Date startDateTime, Date endDateTime, Pageable pageable);
 
-    @Query("select m from MachineFeedLocation m where m.vin = ?1 and m.lastModifiedDate is not null")
-    public MachineFeedLocation findByVin(String vin);
+    @Query(value = "select * from machine_feedparser_location_data m where m.vin =:vin and m.last_modified_date is not null",nativeQuery = true)
+    MachineFeedLocation findByVin(String vin);
 
     @Query("select count(m.vin) from MachineFeedLocation m where m.statusAsOnTime > ?1 and m.lastModifiedDate between ?2 and ?3 and m.lastModifiedDate is not null")
-    public long getAllLastedMachines(Date todayDate, Date startDateTime, Date endDateTime);
+    long getAllLastedMachines(Date todayDate, Date startDateTime, Date endDateTime);
 
-   /* @Query(value = "select round(6371 * acos(cos(radians(machine.center_lat)) * cos(radians(mfl.latitude)) * cos(radians(mfl.longitude) - radians(machine.center_long)) "
-            + "+ sin(radians(machine.center_lat)) * sin(radians(mfl.latitude)))) as distance, machine.radius, machin_user.user_id, machine.vin FROM machine "
-            + "join machine_feedparser_location_data mfl on mfl.vin=machine.vin join machin_user ON machine.vin = machin_user.vin join live_link_user u on "
-            + "u.user_id=machin_user.user_id where u.user_type = ?4 and machine.radius > 0.0 and machine.vin in ?1 and mfl.last_modified_date between ?2 and ?3 "
-            + "and machine.center_lat > 0.0 and machine.center_long > 0.0 and (round(6371 * acos(cos(radians(machine.center_lat)) * cos(radians(mfl.latitude)) "
-            + "* cos(radians(mfl.longitude) - radians(machine.center_long)) + sin(radians(machine.center_lat)) * sin(radians(mfl.latitude))))) > machine.radius"
-            , nativeQuery = true)
-    public List<GeoFenceMachines> findGeoFenceMachines(List<String> vins, Date startTime, Date endTime, int userType);*/
-
-    //MachineFeedLocation findOne(String vin);
 }

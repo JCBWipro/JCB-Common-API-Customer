@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
 import com.wipro.jcb.livelink.app.machines.dto.FuelConsumptionDataId;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,7 +32,7 @@ public class MachineFuelConsumptionData implements Serializable {
     @Id
     @JsonIgnore
     private String vinId;
-    @ApiModelProperty(value = "Day", example = "2017-07-13", required = true)
+    @Schema(description = "Day", example = "2017-07-13", required = true)
     @Temporal(TemporalType.DATE)
     @JsonProperty("date")
     @JsonFormat(pattern = AppServerConstants.DateFormat, timezone = AppServerConstants.timezone)
@@ -41,7 +41,7 @@ public class MachineFuelConsumptionData implements Serializable {
     /*
      * optional Example : "string" string
      */
-    @ApiModelProperty(value = "Fuel consumed", example = "150.0", required = true)
+    @Schema(description = "Fuel consumed", example = "150.0", required = true)
     @JsonProperty("fuel")
     private Double fuelConsumed;
     /*

@@ -92,7 +92,7 @@ public class ResetPasswordServiceImpl extends ResetPasswordService {
             // Increment password reset attempts
             contactRepo.resetPasswordIncrementAttempts(userName);
 
-            return new MsgResponseTemplate("Password Generated and Sent to mobile Number : " + mobileNumber + "Total attempts left for the day is : " + remainingAttempts, true);
+            return new MsgResponseTemplate("Password Generated and Sent to mobile Number : " + mobileNumber + " , and Total attempts left for the day is : " + remainingAttempts, true);
 
         } catch (PasswordUpdateException e) {
             log.error("Error resetting password: {}", e.getMessage(), e);

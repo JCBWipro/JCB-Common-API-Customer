@@ -3,7 +3,7 @@ package com.wipro.jcb.livelink.app.machines.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.Date;
@@ -20,45 +20,45 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MachineDetailData {
-    @ApiModelProperty(value = "Engine status", example = "true", allowableValues = "true,false", required = true)
+    @Schema(description = "Engine status", example = "true", allowableValues = "true,false", required = true)
     private boolean engineStatus;
-    @ApiModelProperty(value = "Engine value", example = "On", allowableValues = "On,Off", required = true)
+    @Schema(description = "Engine value", example = "On", allowableValues = "On,Off", required = true)
     private String engineValue;
-    @ApiModelProperty(value = "Connectivity status", example = "true", allowableValues = "true,false", required = true)
+    @Schema(description = "Connectivity status", example = "true", allowableValues = "true,false", required = true)
     private boolean connectivity;
-    @ApiModelProperty(value = "Connectivity value", example = "On", allowableValues = "On,Off", required = true)
+    @Schema(description = "Connectivity value", example = "On", allowableValues = "On,Off", required = true)
     private String connectivityValue;
-    @ApiModelProperty(value = "Coolant status", example = "false", allowableValues = "true,false", required = true)
+    @Schema(description = "Coolant status", example = "false", allowableValues = "true,false", required = true)
     private boolean coolant;
-    @ApiModelProperty(value = "Coolant value", example = "-", allowableValues = "Fault,No Fault", required = true)
+    @Schema(description = "Coolant value", example = "-", allowableValues = "Fault,No Fault", required = true)
     private String coolantValue;
-    @ApiModelProperty(value = "Battery status", example = "true", allowableValues = "true,false", required = true)
+    @Schema(description = "Battery status", example = "true", allowableValues = "true,false", required = true)
     private boolean batteryConnectedStatus;
-    @ApiModelProperty(value = "Battery value", example = "1", required = true)
+    @Schema(description = "Battery value", example = "1", required = true)
     private String batteryVoltage;
-    @ApiModelProperty(value = "Oil status", example = "true", allowableValues = "true,false", required = true)
+    @Schema(description = "Oil status", example = "true", allowableValues = "true,false", required = true)
     private boolean OilPressureStatus;
-    @ApiModelProperty(value = "Oil value", example = "Fault", allowableValues = "Fault,No Fault", required = true)
+    @Schema(description = "Oil value", example = "Fault", allowableValues = "Fault,No Fault", required = true)
     private String oilValue;
-    @ApiModelProperty(value = "Air status", example = "false", allowableValues = "true,false", required = true)
+    @Schema(description = "Air status", example = "false", allowableValues = "true,false", required = true)
     private boolean airFilterStatus;
-    @ApiModelProperty(value = "Air value", example = "-", required = true)
+    @Schema(description = "Air value", example = "-", required = true)
     private String airValue;
-    @ApiModelProperty(value = "Fuel status", example = "false", allowableValues = "true,false", required = true)
+    @Schema(description = "Fuel status", example = "false", allowableValues = "true,false", required = true)
     private boolean fuelLevelStatus;
-    @ApiModelProperty(value = "Fuel value", example = "45.45", required = true)
+    @Schema(description = "Fuel value", example = "45.45", required = true)
     private String fuelValue;
-    @ApiModelProperty(value = "Status as on time", example = "2017-07-13 12:44:20", required = true)
+    @Schema(description = "Status as on time", example = "2017-07-13 12:44:20", required = true)
     @JsonIgnore
     private Date statusAsOnTime;
-    @ApiModelProperty(value = "last communication time", example = "2017-07-13 12:44:20", required = true)
+    @Schema(description = "last communication time", example = "2017-07-13 12:44:20", required = true)
     @JsonFormat(pattern = AppServerConstants.DateTimeFormat, timezone = AppServerConstants.timezone)
     private Date lastCommunicationTime;
     @JsonIgnore
-    @ApiModelProperty(value = "Machine image", example = "Image URL/Path", required = true)
+    @Schema(description = "Machine image", example = "Image URL/Path", required = true)
     private String image;
     @JsonIgnore
-    @ApiModelProperty(value = "Machine thumbnail image", example = "Image URL/Path", required = true)
+    @Schema(description = "Machine thumbnail image", example = "Image URL/Path", required = true)
     private String thumbnail;
 
     @Override

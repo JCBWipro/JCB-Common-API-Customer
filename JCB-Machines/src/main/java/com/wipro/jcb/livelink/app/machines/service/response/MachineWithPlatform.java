@@ -1,6 +1,6 @@
 package com.wipro.jcb.livelink.app.machines.service.response;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 /**
@@ -15,9 +15,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MachineWithPlatform {
-    @ApiModelProperty(value = "Machine unique identifier", example = "PUNJD22CV0000IIII", required = true)
+    @Schema(description = "Machine unique identifier", example = "PUNJD22CV0000IIII", required = true)
     private Long machineCount;
-    @ApiModelProperty(value = "XXXXX", required = true)
+    @Schema(description = "XXXXX", required = true)
     private String platform;
 
 }

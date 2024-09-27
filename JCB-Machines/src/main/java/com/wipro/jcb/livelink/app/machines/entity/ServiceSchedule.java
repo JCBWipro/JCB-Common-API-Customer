@@ -3,10 +3,11 @@ package com.wipro.jcb.livelink.app.machines.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Setter;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -26,6 +27,7 @@ import java.util.TimeZone;
 public class ServiceSchedule implements Serializable {
 
 
+    @Serial
     private static final long serialVersionUID = 8098638795243197012L;
 
     @Id
@@ -35,21 +37,21 @@ public class ServiceSchedule implements Serializable {
     /*
      * optional date in miliseconds in UTC Example : 0
      */
-    @ApiModelProperty(value = "Service job ID", example = "10005692", required = true)
+    @Schema(description = "Service job ID", example = "10005692", required = true)
     @Column(name = "dealer_name")
     private String dealerName;
 
     /*
      * optional Example : "string" string
      */
-    @ApiModelProperty(value = "Name of service", example = "Beyond warranty", required = true)
+    @Schema(description = "Name of service", example = "Beyond warranty", required = true)
     @Column(name = "service_name")
     private String serviceName;
 
     /*
      * optional Example : "string" string
      */
-    @ApiModelProperty(value = "Name of service", example = "Beyond warranty", required = true)
+    @Schema(description = "Name of service", example = "Beyond warranty", required = true)
     @Column(name = "schedule_name")
     private String scheduleName;
 
@@ -57,36 +59,36 @@ public class ServiceSchedule implements Serializable {
     /*
      * optional Example : "string" string
      */
-    @ApiModelProperty(value = "Name of service", example = "Beyond warranty", required = true)
+    @Schema(description = "Name of service", example = "Beyond warranty", required = true)
     @Column(name = "current_cmh")
     private String currentCmh;
 
-    @ApiModelProperty(value = "Name of service", example = "Beyond warranty", required = true)
+    @Schema(description = "Name of service", example = "Beyond warranty", required = true)
     @Column(name = "status")
     private String status;
 
     /*
      * optional Example : "string" string
      */
-    @ApiModelProperty(value = "overDueHours", example = "Beyond warranty", required = true)
+    @Schema(description = "overDueHours", example = "Beyond warranty", required = true)
     @Column(name = "over_due_hours")
     private String overDueHours;
 
 
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(pattern = "dd MMM yyyy", timezone = AppServerConstants.timezone)
-    @ApiModelProperty(value = "Over Due Date", example = "2017-09-09", required = true)
+    @Schema(description = "Over Due Date", example = "2017-09-09", required = true)
     @Column(name = "over_due_date")
     private Date overDueDate;
 
-    @ApiModelProperty(value = "Name of service", example = "Beyond warranty", required = true)
+    @Schema(description = "Name of service", example = "Beyond warranty", required = true)
     @Column(name = "due_hours")
     private String dueHours;
 
 
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(pattern = "dd MMM yyyy", timezone = AppServerConstants.timezone)
-    @ApiModelProperty(value = "Due date", example = "2017-09-09", required = true)
+    @Schema(description = "Due date", example = "2017-09-09", required = true)
     @Column(name = "due_date")
     private Date dueDate;
 

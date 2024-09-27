@@ -13,12 +13,9 @@ import java.io.Serial;
  * project: JCB-Common-API-Customer
  */
 public class ProcessCustomError extends Exception {
-    /**
-     *
-     */
     @Serial
     private static final long serialVersionUID = -5137371098583567742L;
-    private ApiError apierror;
+    private final ApiError apierror;
     @Setter
     @Getter
     private HttpStatus status;
@@ -36,9 +33,6 @@ public class ProcessCustomError extends Exception {
         apierror.setMessage(msg);
         apierror.setCode(Integer.parseInt(String.valueOf(status)));
         this.status = status;
-    }
-
-    public ProcessCustomError() {
     }
 
     public ApiError getApiMessages() {

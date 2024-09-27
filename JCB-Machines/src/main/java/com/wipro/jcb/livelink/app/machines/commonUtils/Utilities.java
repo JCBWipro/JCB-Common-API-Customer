@@ -2,14 +2,12 @@ package com.wipro.jcb.livelink.app.machines.commonUtils;
 
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
-import com.wipro.jcb.livelink.app.machines.service.AppServerTokenService;
 import com.wipro.jcb.livelink.app.machines.service.response.AddressResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -42,9 +40,6 @@ import static com.wipro.jcb.livelink.app.machines.constants.AppServerConstants.t
 @Component
 public class Utilities {
 
-    @Autowired
-    AppServerTokenService appServerTokenService;
-
     @Value("${openstreetmap.basepath}")
     String openstreetmapBasepath;
 
@@ -56,9 +51,6 @@ public class Utilities {
     private static RestTemplate restTemplate;
     private static HttpEntity<?> request;
 
-    public String getUserNamebyAppToken(String token) {
-        return appServerTokenService.getUsernameByToken(token);
-    }
 
     public Date getDate(String date) {
         final DateFormat parseFormat = new SimpleDateFormat(AppServerConstants.DateFormat);

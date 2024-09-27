@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
 import com.wipro.jcb.livelink.app.machines.constants.EventLevel;
 import com.wipro.jcb.livelink.app.machines.constants.EventType;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -39,46 +39,46 @@ public class Alert implements Serializable {
      *
      * @JoinColumn(name="vin") private Machine machine;
      */
-    @ApiModelProperty(value = "Description", example = "Fuel Level is low and machine is outside operational hours", required = true)
+    @Schema(description = "Description", example = "Fuel Level is low and machine is outside operational hours", required = true)
     private String eventDescription;
     /*
      * Example : "string"
      */
     @Temporal(TemporalType.TIMESTAMP)
-    @ApiModelProperty(value = "Generated Time", example = "2017-07-13 12:44:20", required = true)
+    @Schema(description = "Generated Time", example = "2017-07-13 12:44:20", required = true)
     @JsonFormat(pattern = AppServerConstants.DateTimeFormat, timezone = AppServerConstants.timezone)
     private Date eventGeneratedTime;
     /*
      * date in miliseconds in UTC Example : 0
      */
-    @ApiModelProperty(value = "Latitude", example = "18.5204", required = true)
+    @Schema(description = "Latitude", example = "18.5204", required = true)
     private Double latitude;
     /*
      * Latitude part of machine GPS co-ordinates Example : 0.0
      */
-    @ApiModelProperty(value = "Longitude", example = "73.8567", required = true)
+    @Schema(description = "Longitude", example = "73.8567", required = true)
     private Double longitude;
     /*
      * Longitude part of machine GPS co-ordinates Example : 0.0
      */
-    @ApiModelProperty(value = "Location", example = "Pune, Maharashtra, India", required = true)
+    @Schema(description = "Location", example = "Pune, Maharashtra, India", required = true)
     private String location;
     /*
      * GPS address in words Example : "string"
      */
-    @ApiModelProperty(value = "Nature of Fault", example = "YELLOW", allowableValues = "YELLOW,RED", required = true)
+    @Schema(description = "Nature of Fault", example = "YELLOW", allowableValues = "YELLOW,RED", required = true)
     @Enumerated(EnumType.STRING)
     private EventLevel eventLevel;
     /*
      * Event level/severity. Need constant data for this attribute Example :
      * "string"
      */
-    @ApiModelProperty(value = "Name", example = "Fuel Level is low", required = true)
+    @Schema(description = "Name", example = "Fuel Level is low", required = true)
     private String eventName;
     /*
      * Example : "string"
      */
-    @ApiModelProperty(value = "Type", example = "Health", allowableValues = "Service,Health,Security,Utilization,Location", required = true)
+    @Schema(description = "Type", example = "Health", allowableValues = "Service,Health,Security,Utilization,Location", required = true)
     @Enumerated(EnumType.STRING)
     private EventType eventType;
     /*
@@ -90,9 +90,9 @@ public class Alert implements Serializable {
     private Machine machine;
     @Column(name = "vin", updatable = false, insertable = false)
     private String vin;
-    @ApiModelProperty(value = "Specify wether alert is read or not", example = "true", allowableValues = "true,false", required = true)
+    @Schema(description = "Specify wether alert is read or not", example = "true", allowableValues = "true,false", required = true)
     private Boolean readFlag;
-    @ApiModelProperty(value = "Is alert is new(open) or hostorical", example = "true", allowableValues = "true,false", required = true)
+    @Schema(description = "Is alert is new(open) or hostorical", example = "true", allowableValues = "true,false", required = true)
     private Boolean isOpen;
     @JsonIgnore
     private Boolean isUpdated;
@@ -102,16 +102,16 @@ public class Alert implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(columnDefinition = "timestamp default current_timestamp", insertable = false)
     private Date createdAt;
-    @ApiModelProperty(value = "Specify wether alert is dtc alert or not", example = "true", allowableValues = "true,false", required = true)
+    @Schema(description = "Specify wether alert is dtc alert or not", example = "true", allowableValues = "true,false", required = true)
     private Boolean isDtcAlert;
-    @ApiModelProperty(value = "Is alert visible on UI or not", example = "true", allowableValues = "true,false", required = true)
+    @Schema(description = "Is alert visible on UI or not", example = "true", allowableValues = "true,false", required = true)
     private Boolean isCustomerVisible;
     @JsonIgnore
     @Temporal(TemporalType.TIMESTAMP)
     @Column(columnDefinition = "timestamp default current_timestamp", insertable = false)
     private Date updatedAt;
 
-    @ApiModelProperty(value = "createdBy", example = "A/S", required = true)
+    @Schema(description = "createdBy", example = "A/S", required = true)
     private String createdBy;
 
     public Alert() {
