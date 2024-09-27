@@ -18,7 +18,7 @@ import com.wipro.jcb.livelink.app.auth.reponse.ContactResponse;
 public class CustomUserDetailsService implements UserDetailsService {
 
 	@Autowired
-	private ContactRepo contactRepo;
+	ContactRepo contactRepo;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
