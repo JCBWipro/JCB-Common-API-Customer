@@ -1,30 +1,16 @@
 package com.wipro.jcb.livelink.app.machines.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 /**
- * This UserDetails DTO is used to Handle Role and Username
+ * Author: Rituraj Azad
+ * User: RI20474447
+ * Date:25-09-2024
+ * project: JCB-Common-API-Customer
  */
-@Setter
-@Getter
+@Data
 public class UserDetails {
 
-	private String userName;
-	private String roleName;
-
-	public UserDetails() {
-	}
-
-	public UserDetails(String userName, String roleName) {
-		super();
-		this.userName = userName;
-		this.roleName = roleName;
-	}
-
-    @Override
-	public String toString() {
-		return "UserDetails [userName=" + userName + ", roleName=" + roleName + "]";
-	}
-
+    private String userName;
+    private String roleName;
 }

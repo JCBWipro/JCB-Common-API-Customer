@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
@@ -17,6 +19,8 @@ import java.util.Date;
  */
 @Setter
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class FuelConsumptionDuty {
 
     @Schema(description = "Day", example = "2017-07-13", required = true)
@@ -55,28 +59,6 @@ public class FuelConsumptionDuty {
     @Schema(description = "Idle Mode Percentage", example = "1.1", required = true)
     @JsonProperty("idleModePercentage")
     private Double idleModePercentage;
-
-
-    public FuelConsumptionDuty() {
-        super();
-    }
-
-
-
-    public FuelConsumptionDuty(Date day, Double excavationMode, Double excavationModePercentage, Double loadingMode,
-                               Double loadingModePercentage, Double roadindMode, Double roadindModePercentage, Double idleMode,
-                               Double idleModePercentage) {
-        super();
-        this.day = day;
-        this.excavationMode = excavationMode;
-        this.excavationModePercentage = excavationModePercentage;
-        this.loadingMode = loadingMode;
-        this.loadingModePercentage = loadingModePercentage;
-        this.roadindMode = roadindMode;
-        this.roadindModePercentage = roadindModePercentage;
-        this.idleMode = idleMode;
-        this.idleModePercentage = idleModePercentage;
-    }
 
     @Override
     public String toString() {

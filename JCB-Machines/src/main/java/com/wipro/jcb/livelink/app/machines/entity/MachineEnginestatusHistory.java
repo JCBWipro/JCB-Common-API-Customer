@@ -24,9 +24,6 @@ import java.util.Date;
 @Table(name = "machineenginestatushistorydata", indexes = {
         @Index(name = "machineenginestatushistorydata_vin_dateTime", columnList = "vin,dateTime", unique = false) })
 public class MachineEnginestatusHistory implements Serializable {
-    /**
-     *
-     */
     @Serial
     private static final long serialVersionUID = -2699233137907509189L;
 

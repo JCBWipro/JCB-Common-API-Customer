@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Setter;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -26,6 +27,7 @@ import java.util.TimeZone;
 public class ServiceSchedule implements Serializable {
 
 
+    @Serial
     private static final long serialVersionUID = 8098638795243197012L;
 
     @Id

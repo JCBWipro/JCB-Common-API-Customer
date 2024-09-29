@@ -1,47 +1,36 @@
-/*
 package com.wipro.jcb.livelink.app.machines.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import springfox.documentation.builders.ApiInfoBuilder;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.service.Contact;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
 
-*/
-/* Author: Rituraj Azad
+ /*
+ Author: Rituraj Azad
  * User: RI20474447
  * Date:19-09-2024
  * project: JCB-Common-API-Customer
- *//*
-
+ */
 
 @Configuration
-@EnableSwagger2
 public class SwaggerConfig {
 
     @Bean
-    public Docket api() {
-        return new Docket(DocumentationType.SWAGGER_2)
-                .select()
-                .apis(RequestHandlerSelectors.basePackage("com.wipro.jcb.livelink.app.machines.controller"))
-                .paths(PathSelectors.any())
-                .build()
-                .apiInfo(apiInfo());
-    }
+    public OpenAPI openAPIConfig() {
+        return new OpenAPI()
+                .info(new Info()
+                        .title("JCB-Machines API")
+                        .description("""
+                                API documentation for JCB-Machines microservice.
 
-    private ApiInfo apiInfo() {
-        return new ApiInfoBuilder()
-                .title("JCB-Machines API")
-                .description("API documentation for JCB-Machines microservice")
-                .version("1.0")
-                .contact(new Contact("Rituraj Azad", "https://www.jcb.com", "RI20474447@wipro.com"))
-                .build();
+                                **JCB Machines: Powering Construction and Beyond**
+                                JCB machines are synonymous with power, innovation, and durability. For over seven decades, they have been at the forefront of the construction and agricultural industries, providing cutting-edge equipment that empowers businesses worldwide.
+                                """)
+                        .version("1.0")
+                        .contact(new Contact()
+                                .name("Rituraj Azad")
+                                .url("https://www.jcblivelink.in")
+                                .email("RI20474447@wipro.com")));
     }
-}*/
+}

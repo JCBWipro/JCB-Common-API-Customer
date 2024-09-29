@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
+import lombok.*;
 
 import java.util.Date;
 
@@ -14,7 +14,10 @@ import java.util.Date;
  * Date:14-09-2024
  * project: JCB-Common-API-Customer
  */
-@Data
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class MachineCompassBHL {
     @Schema(description = "Day", example = "2017-07-13", required = true)
     @JsonFormat(pattern = AppServerConstants.DateFormat, timezone = AppServerConstants.timezone)
@@ -32,50 +35,6 @@ public class MachineCompassBHL {
     @Schema(description = "neutralDirection", example = "1.1", required = true)
     @JsonProperty("neutralDirection")
     private Double neutralDirection;
-
-    public MachineCompassBHL() {
-        super();
-    }
-
-    public MachineCompassBHL(Date day, Double forwardDirection, Double reverseDirection, Double neutralDirection) {
-        super();
-        this.day = day;
-        this.forwardDirection = forwardDirection;
-        this.reverseDirection = reverseDirection;
-        this.neutralDirection = neutralDirection;
-    }
-
-    public Date getDay() {
-        return day;
-    }
-
-    public void setDay(Date day) {
-        this.day = day;
-    }
-
-    public Double getForwardDirection() {
-        return forwardDirection;
-    }
-
-    public void setForwardDirection(Double forwardDirection) {
-        this.forwardDirection = forwardDirection;
-    }
-
-    public Double getReverseDirection() {
-        return reverseDirection;
-    }
-
-    public void setReverseDirection(Double reverseDirection) {
-        this.reverseDirection = reverseDirection;
-    }
-
-    public Double getNeutralDirection() {
-        return neutralDirection;
-    }
-
-    public void setNeutralDirection(Double neutralDirection) {
-        this.neutralDirection = neutralDirection;
-    }
 
     @Override
     public String toString() {

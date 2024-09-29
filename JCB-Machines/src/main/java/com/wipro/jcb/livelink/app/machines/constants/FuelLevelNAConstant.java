@@ -17,11 +17,11 @@ public class FuelLevelNAConstant {
     private static final List<String> exceptionMachines;
 
     static {
-        Map<String, List<String>> aMap = new HashMap<String, List<String>>();
+        Map<String, List<String>> aMap = new HashMap<>();
         List<String> excavatorsModels = Arrays.asList("JD14B", "JD20B", "JD21B", "JD13C", "JS12B", "JS81B");
         aMap.put("Excavators", excavatorsModels);
-        List<String> wheelLaodersModels = Arrays.asList("432Z0", "432UD", "430Z1");
-        aMap.put("Wheel Loaders", wheelLaodersModels);
+        List<String> wheelLoadersModels = Arrays.asList("432Z0", "432UD", "430Z1");
+        aMap.put("Wheel Loaders", wheelLoadersModels);
         fuelLevelNAConfig = Collections.unmodifiableMap(aMap);
 
         exceptionMachines = Arrays.asList("PUN430Z1AL2055169", "PUN432UDLL2946688","PUNJD14BAJ2575987","PUNJD14BAJ2575990","PUNJD14BCJ2575985"

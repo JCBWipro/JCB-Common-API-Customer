@@ -17,7 +17,7 @@ import lombok.*;
 @NoArgsConstructor
 public class AddressResponse {
 
-    @Schema(description = "Chennai", required = true)
+    @Schema(description = "Location", example = "Chennai", required = true)
     private String location;
 
     @Override

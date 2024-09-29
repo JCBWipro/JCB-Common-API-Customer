@@ -28,7 +28,7 @@ public class MachineResponse {
     @Schema(description = "Status as on time", example = "2017-07-13 12:44:20", required = true)
     @JsonFormat(pattern = AppServerConstants.DateTimeFormat, timezone = AppServerConstants.timezone)
     private Date statusAsOnTime;
-    @Schema(description = "Server Timezone", example = "UTC", required = true)
+    @Schema(description ="Server Timezone", example = "UTC", required = true)
     private String serverTimezone = AppServerConstants.timezone;
     @Schema(description = "Total machine hours", example = "280Hrs", required = true)
     private String machineHours;
@@ -85,46 +85,6 @@ public class MachineResponse {
     private boolean supportFeatures;
 
     private boolean activeFlag;
-	/*public MachineResponse(String vin, Date statusAsOnTime, String machineHours, String fuelPercentage, Double latitude,
-			Double longitude, String location, String zone, String model, String tag, String dateRange, String hours,
-			String image, Boolean normalAlert, Boolean serviceAlert, NormalAlertSeverity normalAlertSeverity,
-			String fuelLevel, String platform, String thumbnail, MachineDetailData machineStatus, List<AlertData> alert,
-			List<MachineUtilizationData> utilization, List<MachineFuelConsumptionData> fuel,
-			List<MachinePerformanceData> performance, String serviceStatus, String serviceReason,
-			FuelHistoryDataList fuelHistoryDataList, EngineHistoryDataList engineHistoryDataList) {
-		super();
-		this.vin = vin;
-		this.statusAsOnTime = statusAsOnTime;
-		this.machineHours = machineHours;
-		this.fuelPercentage = fuelPercentage;
-		this.latitude = latitude;
-		this.longitude = longitude;
-		this.location = location;
-		this.zone = zone;
-		this.model = model;
-		this.tag = tag;
-		this.dateRange = dateRange;
-		this.hours = hours;
-		this.image = image;
-		this.normalAlert = normalAlert;
-		this.serviceAlert = serviceAlert;
-		this.normalAlertSeverity = normalAlertSeverity;
-		this.fuelLevel = fuelLevel;
-		this.platform = platform;
-		this.thumbnail = thumbnail;
-		this.machineStatus = machineStatus;
-		this.alert = alert;
-		this.utilization = utilization;
-		this.fuel = fuel;
-		this.performance = performance;
-		this.serviceStatus = serviceStatus;
-		this.serviceReason = serviceReason;
-		this.fuelHistoryDataList = fuelHistoryDataList;
-		this.engineHistoryDataList = engineHistoryDataList;
-
-	}*/
-
-
 
     public MachineResponse(Builder builder) {
         super();

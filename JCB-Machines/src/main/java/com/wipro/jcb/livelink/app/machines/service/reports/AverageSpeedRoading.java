@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 
@@ -13,6 +15,8 @@ import java.util.Date;
  * Date:14-09-2024
  * project: JCB-Common-API-Customer
  */
+@Setter
+@Getter
 public class AverageSpeedRoading {
 
 
@@ -24,22 +28,6 @@ public class AverageSpeedRoading {
     @Schema(description = "Average Speed Roading", example = "1.1", required = true)
     @JsonProperty("averageSpeedRoading")
     private Double averageSpeedRoading;
-
-    public Date getDay() {
-        return day;
-    }
-
-    public Double getAverageSpeedRoading() {
-        return averageSpeedRoading;
-    }
-
-    public void setDay(Date day) {
-        this.day = day;
-    }
-
-    public void setAverageSpeedRoading(Double averageSpeedRoading) {
-        this.averageSpeedRoading = averageSpeedRoading;
-    }
 
     public AverageSpeedRoading() {
         super();

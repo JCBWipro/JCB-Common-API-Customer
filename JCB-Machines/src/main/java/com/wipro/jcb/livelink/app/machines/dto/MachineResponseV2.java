@@ -27,7 +27,7 @@ public class MachineResponseV2 {
     @Schema(description = "Status as on time", example = "2017-07-13 12:44:20", required = true)
     @JsonFormat(pattern = AppServerConstants.DateTimeFormat, timezone = AppServerConstants.timezone)
     private Date statusAsOnTime;
-    @Schema(description="Server Timezone", example = "UTC", required = true)
+    @Schema(description ="Server Timezone", example = "UTC", required = true)
     private String serverTimezone = AppServerConstants.timezone;
     @Schema(description = "Total machine hours", example = "280Hrs", required = true)
     private String machineHours;

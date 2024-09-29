@@ -284,122 +284,147 @@ public class MachineResponseServiceImpl implements MachineResponseService {
 
     @Override
     public MachineResponseV3 getMachineDetailsListV3(String userName, String vin) throws ProcessCustomError {
+        log.info("getMachineDetailsListV3: Request received for user: {}, VIN: {}", userName, vin);
+        long startTime = System.currentTimeMillis();
+
         try {
             // Get machine details from the database
+            log.debug("getMachineDetailsListV3: Fetching machine details from database...");
             Machine machine = machineRepository.findByVinAndUserName(vin, userName);
+
             if (machine == null) {
+                log.warn("getMachineDetailsListV3: No machine found for user: {}, VIN: {}", userName, vin);
                 throw new ProcessCustomError(MessagesList.NO_RECORDS, MessagesList.NO_RECORDS, HttpStatus.NOT_FOUND);
             }
-            final SimpleDateFormat format = new SimpleDateFormat("dd MMM yy", Locale.ENGLISH);
-            format.setTimeZone(TimeZone.getTimeZone(timezone));
-            final String machineStartDateRange = format.format(utilities.getDate(utilities.getStartDate(loadHistoricalDataForDays)));
-            final String machineEndDateRange = format.format(utilities.getDate(utilities.getEndDate(-1)));
+
+            log.debug("getMachineDetailsListV3: Machine details fetched successfully.");
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+            dateFormat.setTimeZone(TimeZone.getTimeZone(timezone));
+
+            String machineStartDateRange = dateFormat.format(utilities.getDate(utilities.getStartDate(loadHistoricalDataForDays)));
+            String machineEndDateRange = dateFormat.format(utilities.getDate(utilities.getEndDate(-1)));
+
+            log.debug("getMachineDetailsListV3: Date range calculated:from {} to {}", machineStartDateRange, machineEndDateRange);
 
             // Load and return the machine response
-            return loadMachineResponseListV3(machine, machineStartDateRange, machineEndDateRange, userName);
+            MachineResponseV3 machineResponse = loadMachineResponseListV3(machine, userName);
 
-        } catch (final ProcessCustomError e) {
-            // Re-throw custom errors for handling at a higher level
+            log.info("getMachineDetailsListV3: Response prepared successfully. Time taken: {}ms", System.currentTimeMillis() - startTime);
+            return machineResponse;
+
+        } catch (ProcessCustomError e) {
+            log.error("getMachineDetailsListV3: ProcessCustomError occurred: {}", e.getMessage(), e);
             throw e;
 
-        } catch (final Exception ex) {
-            // Log and handle unexpected exceptions
-            log.error("getMachineDetails V3: Machine retrieval failed for user: {}, VIN: {}. Error: {}",
-                    userName, vin, ex.getMessage(), ex);
+        } catch (Exception ex) {
+            log.error("getMachineDetailsListV3: Unexpected error occurred: {}", ex.getMessage(), ex);
             throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED,
                     "Failed to retrieve machine details.",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    private MachineResponseV3 loadMachineResponseListV3(final Machine machine, final String machineStartDateRange, final String machineEndDateRange, String userName) {
+    private MachineResponseV3 loadMachineResponseListV3(final Machine machine,
+                                                        String userName) {
+
+        log.info("loadMachineResponseListV3: Started for user: {}, VIN: {}", userName, machine.getVin());
+        long startTime = System.currentTimeMillis();
+
         MachineResponseV3 machineResponseV3 = new MachineResponseV3();
-        long start = System.currentTimeMillis();
+
         try {
             List<FuelHistoryDataListV2> fuelHistoryDayDataList = new ArrayList<>();
             final String vin = machine.getVin();
+
+            log.debug("loadMachineResponseListV3: Fetching MachineFeedParserData...");
             MachineFeedParserData machineFeedParserData = machineFeedParserDataRepo.findByVin(vin);
+
+            log.debug("loadMachineResponseListV3: Fetching MachineFeedLocation...");
             MachineFeedLocation machineFeedLocation = machineFeedLocationRepo.findByVin(vin);
+
             List<EngineHistoryDataListV2> engineHistoryDayDataList = new ArrayList<>();
-            final SimpleDateFormat format = new SimpleDateFormat("dd MMM yy");
+            final SimpleDateFormat format = new SimpleDateFormat("dd MMM yy", Locale.ENGLISH);
             format.setTimeZone(TimeZone.getTimeZone(timezone));
 
-            boolean flag = true;
+            boolean fuelDataExcluded = (!FuelLevelNAConstant.getExceptionMachines().contains(vin)) &&
+                    FuelLevelNAConstant.getFuellevelnaconfig().containsKey(machine.getPlatform()) &&
+                    FuelLevelNAConstant.getFuellevelnaconfig().get(machine.getPlatform()).contains(vin.substring(3, 8));
 
-            if ((!FuelLevelNAConstant.getExceptionMachines().contains(vin)) && FuelLevelNAConstant.getFuellevelnaconfig().containsKey(machine.getPlatform()) && FuelLevelNAConstant.getFuellevelnaconfig().get(machine.getPlatform()).contains(vin.substring(3, 8))) {
-                flag = false;
+            if (fuelDataExcluded) {
+                log.warn("loadMachineResponseListV3: Fuel data excluded for VIN: {}", vin);
                 fuelHistoryDayDataList = null;
             }
-
 
             for (int i = 6; i >= 0; i--) {
                 Date startDate = utilities.getDate(utilities.getStartDate(i));
                 Date endDate = utilities.getDate(utilities.getStartDate(i - 1));
+
                 EngineHistoryDataListV2 engineHistoryData = new EngineHistoryDataListV2();
                 engineHistoryData.date = startDate;
-                if (i > 2) {
+
+                if (i <= 2) {
+                    log.debug("loadMachineResponseListV3: Fetching engine status details...");
+                    List<MachineEngineStatusHistoryData> engineStatus = machineEngineStatusHistoryDataRepo.getEngineDetails(vin, startDate, endDate);
+
                     engineHistoryData.timestamps = new ArrayList<>();
                     engineHistoryData.values = new ArrayList<>();
 
-                } else {
-
-                    List<MachineEngineStatusHistoryData> engineStatus = machineEngineStatusHistoryDataRepo.getEngineDetails(vin, startDate, endDate);
-                    List<DateValue> date = new ArrayList<>();
-                    List<IntegerValue> status = new ArrayList<>();
                     if (engineStatus != null && engineStatus.size() > 1) {
-                        MachineEngineStatusHistoryData nextValue = addMinutesToDate(engineStatus);
-                        engineStatus.add(nextValue);
-
+                        engineStatus.add(addMinutesToDate(engineStatus));
                     }
 
-                    assert engineStatus != null;
-                    for (MachineEngineStatusHistoryData engineDetails : engineStatus) {
-                        date.add(new DateValue(engineDetails.getData()));
-                        status.add(new IntegerValue(engineDetails.getStatus()));
-
+                    if (engineStatus != null) {
+                        for (MachineEngineStatusHistoryData engineDetails : engineStatus) {
+                            engineHistoryData.timestamps.add(new DateValue(engineDetails.getData()));
+                            engineHistoryData.values.add(new IntegerValue(engineDetails.getStatus()));
+                        }
                     }
-                    engineStatus.clear();
-                    engineHistoryData.timestamps.addAll(date);
-                    engineHistoryData.values.addAll(status);
                 }
+
                 engineHistoryDayDataList.add(engineHistoryData);
-                if (flag) {
+
+                if (!fuelDataExcluded) {
                     FuelHistoryDataListV2 fuelHistoryData = new FuelHistoryDataListV2();
                     fuelHistoryData.date = startDate;
-                    if (i > 2) {
+
+                    if (i <= 2) {
+                        log.debug("loadMachineResponseListV3: Fetching fuel details...");
+                        List<MachineFuelHistoryData> fuelDetails = machineFuelHistoryDataRepo.getFuelDetails(vin, startDate, endDate);
+
                         fuelHistoryData.timestamps = new ArrayList<>();
                         fuelHistoryData.values = new ArrayList<>();
-                    } else {
-                        List<MachineFuelHistoryData> fuelDetails = machineFuelHistoryDataRepo.getFuelDetails(vin, startDate, endDate);
-                        List<DoubleValue> values = new ArrayList<>();
-                        List<DateValue> data = new ArrayList<>();
-                        for (MachineFuelHistoryData fuelData : fuelDetails) {
-                            values.add(new DoubleValue(fuelData.getValues()));
-                            data.add(new DateValue(fuelData.getData()));
 
+                        for (MachineFuelHistoryData fuelData : fuelDetails) {
+                            fuelHistoryData.timestamps.add(new DateValue(fuelData.getData()));
+                            fuelHistoryData.values.add(new DoubleValue(fuelData.getValues()));
                         }
-                        fuelDetails.clear();
-                        fuelHistoryData.timestamps.addAll(data);
-                        fuelHistoryData.values.addAll(values);
                     }
+
                     fuelHistoryDayDataList.add(fuelHistoryData);
                 }
             }
+
             String machineType = getMachineType(vin);
 
+            log.debug("loadMachineResponseListV3: Fetching machine details...");
             final MachineDetailResponse machinedetails = machineDetailResponseService.getMachineDetailResponseListV3(machine);
 
-            machineResponseV3 = new MachineResponseV3.Builder(machine, machinedetails, machineType).fuelHistoryDayDataList(fuelHistoryDayDataList).engineHistoryDayDataList(engineHistoryDayDataList).build();
-            long end = System.currentTimeMillis();
-            long elapsedTime = end - start;
-            log.info("MachinesdetailsV3 API Duration {}-{}-{}", elapsedTime, vin, userName);
+            machineResponseV3 = new MachineResponseV3.Builder(machine, machinedetails, machineType)
+                    .fuelHistoryDayDataList(fuelHistoryDayDataList)
+                    .engineHistoryDayDataList(engineHistoryDayDataList)
+                    .build();
+
+            long endTime = System.currentTimeMillis();
+            long elapsedTime = endTime - startTime;
+            log.info("loadMachineResponseListV3: Completed for VIN: {}. Time taken: {}ms", vin, elapsedTime);
+
         } catch (Exception e) {
-            log.error("Error Occured : getMachineDetails V3 {}-{}-{}", userName, machine.getVin(), machine.getPremiumFlag());
-            log.error("getMachineDetails V3 :{}", e.getMessage());
-            log.info("Exception occured for  MachinesdetailsV3 API :{}-Param-{}Exception -{}", userName, machine.getVin(), e.getMessage());
-            e.printStackTrace();
+            log.error("loadMachineResponseListV3: Error processing data for user: {}, VIN: {}. Error: {}",
+                    userName, machine.getVin(), e.getMessage(), e);
         }
-        log.info("Details V3 Success :{} - {} - {}", userName, machineResponseV3.getVin(), machineResponseV3.getPremiumFlag());
+
+        log.info("loadMachineResponseListV3: Returning response for user: {}, VIN: {} ,Response is: {}", userName, machineResponseV3.getVin(), machineResponseV3);
         return machineResponseV3;
     }
 
@@ -419,20 +444,20 @@ public class MachineResponseServiceImpl implements MachineResponseService {
             } else if (majorVersion >= 30 && majorVersion <= 50) {
                 return "LL4";
             } else if (majorVersion > 50) {
-                return "LL2"; // Assuming this is correct logic
+                return "LL2";
             } else {
-                return "Unknown"; // Handle cases outside the defined ranges
+                return "Unknown";
             }
 
         } catch (NumberFormatException e) {
             log.error("Invalid firmware version format for VIN: {}", vin, e);
-            return "Unknown"; // Handle parsing errors gracefully
+            return "Unknown";
         }
     }
 
     private MachineEngineStatusHistoryData addMinutesToDate(List<MachineEngineStatusHistoryData> engineStatus) {
         if (engineStatus == null || engineStatus.isEmpty()) {
-            return null; // Handle empty input gracefully
+            return null;
         }
 
         MachineEngineStatusHistoryData lastStatus = engineStatus.get(engineStatus.size() - 1);
@@ -493,7 +518,6 @@ public class MachineResponseServiceImpl implements MachineResponseService {
                     restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, String.class);
 
                 }
-                // logger.debug("inside pageNumbers");
                 if (machineCount > 0) {
 
                     alertCount = new AlertCount();

@@ -28,9 +28,6 @@ import java.util.Date;
 @Table(name = "operater")
 @DynamicUpdate
 public class Operator implements Serializable {
-    /**
-     *
-     */
     @Serial
     private static final long serialVersionUID = 7647358402835262772L;
     @Id
