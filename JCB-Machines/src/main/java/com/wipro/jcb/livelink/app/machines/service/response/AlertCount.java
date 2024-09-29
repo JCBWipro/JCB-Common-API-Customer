@@ -1,6 +1,7 @@
 package com.wipro.jcb.livelink.app.machines.service.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;

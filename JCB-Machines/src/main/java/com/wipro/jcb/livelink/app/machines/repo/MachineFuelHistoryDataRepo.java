@@ -12,15 +12,16 @@ import java.util.Date;
 import java.util.List;
 
 @Component
-public interface MachineFuelHistoryDataRepo extends PagingAndSortingRepository <MachineFuelHistory, String> {
+public interface MachineFuelHistoryDataRepo extends PagingAndSortingRepository<MachineFuelHistory, String> {
 
-	@Query(value = "SELECT fueldata.date_time,fueldata.fuel_level from machinefuelhistorydata fueldata where ?1 = fueldata.vin And fueldata.date_time between ?2 and ?3 order by fueldata.date_time ASC",nativeQuery=true)
-	List<MachineFuelHistoryData> getFuelDetails(String vin, Date startDate, Date endDate);
-    //getFuelLvel
+    @Query(value = "SELECT fueldata.date_time,fueldata.fuel_level from machinefuelhistorydata fueldata where ?1 = fueldata.vin And fueldata.date_time between ?2 and ?3 order by fueldata.date_time ASC", nativeQuery = true)
+    List<MachineFuelHistoryData> getFuelDetails(String vin, Date startDate, Date endDate);
+
+    // to get FuelLevel for machine
     @Query(value = "SELECT fueldata.fuel_level from machinefuelhistorydata fueldata where fueldata.vin=?1 And fueldata.date_time between ?2 and ?3 order by fueldata.date_time ASC", nativeQuery = true)
-    public List<DoubleValue> getFuelLevelByVin(String vin, Date startDate, Date endDate);
+    List<DoubleValue> getFuelLevelByVin(String vin, Date startDate, Date endDate);
 
-    //getDateByVin
+    //to getDate_time for machine
     @Query(value = "SELECT fueldata.date_time from machinefuelhistorydata fueldata where fueldata.vin=?1 And fueldata.date_time between ?2 and ?3 order by fueldata.date_time ASC", nativeQuery = true)
-    public List<DateValue> getDateByVin(String vin, Date startDate, Date endDate);
+    List<DateValue> getDateByVin(String vin, Date startDate, Date endDate);
 }

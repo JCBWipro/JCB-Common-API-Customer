@@ -6,6 +6,7 @@ import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
 import com.wipro.jcb.livelink.app.machines.dto.EngineStatusHistoryDataId;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.io.Serial;
@@ -18,6 +19,11 @@ import java.util.Date;
  * Date:16-09-2024
  * project: JCB-Common-API-Customer
  */
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 @Entity
 @DynamicUpdate
 @IdClass(EngineStatusHistoryDataId.class)
@@ -46,59 +52,5 @@ public class MachineEnginestatusHistory implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(columnDefinition = "timestamp default current_timestamp", insertable = false)
     private Date createdAt;
-
-    public MachineEnginestatusHistory(){
-        super();
-    }
-    public MachineEnginestatusHistory(String vin, Date dateTime){
-        super();
-        this.vin= vin ;
-        this.dateTime=dateTime;
-    }
-    public MachineEnginestatusHistory(String vin,Boolean isEngineOn, Date dateTime){
-        super();
-        this.vin= vin ;
-        this.dateTime=dateTime;
-        this.isEngineOn= isEngineOn;
-        this.vinId=vin;
-    }
-    public String getVin() {
-        return vin;
-    }
-
-    public void setVin(String vin) {
-        this.vin = vin;
-    }
-
-    public Boolean getIsEngineOn() {
-        return isEngineOn;
-    }
-
-    public void setIsEngineOn(Boolean isEngineOn) {
-        this.isEngineOn = isEngineOn;
-    }
-
-    public Date getDateTime() {
-        return dateTime;
-    }
-
-    public void setDateTime(Date dateTime) {
-        this.dateTime = dateTime;
-    }
-
-    public String getVinId() {
-        return vinId;
-    }
-
-    public void setVinId(String vinId) {
-        this.vinId = vinId;
-    }
-
-    @Override
-    public String toString() {
-        return "MachineEnginestatusHistory [ vinId=" + vinId + ", vin=" + vin + ", isEngineOn="
-                + isEngineOn + ", dateTime=" + dateTime + "]";
-    }
-
 
 }

@@ -1,9 +1,6 @@
 package com.wipro.jcb.livelink.app.machines.service.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -17,21 +14,10 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-
+@ToString
 public class EngineFuelHistoryUtilizationDataV2 {
-
-
     private String vin;
     private String dateRange;
     private List<EngineHistoryDataListV3> engineHistoryDayDataList;
     private List<FuelHistoryDataListV3> fuelHistoryDayDataList;
-
-    @Override
-    public String toString() {
-        return "EngineFuelHistoryUtilizationData [vin=" + vin + ", dateRange=" + dateRange
-                + ", engineHistoryDayDataList=" + engineHistoryDayDataList + ", fuelHistoryDayDataList="
-                + fuelHistoryDayDataList + "]";
-    }
-
-
 }

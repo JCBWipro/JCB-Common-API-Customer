@@ -25,7 +25,7 @@ public class EngineHistoryDataListV3 {
     @JsonProperty("date")
     @JsonFormat(pattern= AppServerConstants.DateFormat, timezone=AppServerConstants.timezone)
     public Date date;
-    public List<IntegerValue> values = new LinkedList<IntegerValue>();
-    public List<DateValue> timestamps =new LinkedList<>();
+    public List<Integer> values = new LinkedList<>();
+    public List<Date> timestamps =new LinkedList<>();
     public String message;
 }
