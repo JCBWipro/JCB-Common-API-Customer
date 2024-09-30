@@ -63,5 +63,12 @@ public interface MachineResponseService {
 
    // public Machine getMachineDetails(String vin);
     public EngineFuelHistoryUtilizationDataV2 getEngineFuelDetailData(String vin, Date startDate, Date endDate, String type) throws ProcessCustomError;
+    
+    /**
+     * Retrieves MachineType based on Vin
+     *
+     * @param vin      The VIN of the machine.
+     */
+    String getMachinetype(String vin);
 
 }

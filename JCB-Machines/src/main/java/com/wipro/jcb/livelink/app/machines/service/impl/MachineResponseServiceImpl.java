@@ -768,4 +768,34 @@ public class MachineResponseServiceImpl implements MachineResponseService {
         }
         return engineFuelHistoryUtilizationData;
     }
+    
+	/**
+	 * This getMachinetype() is to fetch MachineType by vin
+	 */
+	public String getMachinetype(String vin) {
+		String machineType = "";
+		try {
+			String firmware_version = machineRepository.getFirmwareVersionByVin(vin);
+			if (firmware_version != null && !firmware_version.isEmpty()) {
+				log.info("Response : Vin {} Firmware Version {}", vin, firmware_version);
+				Integer versionValues = Integer.parseInt(firmware_version.split("\\.")[0]);
+				log.info("versionValues" + versionValues);
+				if (versionValues >= 07 && versionValues < 30) {
+					machineType = MessagesList.LL2;
+				} else if (versionValues >= 30 && versionValues <= 50) {
+					machineType = MessagesList.LL4;
+				} else if (versionValues > 50) {
+					machineType = MessagesList.LL2;
+				}
+
+			} else {
+				machineType = MessagesList.NO_FIRMWARE;
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error("Exception occured at getMachinetype " + vin);
+		}
+		return machineType;
+	}
 }
