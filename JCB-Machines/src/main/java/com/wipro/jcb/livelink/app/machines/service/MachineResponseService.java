@@ -1,9 +1,13 @@
 package com.wipro.jcb.livelink.app.machines.service;
 
+import com.wipro.jcb.livelink.app.machines.entity.Machine;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
+import com.wipro.jcb.livelink.app.machines.service.response.EngineFuelHistoryUtilizationDataV2;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponseV2;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponseV3;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineResponseV3;
+
+import java.util.Date;
 
 /**
  * Author: Rituraj Azad
@@ -54,5 +58,10 @@ public interface MachineResponseService {
      * @throws ProcessCustomError If an error occurs during processing.
      */
     MachineResponseV3 getMachineDetailsListV3(String userName, String vin) throws ProcessCustomError;
+
+    public Machine getMachineDetails(String vin, String userName);
+
+   // public Machine getMachineDetails(String vin);
+    public EngineFuelHistoryUtilizationDataV2 getEngineFuelDetailData(String vin, Date startDate, Date endDate, String type) throws ProcessCustomError;
 
 }
