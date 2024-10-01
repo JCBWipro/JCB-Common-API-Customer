@@ -41,4 +41,9 @@ public class MessagesList {
     public static final String SESSION_EXPIRED = "Session Expired";
 
     public static final String RENEWAL_ALERT ="The selected VIN not renewaled, so please renewal to view the details.";
+    
+    public static final String LoggedInUserRole = "LoggedInUserRole";
+	public static final String NO_FIRMWARE = "No Firmware";
+	public static final String LL2 = "LL2";
+	public static final String LL4 = "LL4";
 }
