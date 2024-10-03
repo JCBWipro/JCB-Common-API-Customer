@@ -10,7 +10,6 @@ import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponse;
 import com.wipro.jcb.livelink.app.machines.service.MachineProfileService;
 import com.wipro.jcb.livelink.app.machines.service.MachineResponseService;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponseV2;
-import com.wipro.jcb.livelink.app.machines.service.response.MachineProfile;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineResponseV3;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -189,7 +188,6 @@ public class MachineController {
     /*
      * This End Point is used to Update MachineProfile related details
      */
-	@CrossOrigin
 	@PutMapping(value="/machineprofile", consumes=MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> putMachineProfile(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
 			@RequestPart(value = "operatorName", required = false) String operatorName, @RequestPart("vin") String vin,

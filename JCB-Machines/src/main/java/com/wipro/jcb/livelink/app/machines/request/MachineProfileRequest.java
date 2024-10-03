@@ -23,5 +23,4 @@ public class MachineProfileRequest {
 	private String tag;
 	@Schema(description = "taluka place", example = "-", required = true)
 	private String site;
-
 }
