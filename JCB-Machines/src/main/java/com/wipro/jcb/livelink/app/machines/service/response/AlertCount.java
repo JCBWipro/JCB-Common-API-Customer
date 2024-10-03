@@ -2,9 +2,7 @@ package com.wipro.jcb.livelink.app.machines.service.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * Author: Rituraj Azad
@@ -14,7 +12,8 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AlertCount {
     @Schema(description = "service", example = "300")
@@ -27,18 +26,6 @@ public class AlertCount {
     private Integer utilization=0;
     @Schema(description = "location", example = "800")
     private Integer location =0;
-
-    public AlertCount() {
-    }
-
-    public AlertCount(Integer service, Integer health, Integer security, Integer utilization, Integer location) {
-        super();
-        this.service = service;
-        this.health = health;
-        this.security = security;
-        this.utilization = utilization;
-        this.location = location;
-    }
 
     @Override
     public String toString() {

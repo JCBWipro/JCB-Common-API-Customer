@@ -59,7 +59,8 @@ public class EngineFuelController {
             @RequestHeader("LoggedInUserRole") String userDetails,
             @RequestParam("vin") String vin,
             @RequestParam(value = "startDate", defaultValue = "optional") String startDate,
-            @RequestParam(value = "endDate", defaultValue = "optional") String endDate, @RequestParam(value = "type", defaultValue = "Engine") String type) {
+            @RequestParam(value = "endDate", defaultValue = "optional") String endDate,
+            @RequestParam(value = "type", defaultValue = "Engine") String type) {
 
         UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
         String userName = userResponse.getUserName();

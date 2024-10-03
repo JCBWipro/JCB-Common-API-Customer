@@ -1,6 +1,8 @@
 package com.wipro.jcb.livelink.app.machines.exception;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.http.HttpStatus;
 
@@ -12,10 +14,16 @@ import java.io.Serial;
  * Date:14-09-2024
  * project: JCB-Common-API-Customer
  */
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProcessCustomError extends Exception {
     @Serial
     private static final long serialVersionUID = -5137371098583567742L;
-    private final ApiError apierror;
+    private ApiError apierror;
+    private String errorCode;
+    private String details;
     @Setter
     @Getter
     private HttpStatus status;

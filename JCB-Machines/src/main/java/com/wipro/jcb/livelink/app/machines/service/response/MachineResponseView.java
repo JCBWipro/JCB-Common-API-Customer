@@ -10,6 +10,8 @@ import com.wipro.jcb.livelink.app.machines.enums.NormalAlertSeverity;
 import com.wipro.jcb.livelink.app.machines.enums.ServiceStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.text.DecimalFormat;
 import java.util.Date;
@@ -25,68 +27,103 @@ import java.util.Objects;
 @Data
 public class MachineResponseView {
 
+    @Getter
     @Schema(description = "Unique identifier for machine", example = "PUNJD22CV0000IIII", required = true)
     private String vin;
+    @Getter
     @Schema(description = "Status as on time", example = "2017-07-13 12:44:20", required = true)
     @JsonFormat(pattern = AppServerConstants.DateTimeFormat, timezone = AppServerConstants.timezone)
     private Date statusAsOnTime;
-    @Schema(description="Server Timezone", example = "UTC", required = true)
+    @Getter
+    @Schema(description = "Server Timezone", example = "UTC", required = true)
     private String serverTimezone = AppServerConstants.timezone;
+    @Getter
     @Schema(description = "Total machine hours", example = "280Hrs", required = true)
     private String machineHours;
+    @Getter
     @Schema(description = "Fuel percentage", example = "55%", required = true)
     private String fuelPercentage;
+    @Getter
     @Schema(description = "Latitude", example = "18.5204", required = true)
     private Double latitude;
+    @Getter
     @Schema(description = "Longitude", example = "73.8567", required = true)
     private Double longitude;
+    @Getter
     @Schema(description = "Location", example = "Pune, Maharashtra, India", required = true)
     private String location;
+    @Getter
     @Schema(description = "Zone", example = "North Regional Off", required = true)
     private String zone;
+    @Getter
     @Schema(description = "Model", example = "3DX", required = true)
     private String model;
+    @Getter
     @Schema(description = "Reg. No/Location/Nickname", example = "-", required = true)
     private String tag;
+    @Getter
     @Schema(description = "Requested time range", example = "26 June 17 - 2 july 17", required = true)
     private String dateRange;
+    @Getter
     @Schema(description = "Staic value", example = "8 AM - 8 PM", required = true)
     private String hours;
+    @Getter
     @JsonIgnore
     @Schema(description = "Machine image", example = "Image URL/Path", required = true)
     private String image;
+    @Getter
     @Schema(description = "Flag representing normal alert status", example = "true", allowableValues = "true,false", required = true)
     private Boolean normalAlert;
+    @Getter
     @Schema(description = "Flag representing service alert status", example = "true", allowableValues = "true,false", required = true)
     private Boolean serviceAlert;
+    @Getter
     @Schema(description = "Flag representing service alert status", example = "RED", allowableValues = "RED,GREEN,YELLOW", required = true)
     private NormalAlertSeverity normalAlertSeverity;
+    @Getter
     @Schema(description = "Fuel level color indicator", example = "high", allowableValues = "high,low,normal", required = true)
     private String fuelLevel;
+    @Getter
     @Schema(description = "Type of platform", example = "Backhoe Loader", required = true)
     private String platform;
+    @Getter
     @Schema(description = "Machine thumbnail image", example = "Image URL/Path", required = true)
     private String thumbnail;
+    @Getter
     @Schema(description = "Machine details", required = true)
     private MachineDetailData machineStatus;
+    @Getter
     @Schema(description = "List of alerts of provided machine", required = true)
     private List<AlertData> alert;
+    @Getter
     @Schema(description = "Machine service status", required = true)
     private String serviceStatus;
+    @Getter
     @Schema(description = "Machine service reason ", required = true)
     private String serviceReason;
+    @Getter
     private List<FuelHistoryDataListV2> fuelHistoryDayDataList;
+    @Getter
     private List<EngineHistoryDataListV2> engineHistoryDayDataList;
+    @Getter
     private List<MachineFuelConsumptionData> updatedFuelList;
+    @Getter
     private List<MachineUtilizationData> updatedUtilizationList;
+    @Getter
     private List<MachinePerformanceData> updatedPerformanceList;
+    @Setter
+    @Getter
     @Schema(description = "Requested time range", example = "08 May 20 - 14 May 20", required = true)
     private String utilizationDateRange;
 
     private boolean supportFeatures;
 
+    @Setter
+    @Getter
     private boolean activeFlag;
 
+    @Setter
+    @Getter
     private String premiumFlag;
 
     public MachineResponseView(Builder builder) {
@@ -94,7 +131,7 @@ public class MachineResponseView {
         this.vin = builder.vin;
         this.statusAsOnTime = builder.statusAsOnTime;
         this.machineHours = builder.machineHours;
-        if((!FuelLevelNAConstant.getExceptionMachines().contains(this.vin)) && FuelLevelNAConstant.getFuellevelnaconfig().containsKey(builder.platform)
+        if ((!FuelLevelNAConstant.getExceptionMachines().contains(this.vin)) && FuelLevelNAConstant.getFuellevelnaconfig().containsKey(builder.platform)
                 && FuelLevelNAConstant.getFuellevelnaconfig().get(builder.platform).contains(this.vin.substring(3, 8))) {
             this.fuelPercentage = "NA";
             this.fuelLevel = "normal";
@@ -122,11 +159,11 @@ public class MachineResponseView {
         this.serviceReason = builder.serviceReason;
         this.fuelHistoryDayDataList = builder.fuelHistoryDayDataList;
         this.engineHistoryDayDataList = builder.engineHistoryDayDataList;
-        this.supportFeatures=builder.supportFeatures;
-        this.updatedFuelList=builder.updatedFuelList;
-        this.updatedPerformanceList=builder.updatedPerformanceList;
-        this.updatedUtilizationList=builder.updatedUtilizationList;
-        this.utilizationDateRange=builder.utilizationDateRange;
+        this.supportFeatures = builder.supportFeatures;
+        this.updatedFuelList = builder.updatedFuelList;
+        this.updatedPerformanceList = builder.updatedPerformanceList;
+        this.updatedUtilizationList = builder.updatedUtilizationList;
+        this.utilizationDateRange = builder.utilizationDateRange;
         this.activeFlag = builder.activeFlag;
         this.premiumFlag = builder.premiumFlag;
     }
@@ -134,111 +171,6 @@ public class MachineResponseView {
     public MachineResponseView() {
     }
 
-    public String getVin() {
-        return vin;
-    }
-    public Date getStatusAsOnTime() {
-        return statusAsOnTime;
-    }
-
-    public String getServerTimezone() {
-        return serverTimezone;
-    }
-
-    public String getMachineHours() {
-        return machineHours;
-    }
-
-
-    public String getFuelPercentage() {
-        return fuelPercentage;
-    }
-
-    public Double getLatitude() {
-        return latitude;
-    }
-
-    public Double getLongitude() {
-        return longitude;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public String getZone() {
-        return zone;
-    }
-
-    public String getModel() {
-        return model;
-    }
-    public String getTag() {
-        return tag;
-    }
-
-
-    public String getDateRange() {
-        return dateRange;
-    }
-
-    public String getHours() {
-        return hours;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public Boolean getNormalAlert() {
-        return normalAlert;
-    }
-
-    public Boolean getServiceAlert() {
-        return serviceAlert;
-    }
-
-    public NormalAlertSeverity getNormalAlertSeverity() {
-        return normalAlertSeverity;
-    }
-
-    public String getFuelLevel() {
-        return fuelLevel;
-    }
-
-
-    public String getPlatform() {
-        return platform;
-    }
-
-    public String getThumbnail() {
-        return thumbnail;
-    }
-
-    public MachineDetailData getMachineStatus() {
-        return machineStatus;
-    }
-
-    public List<AlertData> getAlert() {
-        return alert;
-    }
-
-
-    public String getServiceStatus() {
-        return serviceStatus;
-    }
-
-    public String getServiceReason() {
-        return serviceReason;
-    }
-
-    public List<FuelHistoryDataListV2> getFuelHistoryDayDataList() {
-        return fuelHistoryDayDataList;
-    }
-
-    public List<EngineHistoryDataListV2> getEngineHistoryDayDataList() {
-        return engineHistoryDayDataList;
-    }
 
     public boolean getSupportFeatures() {
         return supportFeatures;
@@ -248,83 +180,44 @@ public class MachineResponseView {
         this.supportFeatures = supportFeatures;
     }
 
-    public List<MachineFuelConsumptionData> getUpdatedFuelList() {
-        return updatedFuelList;
-    }
 
-
-    public List<MachineUtilizationData> getUpdatedUtilizationList() {
-        return updatedUtilizationList;
-    }
-
-    public List<MachinePerformanceData> getUpdatedPerformanceList() {
-        return updatedPerformanceList;
-    }
-
-    public String getUtilizationDateRange() {
-        return utilizationDateRange;
-    }
-
-    public void setUtilizationDateRange(String utilizationDateRange) {
-        this.utilizationDateRange = utilizationDateRange;
-    }
-
-    public boolean isActiveFlag() {
-        return activeFlag;
-    }
-
-    public void setActiveFlag(boolean activeFlag) {
-        this.activeFlag = activeFlag;
-    }
-
-
-
-    public String getPremiumFlag() {
-        return premiumFlag;
-    }
-
-    public void setPremiumFlag(String premiumFlag) {
-        this.premiumFlag = premiumFlag;
-    }
-
-
-
-    public static class Builder{
+    public static class Builder {
         private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat(".##");
-        private String vin;
+        private final String vin;
         private Date statusAsOnTime;
         private String machineHours;
         private String fuelPercentage;
         private Double latitude;
         private Double longitude;
         private String location;
-        private String zone;
-        private String model;
-        private String tag;
+        private final String zone;
+        private final String model;
+        private final String tag;
         private String dateRange;
-        private String hours;
-        private String image;
-        private Boolean normalAlert;
-        private Boolean serviceAlert;
-        private NormalAlertSeverity normalAlertSeverity;
+        private final String hours;
+        private final String image;
+        private final Boolean normalAlert;
+        private final Boolean serviceAlert;
+        private final NormalAlertSeverity normalAlertSeverity;
         private String fuelLevel;
-        private String platform;
-        private String thumbnail;
-        private MachineDetailData machineStatus;
-        private List<AlertData> alert;
-        private String serviceStatus;
-        private String serviceReason;
+        private final String platform;
+        private final String thumbnail;
+        private final MachineDetailData machineStatus;
+        private final List<AlertData> alert;
+        private final String serviceStatus;
+        private final String serviceReason;
         private List<FuelHistoryDataListV2> fuelHistoryDayDataList;
         private List<EngineHistoryDataListV2> engineHistoryDayDataList;
         private boolean supportFeatures;
-        private List<MachineFuelConsumptionData> updatedFuelList;
-        private List<MachineUtilizationData> updatedUtilizationList;
-        private List<MachinePerformanceData> updatedPerformanceList;
+        private final List<MachineFuelConsumptionData> updatedFuelList;
+        private final List<MachineUtilizationData> updatedUtilizationList;
+        private final List<MachinePerformanceData> updatedPerformanceList;
         private String utilizationDateRange;
-        private boolean activeFlag;
-        private String premiumFlag;
+        private final boolean activeFlag;
+        private final String premiumFlag;
+
         public Builder(final Machine machine, final MachineDetailResponse machinedetails, final ServiceStatus machineServiceStatus) {
-            this.vin= machine.getVin();
+            this.vin = machine.getVin();
             this.statusAsOnTime = machine.getStatusAsOnTime();
             this.machineHours = DOUBLE_FORMAT.format(machine.getTotalMachineHours()) + "Hrs";
             this.fuelPercentage = machine.getFuelLevel() + "%";
@@ -340,7 +233,7 @@ public class MachineResponseView {
             this.normalAlert = machinedetails.getNormalAlertCount() > 0;
             this.serviceAlert = machinedetails.getServiceAlertCount() > 0;
             this.normalAlertSeverity = machinedetails.getNormalAlertCount() > 0 ?
-                    (machinedetails.getAlertWithRedEventLevel() > 0 ? NormalAlertSeverity.RED: NormalAlertSeverity.YELLOW):
+                    (machinedetails.getAlertWithRedEventLevel() > 0 ? NormalAlertSeverity.RED : NormalAlertSeverity.YELLOW) :
                     NormalAlertSeverity.GREEN;
 
             this.platform = machine.getPlatform();
@@ -349,47 +242,50 @@ public class MachineResponseView {
             this.alert = machinedetails.getAlert();
             this.serviceStatus = machineServiceStatus.getServiceStatusName();
             this.serviceReason = machineServiceStatus.getServiceStatusReason();
-            this.updatedFuelList=machinedetails.getUpdatedFuelList();;
-            this.updatedPerformanceList=machinedetails.getUpdatedPerformanceList();
-            this.updatedUtilizationList=machinedetails.getUpdatedUtilizationList();
-            this.activeFlag = machine.isRenewalFlag();
-            this.premiumFlag = (machine.getPremiumFlag()!=null && !Objects.equals(machine.getPremiumFlag(), "") && !machine.getPremiumFlag().isEmpty()) ? machine.getPremiumFlag() : "Standard";
+            this.updatedFuelList = machinedetails.getUpdatedFuelList();
+            this.updatedPerformanceList = machinedetails.getUpdatedPerformanceList();
+            this.updatedUtilizationList = machinedetails.getUpdatedUtilizationList();
+            this.activeFlag = machine.getRenewalFlag();
+            this.premiumFlag = (machine.getPremiumFlag() != null && !Objects.equals(machine.getPremiumFlag(), "") && !machine.getPremiumFlag().isEmpty()) ? machine.getPremiumFlag() : "Standard";
         }
 
         public Builder setFeedData(MachineFeedParserData machineFeedparserdata, MachineFeedLocation machineFeedLocation, String location) {
-            this.location = location ;
+            this.location = location;
             this.latitude = machineFeedLocation.getLatitude();
             this.longitude = machineFeedLocation.getLongitude();
             this.statusAsOnTime = machineFeedparserdata.getStatusAsOnTime();
-            this.fuelPercentage = null!= machineFeedparserdata.getFuelLevel()?machineFeedparserdata.getFuelLevel()+ "%": this.fuelPercentage;
+            this.fuelPercentage = null != machineFeedparserdata.getFuelLevel() ? machineFeedparserdata.getFuelLevel() + "%" : this.fuelPercentage;
             this.machineHours = DOUBLE_FORMAT.format(machineFeedparserdata.getTotalMachineHours()) + "Hrs";
             return this;
         }
-        public Builder setFeedData(MachineFeedParserData machineFeedparserdata,MachineFeedLocation machineFeedLocation) {
+
+        public Builder setFeedData(MachineFeedParserData machineFeedparserdata, MachineFeedLocation machineFeedLocation) {
             this.location = "-";
             this.latitude = machineFeedLocation.getLatitude();
             this.longitude = machineFeedLocation.getLongitude();
             this.statusAsOnTime = machineFeedparserdata.getStatusAsOnTime();
-            this.fuelPercentage = null!= machineFeedparserdata.getFuelLevel()?machineFeedparserdata.getFuelLevel()+ "%": this.fuelPercentage;
+            this.fuelPercentage = null != machineFeedparserdata.getFuelLevel() ? machineFeedparserdata.getFuelLevel() + "%" : this.fuelPercentage;
             this.machineHours = DOUBLE_FORMAT.format(machineFeedparserdata.getTotalMachineHours()) + "Hrs";
             return this;
         }
-        public Builder fuelLevel (String fuelLevel) {
+
+        public Builder fuelLevel(String fuelLevel) {
             this.fuelLevel = fuelLevel;
             return this;
         }
-        public Builder feedFuelLevel(MachineFeedParserData feed , Machine machine) {
-            if (null!= feed.getFuelLevel()) {
-                this.fuelLevel = feed.getFuelLevel() >= 0 && feed.getFuelLevel() < 6 ? "low": feed.getFuelLevel() >= 6 && feed.getFuelLevel() <= 15 ? "normal": "high";
-            }
-            else {
-                this.fuelLevel = machine.getFuelLevel() >= 0 && machine.getFuelLevel() < 6 ? "low": machine.getFuelLevel() >= 6 && machine.getFuelLevel() <= 15 ? "normal": "high";
+
+        public Builder feedFuelLevel(MachineFeedParserData feed, Machine machine) {
+            if (null != feed.getFuelLevel()) {
+                this.fuelLevel = feed.getFuelLevel() >= 0 && feed.getFuelLevel() < 6 ? "low" : feed.getFuelLevel() >= 6 && feed.getFuelLevel() <= 15 ? "normal" : "high";
+            } else {
+                this.fuelLevel = machine.getFuelLevel() >= 0 && machine.getFuelLevel() < 6 ? "low" : machine.getFuelLevel() >= 6 && machine.getFuelLevel() <= 15 ? "normal" : "high";
             }
             return this;
         }
+
         //this.dateRange = dateRange;
         public Builder dateRange(String dateRange) {
-            this.dateRange= dateRange;
+            this.dateRange = dateRange;
             return this;
         }
 
@@ -417,8 +313,4 @@ public class MachineResponseView {
             return new MachineResponseView(this);
         }
     }
-
-
-
 }
-

@@ -1,29 +1,24 @@
-package com.wipro.jcb.livelink.app.machines.commonUtils;
+package com.wipro.jcb.livelink.app.machines.service.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
-
 /**
  * Author: Rituraj Azad
  * User: RI20474447
- * Date:14-09-2024
+ * Date:27-09-2024
  * project: JCB-Common-API-Customer
  */
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DateValue {
+public class StandardData {
 
-    Date key;
-
-    @Override
-    public String toString() {
-        return "DateValue [key=" + key + "]";
-    }
+    private String label;
+    private String fieldName;
+    private Boolean isActive;
 
 }

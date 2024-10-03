@@ -80,111 +80,279 @@ public class MachineResponseServiceImpl implements MachineResponseService {
     @Value("${server.evn.baseurl}")
     String env;
 
-    private void loadMachineResponseListV2(final Machine machine, final List<MachineResponseV2> machineResponse, final String machineStartDateRange, final String machineEndDateRange, Boolean skipReports, String userName) {
+    private void loadMachineResponseListV2(final Machine machine, final List<MachineResponseV2> machineResponse,
+                                           final String machineStartDateRange, final String machineEndDateRange,
+                                           Boolean skipReports) throws ProcessCustomError {
+
         final String vin = machine.getVin();
+        log.debug("Loading machine response data for VIN: {}", vin);
+
         try {
-
+            // Prepare data structures for fuel and engine history
             List<FuelHistoryDataListV2> fuelHistoryDayDataList = new ArrayList<>();
-
-            MachineFeedParserData machineFeedParserData = machineFeedParserDataRepo.findByVin(vin);
-            MachineFeedLocation machineFeedLocation = machineFeedLocationRepo.findByVin(vin);
             List<EngineHistoryDataListV2> engineHistoryDayDataList = new ArrayList<>();
-            final SimpleDateFormat format = new SimpleDateFormat("dd MMM yy");
-            format.setTimeZone(TimeZone.getTimeZone(timezone));
-            MachineEnginestatusHistory machineEnginestatusHistory = null;
-            boolean flag = true;
 
-            if ((!FuelLevelNAConstant.getExceptionMachines().contains(vin)) && FuelLevelNAConstant.getFuellevelnaconfig().containsKey(machine.getPlatform()) && FuelLevelNAConstant.getFuellevelnaconfig().get(machine.getPlatform()).contains(vin.substring(3, 8))) {
-                flag = false;
+            log.debug("Fetching MachineFeedParserData for VIN: {}", vin);
+            MachineFeedParserData machineFeedParserData = machineFeedParserDataRepo.findByVin(vin);
+
+            log.debug("Fetching MachineFeedLocation for VIN: {}", vin);
+            MachineFeedLocation machineFeedLocation = machineFeedLocationRepo.findByVin(vin);
+
+            // Date formatting for utilization data
+            final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            format.setTimeZone(TimeZone.getTimeZone(timezone));
+
+            // Determine if fuel data should be excluded for this machine
+            boolean excludeFuelData = shouldExcludeFuelData(vin, machine.getPlatform());
+            if (excludeFuelData) {
                 fuelHistoryDayDataList = null;
+                log.debug("Fuel data excluded for VIN: {}", vin);
             }
 
+            // Retrieve and process historical data if not skipped
             if (skipReports == null || !skipReports) {
-                log.info("SkipReport.. :{}-{}", skipReports, userName);
+                log.debug("Retrieving historical data for VIN: {}", vin);
                 for (int i = 6; i >= 0; i--) {
                     Date startDate = utilities.getDate(utilities.getStartDate(i));
                     Date endDate = utilities.getDate(utilities.getStartDate(i - 1));
-                    EngineHistoryDataListV2 engineHistoryData = new EngineHistoryDataListV2();
-                    engineHistoryData.date = startDate;
-                    if (i > 2) {
-                        engineHistoryData.timestamps = new ArrayList<>();
-                        engineHistoryData.values = new ArrayList<>();
 
-                    } else {
+                    // Process and add engine history data
+                    log.debug("Preparing engine history data for VIN: {}, startDate: {}, endDate: {}", vin, startDate, endDate);
+                    engineHistoryDayDataList.add(prepareEngineHistoryData(vin, startDate, endDate, i));
 
-                        List<MachineEngineStatusHistoryData> engineStatus = machineEngineStatusHistoryDataRepo.getEngineDetails(vin, startDate, endDate);
-                        List<DateValue> date = new ArrayList<>();
-                        List<IntegerValue> status = new ArrayList<>();
-                        for (MachineEngineStatusHistoryData engineDetails : engineStatus) {
-                            date.add(new DateValue(engineDetails.getData()));
-                            status.add(new IntegerValue(engineDetails.getStatus()));
-
-                        }
-                        engineStatus.clear();
-                        engineHistoryData.timestamps.addAll(date);
-                        engineHistoryData.values.addAll(status);
-                    }
-                    engineHistoryDayDataList.add(engineHistoryData);
-                    if (flag) {
-                        FuelHistoryDataListV2 fuelHistoryData = new FuelHistoryDataListV2();
-                        fuelHistoryData.date = startDate;
-                        if (i > 2) {
-                            fuelHistoryData.timestamps = new ArrayList<>();
-                            fuelHistoryData.values = new ArrayList<>();
-                        } else {
-                            List<MachineFuelHistoryData> fuelDetails = machineFuelHistoryDataRepo.getFuelDetails(vin, startDate, endDate);
-                            List<DoubleValue> values = new ArrayList<>();
-                            List<DateValue> data = new ArrayList<>();
-                            for (MachineFuelHistoryData fuelData : fuelDetails) {
-                                values.add(new DoubleValue(fuelData.getValues()));
-                                data.add(new DateValue(fuelData.getData()));
-
-                            }
-                            fuelDetails.clear();
-                            fuelHistoryData.timestamps.addAll(data);
-                            fuelHistoryData.values.addAll(values);
-                        }
-                        fuelHistoryDayDataList.add(fuelHistoryData);
+                    // Process and add fuel history data if not excluded
+                    if (!excludeFuelData) {
+                        log.debug("Preparing fuel history data for VIN: {}, startDate: {}, endDate: {}", vin, startDate, endDate);
+                        fuelHistoryDayDataList.add(prepareFuelHistoryData(vin, startDate, endDate, i));
                     }
                 }
             } else {
+                // If skipping reports, retrieve only the latest engine status
                 Date startDate = utilities.getDate(utilities.getStartDate(0));
                 Date endDate = utilities.getDate(utilities.getStartDate(-1));
-                machineEnginestatusHistory = machineEngineStatusHistoryDataRepo.findByVinAndBetweenDate(vin, startDate, endDate);
-            }
+                log.debug("Fetching latest engine status for VIN: {}, startDate: {}, endDate: {}", vin, startDate, endDate);
+                MachineEnginestatusHistory engineStatusHistory =
+                        machineEngineStatusHistoryDataRepo.findByVinAndBetweenDate(vin, startDate, endDate);
 
-            final MachineDetailResponse machinedetails = machineDetailResponseService.getMachineDetailResponseListV2(machine, machineFeedParserData, skipReports);
-            if (!engineHistoryDayDataList.isEmpty() && engineHistoryDayDataList.get(engineHistoryDayDataList.size() - 1).values != null && !(engineHistoryDayDataList.get(engineHistoryDayDataList.size() - 1).values.isEmpty())) {
-                if (engineHistoryDayDataList.get(engineHistoryDayDataList.size() - 1).timestamps.get(engineHistoryDayDataList.get(engineHistoryDayDataList.size() - 1).timestamps.size() - 1).getKey().after(machine.getStatusAsOnTime())) {
-                    machinedetails.getMachine().setEngineStatus(engineHistoryDayDataList.get(engineHistoryDayDataList.size() - 1).values.get(engineHistoryDayDataList.get(engineHistoryDayDataList.size() - 1).values.size() - 1).getVal() == 1);
-                } else {
-                    machinedetails.getMachine().setEngineStatus("on".equalsIgnoreCase(machine.getEngineStatus()));
+                // Update engine status based on latest history
+                if (engineStatusHistory != null) {
+                    boolean engineStatus = engineStatusHistory.getDateTime().after(machine.getStatusAsOnTime())
+                            ? engineStatusHistory.getIsEngineOn()
+                            : "on".equalsIgnoreCase(machine.getEngineStatus());
+                    machine.setEngineStatus(String.valueOf(engineStatus));
+                    log.debug("Updated engine status for VIN: {} to: {}", vin, engineStatus);
                 }
-                machinedetails.getMachine().setEngineValue(machinedetails.getMachine().getEngineStatus() ? "on" : "off");
-            } else if (machineEnginestatusHistory != null) {
-                machinedetails.getMachine().setEngineStatus(machineEnginestatusHistory.getDateTime().after(machine.getStatusAsOnTime()) ? machineEnginestatusHistory.getIsEngineOn() : "on".equalsIgnoreCase(machine.getEngineStatus()));
-                machinedetails.getMachine().setEngineValue(machinedetails.getMachine().getEngineStatus() ? "on" : "off");
             }
 
-            final ServiceStatus machineServiceStatus = machineService.getMachineServiceHistoryStatus(machine);
+            // Retrieve and set machine details
+            log.debug("Fetching machine details for VIN: {}", vin);
+            final MachineDetailResponse machineDetails =
+                    machineDetailResponseService.getMachineDetailResponseListV2(machine, machineFeedParserData, skipReports);
 
-            if (null != machineFeedParserData && null != machineFeedLocation && null != machineFeedParserData.getStatusAsOnTime()) {
-                machineResponse.add(new MachineResponseV2.Builder(machine, machinedetails, machineServiceStatus).dateRange(machineStartDateRange + " - " + machineEndDateRange).feedFuelLevel(machineFeedParserData, machine).setFeedData(machineFeedParserData, machineFeedLocation, "-").supportedFeatures(machineService.doSupportFeatures(machine.getVin())).fuelHistoryDayDataList(fuelHistoryDayDataList).engineHistoryDayDataList(engineHistoryDayDataList).utilizationDateRange(format.format(utilities.getDate(utilities.getStartDate(6))) + " - " + format.format(utilities.getDate(utilities.getStartDate(0)))).build());
+            // Update engine status based on latest engine history data
+            log.debug("Updating engine status in machine details for VIN: {}", vin);
+            updateEngineStatus(machine, machineDetails, engineHistoryDayDataList);
 
-            } else {
-                machine.setStatusAsOnTime(machine.getMachineFeedParserData().getStatusAsOnTime());
-                machineResponse.add(new MachineResponseV2.Builder(machine, machinedetails, machineServiceStatus).dateRange(machineStartDateRange + " - " + machineEndDateRange).fuelLevel(machine.getFuelLevel() >= 0 && machine.getFuelLevel() < 6 ? "low" : machine.getFuelLevel() >= 6 && machine.getFuelLevel() <= 15 ? "normal" : "high").supportedFeatures(machineService.doSupportFeatures(machine.getVin())).fuelHistoryDayDataList(fuelHistoryDayDataList).engineHistoryDayDataList(engineHistoryDayDataList).utilizationDateRange(format.format(utilities.getDate(utilities.getStartDate(6))) + " - " + format.format(utilities.getDate(utilities.getStartDate(0)))).build());
+            // Determine machine service status
+            log.debug("Determining machine service status for VIN: {}", vin);
+            ServiceStatus machineServiceStatus = machineService.getMachineServiceHistoryStatus(machine);
+
+            if (machineServiceStatus == null) {
+                log.warn("Machine service status is null for VIN: {}", vin);
+                machineServiceStatus = ServiceStatus.NORMAL;
             }
+
+            // Build and add the machine response based on available data
+            log.debug("Building machine response for VIN: {}", vin);
+            buildMachineResponse(machine, machineResponse, machineStartDateRange, machineEndDateRange,
+                    machineFeedParserData, machineFeedLocation, format, machineDetails, machineServiceStatus,
+                    fuelHistoryDayDataList, engineHistoryDayDataList);
+
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error("Error Occurred At MachinesV2 : - {} Message{}", vin, e.getMessage());
-            log.info("Exception occurred for MachinesV3 API :{} Param {} Exception -{}", userName, vin, e.getMessage());
+            log.error("Error loading machine response data for VIN {}: {}", vin, e.getMessage(), e);
+            throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED, e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    /**
+     * Checks if fuel data should be excluded for a given VIN and platform.
+     *
+     * @param vin      The machine's VIN.
+     * @param platform The machine's platform.
+     * @return True if fuel data should be excluded, false otherwise.
+     */
+    private boolean shouldExcludeFuelData(String vin, String platform) {
+        return (!FuelLevelNAConstant.getExceptionMachines().contains(vin))
+                && FuelLevelNAConstant.getFuellevelnaconfig().containsKey(platform)
+                && FuelLevelNAConstant.getFuellevelnaconfig().get(platform).contains(vin.substring(3, 8));
+    }
+
+    /**
+     * Prepares engine history data for a given date range.
+     *
+     * @param vin       The machine's VIN.
+     * @param startDate The start date of the range.
+     * @param endDate   The end date of the range.
+     * @param i         The index for data processing logic.
+     * @return The prepared engine history data.
+     */
+    private EngineHistoryDataListV2 prepareEngineHistoryData(String vin, Date startDate, Date endDate, int i) {
+        EngineHistoryDataListV2 engineHistoryData = new EngineHistoryDataListV2();
+        engineHistoryData.date = startDate;
+
+        if (i <= 2) {
+            List<MachineEngineStatusHistoryData> engineStatusList =
+                    machineEngineStatusHistoryDataRepo.getEngineDetails(vin, startDate, endDate);
+            engineHistoryData.timestamps = new ArrayList<>();
+            engineHistoryData.values = new ArrayList<>();
+
+            for (MachineEngineStatusHistoryData engineStatus : engineStatusList) {
+                engineHistoryData.timestamps.add(new DateValue(engineStatus.getData()));
+                engineHistoryData.values.add(new IntegerValue(engineStatus.getStatus()));
+            }
+        } else {
+            engineHistoryData.timestamps = new ArrayList<>();
+            engineHistoryData.values = new ArrayList<>();
+        }
+
+        return engineHistoryData;
+    }
+
+    /**
+     * Prepares fuel history data for a given date range.
+     *
+     * @param vin       The machine's VIN.
+     * @param startDate The start date of the range.
+     * @param endDate   The end date of the range.
+     * @param i         The index for data processing logic.
+     * @return The prepared fuel history data.
+     */
+    private FuelHistoryDataListV2 prepareFuelHistoryData(String vin, Date startDate, Date endDate, int i) {
+        FuelHistoryDataListV2 fuelHistoryData = new FuelHistoryDataListV2();
+        fuelHistoryData.date = startDate;
+
+        if (i <= 2) {
+            List<MachineFuelHistoryData> fuelDetailsList =
+                    machineFuelHistoryDataRepo.getFuelDetails(vin, startDate, endDate);
+            fuelHistoryData.timestamps = new ArrayList<>();
+            fuelHistoryData.values = new ArrayList<>();
+
+            for (MachineFuelHistoryData fuelData : fuelDetailsList) {
+                fuelHistoryData.timestamps.add(new DateValue(fuelData.getData()));
+                fuelHistoryData.values.add(new DoubleValue(fuelData.getValues()));
+            }
+        } else {
+            fuelHistoryData.timestamps = new ArrayList<>();
+            fuelHistoryData.values = new ArrayList<>();
+        }
+
+        return fuelHistoryData;
+    }
+
+    /**
+     * Updates the engine status in the machine details based on the latest engine history.
+     *
+     * @param machine                  The machine entity.
+     * @param machineDetails           The machine details response object.
+     * @param engineHistoryDayDataList The list of engine history data.
+     */
+    private void updateEngineStatus(Machine machine, MachineDetailResponse machineDetails,
+                                    List<EngineHistoryDataListV2> engineHistoryDayDataList) {
+        if (!engineHistoryDayDataList.isEmpty()
+                && engineHistoryDayDataList.get(engineHistoryDayDataList.size() - 1).values != null
+                && !(engineHistoryDayDataList.get(engineHistoryDayDataList.size() - 1).values.isEmpty())) {
+
+            Date latestTimestamp = engineHistoryDayDataList.get(engineHistoryDayDataList.size() - 1)
+                    .timestamps.get(engineHistoryDayDataList.get(engineHistoryDayDataList.size() - 1).timestamps.size() - 1)
+                    .getKey();
+
+            if (latestTimestamp.after(machine.getStatusAsOnTime())) {
+                boolean engineStatus = engineHistoryDayDataList.get(engineHistoryDayDataList.size() - 1)
+                        .values.get(engineHistoryDayDataList.get(engineHistoryDayDataList.size() - 1).values.size() - 1)
+                        .getVal() == 1;
+                machineDetails.getMachine().setEngineStatus(engineStatus);
+            } else {
+                machineDetails.getMachine().setEngineStatus("on".equalsIgnoreCase(machine.getEngineStatus()));
+            }
+            machineDetails.getMachine()
+                    .setEngineValue(machineDetails.getMachine().getEngineStatus() ? "on" : "off");
+        }
+    }
+
+    /**
+     * Builds and adds the machine response to the list.
+     *
+     * @param machine                  The machine entity.
+     * @param machineResponse          The list to add the response to.
+     * @param machineStartDateRange    The start date for data retrieval.
+     * @param machineEndDateRange      The end date for data retrieval.
+     * @param machineFeedParserData    The parsed feed data for the machine.
+     * @param machineFeedLocation      The location data for the machine.
+     * @param format                   The date format for utilization data.
+     * @param machineDetails           The machine details response object.
+     * @param machineServiceStatus     The service status of the machine.
+     * @param fuelHistoryDayDataList   The list of fuel history data.
+     * @param engineHistoryDayDataList The list of engine history data.
+     */
+    private void buildMachineResponse(Machine machine, List<MachineResponseV2> machineResponse,
+                                      String machineStartDateRange, String machineEndDateRange,
+                                      MachineFeedParserData machineFeedParserData, MachineFeedLocation machineFeedLocation,
+                                      SimpleDateFormat format, MachineDetailResponse machineDetails,
+                                      ServiceStatus machineServiceStatus,
+                                      List<FuelHistoryDataListV2> fuelHistoryDayDataList,
+                                      List<EngineHistoryDataListV2> engineHistoryDayDataList) {
+
+        if (null != machineFeedParserData && null != machineFeedLocation
+                && null != machineFeedParserData.getStatusAsOnTime()) {
+
+            machineResponse.add(new MachineResponseV2.Builder(machine, machineDetails, machineServiceStatus)
+                    .dateRange(machineStartDateRange + " - " + machineEndDateRange)
+                    .feedFuelLevel(machineFeedParserData, machine)
+                    .setFeedData(machineFeedParserData, machineFeedLocation, "-")
+                    .supportedFeatures(machineService.doSupportFeatures(machine.getVin()))
+                    .fuelHistoryDayDataList(fuelHistoryDayDataList)
+                    .engineHistoryDayDataList(engineHistoryDayDataList)
+                    .utilizationDateRange(
+                            format.format(utilities.getDate(utilities.getStartDate(6))) + " - "
+                                    + format.format(utilities.getDate(utilities.getStartDate(0))))
+                    .build());
+
+        } else {
+            machine.setStatusAsOnTime(machine.getMachineFeedParserData().getStatusAsOnTime());
+            machineResponse.add(new MachineResponseV2.Builder(machine, machineDetails, machineServiceStatus)
+                    .dateRange(machineStartDateRange + " - " + machineEndDateRange)
+                    .fuelLevel(getFuelLevel(machine.getFuelLevel()))
+                    .supportedFeatures(machineService.doSupportFeatures(machine.getVin()))
+                    .fuelHistoryDayDataList(fuelHistoryDayDataList)
+                    .engineHistoryDayDataList(engineHistoryDayDataList)
+                    .utilizationDateRange(
+                            format.format(utilities.getDate(utilities.getStartDate(6))) + " - "
+                                    + format.format(utilities.getDate(utilities.getStartDate(0))))
+                    .build());
+        }
+    }
+
+    /**
+     * Determines the fuel level category based on the fuel level value.
+     *
+     * @param fuelLevel The fuel level value.
+     * @return The fuel level category ("low", "normal", or "high").
+     */
+    private String getFuelLevel(Double fuelLevel) {
+        if (fuelLevel >= 0 && fuelLevel < 6) {
+            return "low";
+        } else if (fuelLevel >= 6 && fuelLevel <= 15) {
+            return "normal";
+        } else {
+            return "high";
         }
     }
 
     @Override
-    public MachineListResponseV2 getMachineResponseListV2(String userName, String filter, String search, Boolean skipReports, String pageNumber, String pageSize, String token) throws ProcessCustomError {
+    public MachineListResponseV2 getMachineResponseListV2(String userName, String filter, String search, Boolean skipReports, String pageNumber, String pageSize) throws ProcessCustomError {
         long start = System.currentTimeMillis();
+        log.info("getMachineResponseListV2: Request received for user: {}, filter: {}, search: {}, pageNumber: {}, pageSize: {}",
+                userName, filter, search, pageNumber, pageSize);
         try {
             Long machineCount = 0L;
             Long notificationCount = 0L;
@@ -192,26 +360,30 @@ public class MachineResponseServiceImpl implements MachineResponseService {
             format.setTimeZone(TimeZone.getTimeZone(timezone));
             final String machineStartDateRange = format.format(utilities.getDate(utilities.getStartDate(loadHistoricalDataForDays)));
             final String machineEndDateRange = format.format(utilities.getDate(utilities.getEndDate(-1)));
-            AlertCount alertCount = null;
+            AlertCount alertCount = new AlertCount();
             utilities.getDate(utilities.getStartDate(loadAlertsDataForDays));
             utilities.getDate(utilities.getEndDate(1));
 
             if ("0".equals(pageNumber)) {
+                log.debug("getMachineResponseListV2: Fetching machine count for user: {}", userName);
                 machineCount = machineRepository.getCountByUserName(userName);
+                log.debug("getMachineResponseListV2: Machine count for user {} is: {}", userName, machineCount);
+
                 if (machineCount == 0) {
-                    log.info("Calling RestTemplate Methods For MachineZero :{}", userName);
-                    final RestTemplate restTemplate = new RestTemplate();
-                    //String url = "http://app.jcbdigital.in/api/v1/livelink-local/user/machineszero";
+                    log.info("getMachineResponseListV2: No machines found for user: {}. Triggering external API call...", userName);
+
+                    //restTemplateUrl and env are configured in application.properties file
                     String url = restTemplateUrl + "/api/v1/" + env + "/user/machineszero";
 
-                    // Create headers with JWT token
+                    // Log the URL for debugging
+                    log.debug("getMachineResponseListV2: Calling external API at URL: {}", url);
+
                     HttpHeaders headers = new HttpHeaders();
-                    headers.set("Authorization", "Bearer " + token);
                     headers.setContentType(MediaType.APPLICATION_JSON);
 
                     HttpEntity<String> entity = new HttpEntity<>(headers);
 
-                    ResponseEntity<String> response = restTemplate.exchange(
+                    ResponseEntity<String> response = new RestTemplate().exchange(
                             UriComponentsBuilder.fromHttpUrl(url)
                                     .queryParam("userName", userName)
                                     .toUriString(),
@@ -220,15 +392,15 @@ public class MachineResponseServiceImpl implements MachineResponseService {
                             String.class
                     );
 
-                    if (response.getStatusCode() != HttpStatus.OK) {
-                        // Handle error response from the external API
-                        log.error("Error calling external API: {}", response.getStatusCode());
-                        // ...
+                    if (response.getStatusCode() == HttpStatus.OK) {
+                        log.info("getMachineResponseListV2: External API call successful.");
+                    } else {
+                        log.error("getMachineResponseListV2: Error calling external API. Status code: {}, Response body: {}",
+                                response.getStatusCode(), response.getBody());
                     }
                 }
-                if (machineCount > 0) {
 
-                    alertCount = new AlertCount();
+                if (machineCount > 0) {
                     alertCount.setHealth(0);
                     alertCount.setSecurity(0);
                     alertCount.setLocation(0);
@@ -236,48 +408,49 @@ public class MachineResponseServiceImpl implements MachineResponseService {
                     alertCount.setUtilization(0);
                 }
             }
+
             final List<MachineResponseV2> machineResponse = new ArrayList<>();
-            // logger.debug("Applying filters for getMachineResponseList : " + filter);
+            log.debug("getMachineResponseListV2: Applying filters: filter={}, search={}", filter, search);
+
             if (!"optional".equals(filter)) {
                 final List<String> filterList = new ArrayList<>(Arrays.asList(filter.split(",")));
                 if ("optional".equals(search)) {
+                    log.debug("getMachineResponseListV2: Fetching machines with filter: {}", filterList);
                     for (final Machine machine : machineRepository.getByUsersUserNameAndModelByCustomer(userName, filterList, PageRequest.of(Integer.parseInt(pageNumber), Integer.parseInt(pageSize)))) {
-                        // logger.debug("Loading machine data for filter present and search optional");
-                        loadMachineResponseListV2(machine, machineResponse, machineStartDateRange, machineEndDateRange, skipReports, userName);
+                        loadMachineResponseListV2(machine, machineResponse, machineStartDateRange, machineEndDateRange, skipReports);
                     }
                 } else {
+                    log.debug("getMachineResponseListV2: Fetching machines with filter: {} and search: {}", filterList, search);
                     for (final Machine machine : machineRepository.getByUsersUserNameAndModelAndSearchCriteriaByCustomer(userName, filterList, search, PageRequest.of(Integer.parseInt(pageNumber), Integer.parseInt(pageSize)))) {
-                        // logger.debug("Loading machine data for filter present and search present");
-                        loadMachineResponseListV2(machine, machineResponse, machineStartDateRange, machineEndDateRange, skipReports, userName);
+                        loadMachineResponseListV2(machine, machineResponse, machineStartDateRange, machineEndDateRange, skipReports);
                     }
                 }
             } else {
                 if ("optional".equals(search)) {
+                    log.debug("getMachineResponseListV2: Fetching all machines for user: {}", userName);
                     for (final Machine machine : machineRepository.getByUsersUserNameByCustomer(userName, PageRequest.of(Integer.parseInt(pageNumber), Integer.parseInt(pageSize)))) {
-                        // logger.debug("Loading machine data for filter optional and search optional");
-                        loadMachineResponseListV2(machine, machineResponse, machineStartDateRange, machineEndDateRange, skipReports, userName);
+                        loadMachineResponseListV2(machine, machineResponse, machineStartDateRange, machineEndDateRange, skipReports);
                     }
                 } else {
+                    log.debug("getMachineResponseListV2: Fetching machines with search: {}", search);
                     for (final Machine machine : machineRepository.getByUsersUserNameAndSearchCriteriaByCustomer(userName, search, PageRequest.of(Integer.parseInt(pageNumber), Integer.parseInt(pageSize)))) {
-                        // logger.debug("Loading machine data for filter optional and search present");
-                        loadMachineResponseListV2(machine, machineResponse, machineStartDateRange, machineEndDateRange, skipReports, userName);
+                        loadMachineResponseListV2(machine, machineResponse, machineStartDateRange, machineEndDateRange, skipReports);
                     }
                 }
             }
-            log.info("getMachineResponseList: GetMachineResponseList sending response for user. {}", userName);
+
+            log.info("getMachineResponseListV2: Retrieved {} machines for user: {}", machineResponse.size(), userName);
 
             // Sorting of machines on the basis of status as on time
             machineResponse.sort((o1, o2) -> o2.getStatusAsOnTime().compareTo(o1.getStatusAsOnTime()));
+
             long end = System.currentTimeMillis();
             long elapsedTime = end - start;
-            log.info("MachinesV2 API Duration :{}-{}-{}-{}", elapsedTime, userName, filter, search);
+            log.info("getMachineResponseListV2: Response sent for user: {}. Total time taken: {}ms", userName, elapsedTime);
             return new MachineListResponseV2(machineResponse, alertCount, machineCount, notificationCount);
 
         } catch (final Exception ex) {
-            log.error("getMachineResponseList: Machine list retrieval failed with message {}", ex.getMessage());
-            log.error("getMachineResponseList: Parameter for api  {} ,{} ,{}  ...", userName, filter, search);
-            log.info("Exception occured for MachinesV2 API :{}Exception -{}", userName, ex.getMessage());
-            ex.printStackTrace();
+            log.error("getMachineResponseListV2: Error processing request for user: {}. Error: {}", userName, ex.getMessage(), ex);
             throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED, ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -504,7 +677,7 @@ public class MachineResponseServiceImpl implements MachineResponseService {
             machineCount = machineRepository.getCountByUserName(userName);
             if ("0".equals(pageNumber)) {
                 if (machineCount == 0) {
-                    log.info("Calling RestTemplate Methods For MachineZero :" + userName);
+                    log.info("Calling RestTemplate Methods For MachineZero :{}", userName);
                     final RestTemplate restTemplate = new RestTemplate();
                     //String url = "http://app.jcbdigital.in/api/v1/livelink-local/user/machineszero";
                     String url = restTemplateUrl + "/api/v1/" + env + "/user/machineszero";
@@ -561,14 +734,14 @@ public class MachineResponseServiceImpl implements MachineResponseService {
             machineResponse.sort((o1, o2) -> o2.getStatusAsOnTime().compareTo(o1.getStatusAsOnTime()));
             long end = System.currentTimeMillis();
             long elapsedTime = end - start;
-            log.info("MachinesV3 API Duration :" + elapsedTime + "-" + userName + "-" + filter + "-" + search);
+            log.info("MachinesV3 API Duration :{}-{}-{}-{}", elapsedTime, userName, filter, search);
             return new MachineListResponseV3(machineResponse, alertCount, machineCount, notificationCount);
 
         } catch (final Exception ex) {
             log.error("getMachineResponseList: Machine list retrieval failed with message {}", ex.getMessage());
             log.error("getMachineResponseList: Parameter for api  {} ,{} ,{}  ", userName, filter, search);
             ex.printStackTrace();
-            log.info("Exception occured for MachinesV3 API :" + userName + "Exception -" + ex.getMessage());
+            log.info("Exception occured for MachinesV3 API :{}Exception -{}", userName, ex.getMessage());
             throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED, ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -606,7 +779,7 @@ public class MachineResponseServiceImpl implements MachineResponseService {
                     } else {
 
                         List<MachineEngineStatusHistoryData> engineStatus = machineEngineStatusHistoryDataRepo.getEngineDetails(vin, startDate, endDate);
-                        List<DateValue> date = new ArrayList<DateValue>();
+                        List<DateValue> date = new ArrayList<>();
                         List<IntegerValue> status = new ArrayList<>();
 
                         for (MachineEngineStatusHistoryData engineDetails : engineStatus) {
@@ -682,7 +855,7 @@ public class MachineResponseServiceImpl implements MachineResponseService {
             machine = machineRepository.findByVinAndUserName(vin, userName);
         } catch (final Exception e) {
             e.printStackTrace();
-            log.error("Failed to check vin with user " + e.getMessage());
+            log.error("Failed to check vin with user {}", e.getMessage());
         }
 
         return machine;
@@ -763,7 +936,7 @@ public class MachineResponseServiceImpl implements MachineResponseService {
             engineFuelHistoryUtilizationData.setFuelHistoryDayDataList(fuelHistoryDayDataList);
         } catch (final Exception ex) {
             ex.printStackTrace();
-            log.error("Failed to process request with message " + ex.getMessage());
+            log.error("Failed to process request with message {}", ex.getMessage());
             throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return engineFuelHistoryUtilizationData;
@@ -778,9 +951,9 @@ public class MachineResponseServiceImpl implements MachineResponseService {
 			String firmware_version = machineRepository.getFirmwareVersionByVin(vin);
 			if (firmware_version != null && !firmware_version.isEmpty()) {
 				log.info("Response : Vin {} Firmware Version {}", vin, firmware_version);
-				Integer versionValues = Integer.parseInt(firmware_version.split("\\.")[0]);
-				log.info("versionValues" + versionValues);
-				if (versionValues >= 07 && versionValues < 30) {
+				int versionValues = Integer.parseInt(firmware_version.split("\\.")[0]);
+                log.info("versionValues{}", versionValues);
+				if (versionValues >= 7 && versionValues < 30) {
 					machineType = MessagesList.LL2;
 				} else if (versionValues >= 30 && versionValues <= 50) {
 					machineType = MessagesList.LL4;
@@ -794,7 +967,7 @@ public class MachineResponseServiceImpl implements MachineResponseService {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.error("Exception occured at getMachinetype " + vin);
+            log.error("Exception occurred at getMachinetype {}", vin);
 		}
 		return machineType;
 	}

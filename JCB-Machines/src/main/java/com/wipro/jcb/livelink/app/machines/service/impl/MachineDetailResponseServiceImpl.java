@@ -63,7 +63,7 @@ public class MachineDetailResponseServiceImpl implements MachineDetailResponseSe
         String endDate = utilities.getEndDate(1);
 
         try {
-            MachineDetailResponse machineDetailResponse = new MachineDetailResponse();
+            MachineDetailResponse machineDetailResponse;
             int serviceAlertCount = 0;
             int normalAlertCount = 0;
             int alertCountWithRedEventLevel = 0;
@@ -214,7 +214,10 @@ public class MachineDetailResponseServiceImpl implements MachineDetailResponseSe
             log.debug("getMachineDetailResponseListV2: Fetched {} fuel consumption data records", updatedMachineFuelConsumptionData.size());
 
             final List<AlertData> alertData = new ArrayList<>();
+
             Date connectivityTime = utilities.getStartDateTimeWithMinutes(online);
+            log.info("connectivityTime : {}", connectivityTime.toString());
+
             String engineValue = "off";
 
             Date lastCommunicationTime;
@@ -228,37 +231,48 @@ public class MachineDetailResponseServiceImpl implements MachineDetailResponseSe
 
             final MachineDetailData machineDetailData;
             if (!updatedMachineFuelConsumptionData.isEmpty()) {
-                machineDetailData = new MachineDetailData(engineStatus, engineValue,
+                machineDetailData = new MachineDetailData(
+                        engineStatus,
+                        engineValue,
                         connectivityTime.before(machine.getStatusAsOnTime()),
-                        (connectivityTime.before(machine.getStatusAsOnTime())) ? "On" : "Off",
+                        (connectivityTime.before(machine.getStatusAsOnTime())) ? "Off" : "On",
                         machine.getCoolantTemperatureAlertStatus(),
-                        (machine.getCoolantTemperatureAlertStatus()) ? "Fault" : "No Fault",
+                        (machine.getCoolantTemperatureAlertStatus())  ? "Fault" : " No Fault",
                         machine.getBatteryConnectedStatus(),
-                        machine.getBatteryVoltage().toString(),
+                        machine.getBatteryVoltage() != null ? machine.getBatteryVoltage().toString() : "NA", // Null check for battery voltage
                         machine.getEngineOilPressureAlertStatus(),
                         (machine.getEngineOilPressureAlertStatus()) ? "Fault" : "No Fault",
                         machine.getAirFilterAlertStatus(),
                         (machine.getAirFilterAlertStatus()) ? "Fault" : "No Fault",
                         machine.getFuelLevelStatus(),
-                        updatedMachineFuelConsumptionData.get(0).getFuelConsumed().toString(),
-                        machine.getStatusAsOnTime(), lastCommunicationTime,
-                        machine.getImage(), machine.getThumbnail());
+                        updatedMachineFuelConsumptionData.get(0).getFuelConsumed() != null ?
+                                updatedMachineFuelConsumptionData.get(0).getFuelConsumed().toString() : "NA", // Null check for fuel consumed
+                        machine.getStatusAsOnTime() != null ? machine.getStatusAsOnTime() : new Date(), // Null check for statusAsOnTime
+                        lastCommunicationTime != null ? lastCommunicationTime : new Date(), // Null check for lastCommunicationTime
+                        machine.getImage() != null ? machine.getImage() : "", // Null check for image
+                        machine.getThumbnail() != null ? machine.getThumbnail() : "" // Null check for thumbnail
+                );
             } else {
-                machineDetailData = new MachineDetailData(engineStatus, engineValue,
+                machineDetailData = new MachineDetailData(
+                        engineStatus,
+                        engineValue,
                         connectivityTime.before(machine.getStatusAsOnTime()),
                         (connectivityTime.before(machine.getStatusAsOnTime())) ? "On" : "Off",
                         machine.getCoolantTemperatureAlertStatus(),
                         (machine.getCoolantTemperatureAlertStatus()) ? "Fault" : "No Fault",
                         machine.getBatteryConnectedStatus(),
-                        machine.getBatteryVoltage().toString(),
+                        machine.getBatteryVoltage() != null ? machine.getBatteryVoltage().toString() : "NA", // Null check for battery voltage
                         machine.getEngineOilPressureAlertStatus(),
                         (machine.getEngineOilPressureAlertStatus()) ? "Fault" : "No Fault",
                         machine.getAirFilterAlertStatus(),
                         (machine.getAirFilterAlertStatus()) ? "Fault" : "No Fault",
                         machine.getFuelLevelStatus(),
                         fuelDataExcluded ? "-" : "NA",
-                        machine.getStatusAsOnTime(), lastCommunicationTime,
-                        machine.getImage(), machine.getThumbnail());
+                        machine.getStatusAsOnTime() != null ? machine.getStatusAsOnTime() : new Date(), // Null check for statusAsOnTime
+                        lastCommunicationTime != null ? lastCommunicationTime : new Date(), // Null check for lastCommunicationTime
+                        machine.getImage() != null ? machine.getImage() : "", // Null check for image
+                        machine.getThumbnail() != null ? machine.getThumbnail() : "" // Null check for thumbnail
+                );
             }
 
             log.debug("getMachineDetailResponseListV2: Processing alerts for VIN: {}", vin);

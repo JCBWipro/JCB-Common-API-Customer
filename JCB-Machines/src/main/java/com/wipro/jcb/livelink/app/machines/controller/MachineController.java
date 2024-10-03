@@ -1,6 +1,7 @@
 package com.wipro.jcb.livelink.app.machines.controller;
 
 import com.wipro.jcb.livelink.app.machines.commonUtils.AuthCommonUtils;
+import com.wipro.jcb.livelink.app.machines.config.AppConfiguration;
 import com.wipro.jcb.livelink.app.machines.constants.MessagesList;
 import com.wipro.jcb.livelink.app.machines.dto.UserDetails;
 import com.wipro.jcb.livelink.app.machines.exception.ApiError;
@@ -46,22 +47,43 @@ public class MachineController {
 
     @Autowired
     MachineResponseService machineResponseService;
-    
-    @Autowired
-    private MachineProfileService machineProfileService;
 
-    @CrossOrigin
+    @Autowired
+    MachineProfileService machineProfileService;
+
+    @Autowired
+    AppConfiguration appConfiguration;
+
+    @GetMapping(value = "/appconfig")
+    @Operation(summary = "Get app configuration", description = "App configuration specific to user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Config data successfully sent", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AppConfiguration.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized user", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "500", description = "Config request failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
+    })
+
+    public @ResponseBody ResponseEntity<?> getAppConfig() {
+        try {
+            log.info("getAppConfig: Received request for app configuration.");
+            AppConfiguration config = appConfiguration;
+            log.debug("getAppConfig: Retrieved app configuration: {}", config);
+            return new ResponseEntity<>(config, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("getAppConfig: Error retrieving app configuration.", e);
+            return new ResponseEntity<>(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve app configuration",
+                    MessagesList.APP_REQUEST_PROCESSING_FAILED, null), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(value = "/machinesV2")
     @Operation(summary = "List all machines for the current user", description = "Retrieves a paginated list of machines associated with the authenticated user.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Machine List", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MachineListResponse.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
     })
-    //@Transactional(timeout = ConstantConfig.REQUEST_TIMEOUT, readOnly = true)
-    @GetMapping(value = "/machinesV2")
     public ResponseEntity<?> getMachinesVTwo(
-            @Parameter(description = "Access token for authentication", required = true) @PathVariable("username") String userName,
-            @Parameter(description = "Access token for authentication", required = true) @RequestHeader("accessToken") String token,
+            @Parameter(description = "User details from the token", required = true) @RequestHeader("LoggedInUserRole") String userDetails,
             @Parameter(description = "Page number (zero-based)") @RequestParam(value = "pageNumber", defaultValue = "0") String pageNumber,
             @Parameter(description = "Page size") @RequestParam(value = "pageSize", defaultValue = "${controller.customer.machines.pageSize}") String pageSize,
             @Parameter(description = "Filter criteria (comma-separated values, e.g., '3DX,Super,ecoXcellence')") @RequestParam(value = "filter", defaultValue = "optional") String filter,
@@ -69,23 +91,30 @@ public class MachineController {
             @Parameter(description = "Skip fetching reports (true/false)") @RequestParam(value = "skipReports", required = false) Boolean skipReports) {
 
         try {
+            UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+            String userName = userResponse.getUserName();
             if (userName == null) {
-                log.warn("Session expired for token: {}", userName);
+                log.warn("Session expired for user details: {}", userDetails);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Session expired");
             }
 
             log.info("machines: GET request from user {}", userName);
-            MachineListResponseV2 response = machineResponseService.getMachineResponseListV2(userName, filter, search, skipReports, pageNumber, pageSize, token);
+            MachineListResponseV2 response = machineResponseService.getMachineResponseListV2(userName, filter, search, skipReports, pageNumber, pageSize);
             return ResponseEntity.ok(response);
 
         } catch (final ProcessCustomError e) {
             log.error("Issue faced while getting machine list for Customer. Parameters: filter={}, search={}", filter, search, e);
-            log.info("Exception occurred for MachinesV2 API.. Parameters: filter={}, search={}. Exception: {}", filter, search, e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getApiMessages());
+            return ResponseEntity.status(e.getStatus())
+                    .body(new ApiError(e.getStatus(), e.getMessage(), e.getErrorCode(), e.getDetails()));
+
+        } catch (final IllegalArgumentException e) {
+            log.warn("Invalid input parameters: filter={}, search={}. Error: {}", filter, search, e.getMessage());
+            return ResponseEntity.badRequest().body(new ApiError(HttpStatus.BAD_REQUEST, "Invalid input parameters", "INVALID_INPUT", null));
+
         } catch (final Exception e) {
-            log.error("Issue faced while getting machine list for Customer. Parameters: filter={}, search={}", filter, search, e);
-            log.info("Exception occurred for MachinesV2 API. Parameters: filter={}, search={}. Exception: {}", filter, search, e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to process request");
+            log.error("Unexpected error fetching machine list: filter={}, search={}", filter, search, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to process request", "SERVER_ERROR", null));
         }
     }
 
@@ -122,36 +151,34 @@ public class MachineController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to process request"));
         }
     }
-    
+
     /*
      * This End Point is used to get MachineProfile related details
      */
-    @CrossOrigin
-	@Transactional(readOnly = true)
     @GetMapping("/machineprofile")
-	public ResponseEntity<?> getMachineProfile(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails, @RequestParam(required=false) String vin) {
-    	UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
-    	String userName = userResponse.getUserName();
-    	try {
-			if (userName != null) {
-				log.info("machineprofile:GET Request from user {}", userName);
-				return new ResponseEntity<MachineProfile>(machineProfileService.getMachineProfile(userName, vin),
-						HttpStatus.OK);
-			} else {
-				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
-						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
-			}
-		} catch (final ProcessCustomError e) {
-			log.error("machineprofile:GET Request failed for machineprofile with fields for " + vin);
-			log.info("Exception occured for Machineprofile API :"+userName+"-"+vin+"Exception -"+e.getMessage());
-			return new ResponseEntity<ApiError>(e.getApiMessages(), HttpStatus.INTERNAL_SERVER_ERROR);
-		} catch (final Exception e) {
-			log.error("machineprofile:GET Request failed for machineprofile with fields for " + vin);
-			log.info("Exception occured for Machineprofile API :"+userName+"-"+vin+"Exception -"+e.getMessage());
-			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
-					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
-					HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+    public ResponseEntity<?> getMachineProfile(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails, @RequestParam(required = false) String vin) {
+        UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+        String userName = userResponse.getUserName();
+        try {
+            if (userName != null) {
+                log.info("machineProfile:GET Request from user {}", userName);
+                return new ResponseEntity<MachineProfile>(machineProfileService.getMachineProfile(userName, vin),
+                        HttpStatus.OK);
+            } else {
+                return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+                        "No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+            }
+        } catch (final ProcessCustomError e) {
+            log.error("machineprofile:GET Request failed for machineprofile with fields for vin: {}", vin);
+            log.info("Exception occurred for Machineprofile API :" + userName + "-" + vin + "Exception -" + e.getMessage());
+            return new ResponseEntity<ApiError>(e.getApiMessages(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (final Exception e) {
+            log.error("machineprofile:GET Request failed for machineprofile with fields for {}", vin);
+            log.info("Exception occurred for Machineprofile API :{}-{}Exception -{}", userName, vin, e.getMessage());
+            return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+                    MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
-	}
+    }
 }

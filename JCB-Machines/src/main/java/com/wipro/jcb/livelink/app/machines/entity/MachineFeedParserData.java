@@ -25,7 +25,7 @@ import java.util.Date;
 @Entity
 @DynamicUpdate
 @Table(name = "machine_feedparser_data", indexes = {
-        @Index(name = "machine_feedparser_indexes",columnList = "vin,lastModifiedDate", unique = false)})
+        @Index(name = "machine_feedparser_indexes",columnList = "vin,lastModifiedDate")})
 public class MachineFeedParserData implements Serializable {
 
     @Serial
@@ -39,10 +39,12 @@ public class MachineFeedParserData implements Serializable {
     @JsonFormat(pattern = AppServerConstants.DateTimeFormat, timezone = AppServerConstants.timezone)
     private Date statusAsOnTime;
 
+    @Setter
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(pattern = AppServerConstants.DateTimeFormat, timezone = AppServerConstants.timezone)
     private Date hmrPacketTime;
 
+    @Setter
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(pattern = AppServerConstants.DateTimeFormat, timezone = AppServerConstants.timezone)
     private Date fuelPacketTime;
@@ -54,6 +56,7 @@ public class MachineFeedParserData implements Serializable {
 
     private Double batteryVoltage= 0.0;
 
+    @Setter
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
     protected Date creationDate;
@@ -62,10 +65,6 @@ public class MachineFeedParserData implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     protected Date lastModifiedDate;
 
-
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
-    }
 
     private String engineStatus = "Off";
 
@@ -105,6 +104,8 @@ public class MachineFeedParserData implements Serializable {
 
         private Double batteryVoltage= 0.0;
 
+        @Setter
+        @Getter
         private String engineStatus = "Off";
 
         public Builder (JSONObject machineobj) {
@@ -124,13 +125,7 @@ public class MachineFeedParserData implements Serializable {
         public MachineFeedParserData build() {
             return new MachineFeedParserData(this);
         }
+
     }
 
-    public void setHmrPacketTime(Date hmrPacketTime) {
-        this.hmrPacketTime = hmrPacketTime;
-    }
-
-    public void setFuelPacketTime(Date fuelPacketTime) {
-        this.fuelPacketTime = fuelPacketTime;
-    }
 }

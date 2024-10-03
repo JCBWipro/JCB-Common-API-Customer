@@ -78,7 +78,7 @@ public class MachineProfileServiceImpl implements MachineProfileService {
 		final Machine machine = machineRepository.findByVinAndUserName(vin, userName);
 		String machineType = machineFuelConsumptionDataRepository.getMachineTypeByVin(vin);
 		SimpleDateFormat renewalDate = new SimpleDateFormat("dd/MM/yyyy");
-		log.debug(" Processing getMachineProfile request for vin " + vin + "MachineType" + machineType);
+        log.debug(" Processing getMachineProfile request for vin {}MachineType{}", vin, machineType);
 		if (machine != null) {
 			try {
 				TimefenceParam timefenceParam = new TimefenceParam(machine.getStartTime(), machine.getEndTime());
@@ -102,12 +102,12 @@ public class MachineProfileServiceImpl implements MachineProfileService {
 				machineProfile.setFirmwareType(machineResponseService.getMachinetype(vin));
 				return machineProfile;
 			} catch (final Exception ex) {
-				log.error("getMachineProfile processing failed for vin " + vin + "with ");
+                log.error("getMachineProfile processing failed for vin {}with ", vin);
 				throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED, ex.getMessage(),
 						HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		} else {
-			log.error("getMachineProfile: Machine not found with vin " + vin);
+            log.error("getMachineProfile: Machine not found with vin {}", vin);
 			throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED,
 					MessagesList.APP_REQUEST_PROCESSING_FAILED, HttpStatus.EXPECTATION_FAILED);
 		}

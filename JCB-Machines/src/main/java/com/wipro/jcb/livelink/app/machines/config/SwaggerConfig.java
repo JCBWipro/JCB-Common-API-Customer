@@ -29,8 +29,8 @@ public class SwaggerConfig {
                                 """)
                         .version("1.0")
                         .contact(new Contact()
-                                .name("Rituraj Azad")
+                                .name("Team-NextGen")
                                 .url("https://www.jcblivelink.in")
-                                .email("RI20474447@wipro.com")));
+                                .email("Team-NextGen@wipro.com")));
     }
 }

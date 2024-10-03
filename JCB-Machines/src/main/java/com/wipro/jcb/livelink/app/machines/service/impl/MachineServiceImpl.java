@@ -201,18 +201,18 @@ public class MachineServiceImpl implements MachineService {
 
             if (machine != null && machine.getServiceDueDate() != null) {
                 if (machine.getTotalMachineHours() >= machine.getServiceDueHours()) {
-                    return ServiceStatus.SERVICEOVERDUE_HOUR;
+                    return ServiceStatus.SERVICE_OVERDUE_HOUR;
                 }
                 if (machine.getServiceDueDate().before(utilities.getDateTime(utilities.getStartDateTime(0)))) {
-                    return ServiceStatus.SERVICEOVERDUE_DATE;
+                    return ServiceStatus.SERVICE_OVERDUE_DATE;
                 }
                 if ((machine.getTotalMachineHours() > (machine.getServiceDueHours() - serviceMinDueHours))) {
-                    return ServiceStatus.SERVICEDUE_HOUR;
+                    return ServiceStatus.SERVICE_DUE_HOUR;
                 }
                 if (machine.getServiceDueDate().after(utilities.getDateTime(utilities.getStartDateTime(0)))
                         && machine.getServiceDueDate().before(
                         utilities.getDateTime(utilities.getEndDateTime(machineApproachingServiceDays)))) {
-                    return ServiceStatus.SERVICEDUE_DATE;
+                    return ServiceStatus.SERVICE_DUE_DATE;
                 }
             }
             return ServiceStatus.NORMAL;
