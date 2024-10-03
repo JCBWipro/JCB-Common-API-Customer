@@ -1,6 +1,8 @@
 package com.wipro.jcb.livelink.app.mob.auth.repo;
 
 import com.wipro.jcb.livelink.app.mob.auth.entity.User;
+import com.wipro.jcb.livelink.app.mob.auth.response.UserResponse;
+
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,7 +14,7 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, String> {
 
     @Query(nativeQuery = true, value = "SELECT USER_ID,password,userType,roleName,firstName,lastName,email,phoneNumber,image,thumbnail,country,smsLanguage,timeZone,language FROM microservices_db.LiveLinkUser where USER_ID=:userName")
-    List<Object[]> findByUserName(@Param("userName") String userName);
+    List<UserResponse> findByUserName(@Param("userName") String userName);
 
     @Transactional
     @Modifying

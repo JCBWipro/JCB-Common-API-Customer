@@ -21,8 +21,6 @@ public class APIGatewayUtils {
 		map.put("Super Admin",12);
 		map.put("Government Admin",13);
 		map.put("JCB",14);
-		map.put("Dealer",15);
-		map.put("Customer",16);
 		return map.get(roleName);
 	}
 

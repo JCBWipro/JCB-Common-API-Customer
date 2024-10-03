@@ -29,6 +29,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Author: Rituraj Azad
@@ -148,6 +149,49 @@ public class MachineController {
 		} catch (final Exception e) {
 			log.error("machineprofile:GET Request failed for machineprofile with fields for " + vin);
 			log.info("Exception occured for Machineprofile API :"+userName+"-"+vin+"Exception -"+e.getMessage());
+			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
+    
+    /*
+     * This End Point is used to Update MachineProfile related details
+     */
+	@CrossOrigin
+	@PutMapping(value="/machineprofile", consumes=MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> putMachineProfile(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+			@RequestPart(value = "operatorName", required = false) String operatorName, @RequestPart("vin") String vin,
+			@RequestPart(value = "tag", required = false) String tag,
+			@RequestPart(value = "hours", required = false) String hours,
+			@RequestPart("jcbCertified") String jcbCertified,
+			@RequestPart(value = "phoneNumber", required = false) String phoneNumber,
+			@RequestPart(value = "workEnd", required = false) String workEnd,
+			@RequestPart(value = "workStart", required = false) String workStart,
+			@RequestPart(value = "site", required = false) String site,
+			@RequestPart(value = "image", required = false) MultipartFile image) {
+		try {
+			UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+			String userName = userResponse.getUserName();
+			if (userName != null) {
+				log.info("machineprofile:GET request from user {}", userName);
+				machineProfileService.putMachineProfile(userName, vin, operatorName != null ? operatorName : "",
+						phoneNumber != null ? phoneNumber : "", hours != null ? hours : "",
+						workStart != null ? workStart : "", workEnd != null ? workEnd : "", jcbCertified,
+						tag != null ? tag : "", site != null ? site : "", image);
+				log.info("machineprofile:GET end of request from user {}", userName);
+				return new ResponseEntity<MachineProfile>(machineProfileService.getMachineProfile(userName, vin),
+						HttpStatus.OK);
+			} else {
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+		} catch (final ProcessCustomError e) {
+			log.error("machineprofile:GET request failed for vin {} ", vin);
+			return new ResponseEntity<ApiError>(e.getApiMessages(), HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (final Exception e) {
+			log.error("machineprofile:GET request failed for vin {} ", vin);
 			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
 					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
 					HttpStatus.INTERNAL_SERVER_ERROR);
