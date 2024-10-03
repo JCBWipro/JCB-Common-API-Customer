@@ -3,12 +3,16 @@ package com.wipro.jcb.livelink.app.machines.request;
 import com.wipro.jcb.livelink.app.machines.entity.Operator;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * This MachineProfileRequest is to Handle MachineProfile related Data
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class MachineProfileRequest {
 
 	@Schema(description = "Machine unique identifier", example = "PUNJD22CV0000IIII", required = true)

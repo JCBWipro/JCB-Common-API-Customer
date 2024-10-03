@@ -120,7 +120,7 @@ public class UserController {
     Token is used to refresh the Access token. Access_Token is generated Using UserName, password and UserType.
     Whole Access_Token will be absolute and new Access_Token will be Generated with Extended Time.
     */
-    @PostMapping("/refreshToken")
+    @PostMapping("/mobRefreshToken")
     public JwtResponse refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
         return refreshTokenService.findByToken(refreshTokenRequest.getToken())
                 .map(refreshTokenService::verifyExpiration)

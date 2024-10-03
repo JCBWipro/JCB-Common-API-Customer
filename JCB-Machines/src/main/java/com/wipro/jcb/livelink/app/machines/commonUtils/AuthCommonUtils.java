@@ -30,8 +30,6 @@ public class AuthCommonUtils {
         map.put(12, "Super Admin");
         map.put(13, "Government Admin");
         map.put(14, "JCB");
-        map.put(15, "Customer");
-        map.put(16, "Dealer");
         return map.get(roleId);
     }
 
