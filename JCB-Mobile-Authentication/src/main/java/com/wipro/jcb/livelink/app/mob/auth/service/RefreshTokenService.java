@@ -12,6 +12,7 @@ import com.wipro.jcb.livelink.app.mob.auth.commonutils.AuthCommonutils;
 import com.wipro.jcb.livelink.app.mob.auth.entity.RefreshToken;
 import com.wipro.jcb.livelink.app.mob.auth.repo.RefreshTokenMobRepository;
 import com.wipro.jcb.livelink.app.mob.auth.repo.UserRepository;
+import com.wipro.jcb.livelink.app.mob.auth.response.UserResponse;
 
 @Service
 public class RefreshTokenService {
@@ -24,7 +25,7 @@ public class RefreshTokenService {
 
     public RefreshToken createRefreshToken(String username) {
         RefreshToken refreshToken = new RefreshToken();
-        List<Object[]> repoResult = userRepository.findByUserName(username);
+        List<UserResponse> repoResult = userRepository.findByUserName(username);
         refreshToken.setUser(AuthCommonutils.convertObjectToDTO(repoResult));
         refreshToken.setToken(UUID.randomUUID().toString());
         refreshToken.setExpiryDate(Instant.now().plusMillis(600000)); // 10

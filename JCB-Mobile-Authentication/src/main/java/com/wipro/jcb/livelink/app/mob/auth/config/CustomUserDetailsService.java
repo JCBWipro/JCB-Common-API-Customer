@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.wipro.jcb.livelink.app.mob.auth.entity.User;
 import com.wipro.jcb.livelink.app.mob.auth.enums.UserType;
 import com.wipro.jcb.livelink.app.mob.auth.repo.UserRepository;
+import com.wipro.jcb.livelink.app.mob.auth.response.UserResponse;
 
 
 @Component
@@ -23,12 +24,12 @@ public class CustomUserDetailsService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		
-		List<Object[]> objects = userRepository.findByUserName(username);
+		List<UserResponse> listOfUsers = userRepository.findByUserName(username);
 		User user = new User();
-		for(Object[] object : objects) {
-			user.setUserName(object[0].toString());
-			user.setPassword(object[1].toString());
-			user.setUserType(UserType.valueOf(object[2].toString()));
+		for(UserResponse users : listOfUsers) {
+			user.setUserName(users.getUSER_ID());
+			user.setPassword(users.getpassword());
+			user.setUserType(UserType.valueOf(users.getuserType()));
 		}
 		Optional<User> userDetails = Optional.of(user);
 		return userDetails.map(CustomUserDetails::new)
