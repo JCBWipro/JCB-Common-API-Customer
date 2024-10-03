@@ -65,7 +65,7 @@ public class MachineProfileServiceImpl implements MachineProfileService {
 	ServletContext context;
 
 	@Value("${custom.formatter.timezone}")
-	private String timezone;
+	String timezone;
 
 	@Autowired
 	MachineFuelConsumptionDataRepository machineFuelConsumptionDataRepository;
@@ -88,7 +88,7 @@ public class MachineProfileServiceImpl implements MachineProfileService {
 		final Machine machine = machineRepository.findByVinAndUserName(vin, userName);
 		String machineType = machineFuelConsumptionDataRepository.getMachineTypeByVin(vin);
 		SimpleDateFormat renewalDate = new SimpleDateFormat("dd/MM/yyyy");
-		log.debug(" Processing getMachineProfile request for vin " + vin + "MachineType" + machineType);
+        log.debug(" Processing getMachineProfile request for vin {}MachineType{}", vin, machineType);
 		if (machine != null) {
 			try {
 				TimefenceParam timefenceParam = new TimefenceParam(machine.getStartTime(), machine.getEndTime());
@@ -112,12 +112,12 @@ public class MachineProfileServiceImpl implements MachineProfileService {
 				machineProfile.setFirmwareType(machineResponseService.getMachinetype(vin));
 				return machineProfile;
 			} catch (final Exception ex) {
-				log.error("getMachineProfile processing failed for vin " + vin + "with ");
+                log.error("getMachineProfile processing failed for vin {}with ", vin);
 				throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED, ex.getMessage(),
 						HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		} else {
-			log.error("getMachineProfile: Machine not found with vin " + vin);
+            log.error("getMachineProfile: Machine not found with vin {}", vin);
 			throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED,
 					MessagesList.APP_REQUEST_PROCESSING_FAILED, HttpStatus.EXPECTATION_FAILED);
 		}
@@ -131,25 +131,21 @@ public class MachineProfileServiceImpl implements MachineProfileService {
 			String workStart, String workEnd, String jcbCertified, String tag, String site, MultipartFile image)
 			throws ProcessCustomError {
 		try {
-			log.debug("Processing putMachineProfile request for vin " + vin);
+            log.debug("Processing putMachineProfile request for vin {}", vin);
 			final Operator operator = new Operator();
-			try {
-				operator.setOperatorName(operatorName);
-				operator.setPhoneNumber(phoneNumber);
-				operator.setHours(hours);
-				if (workStart != null && !workStart.isEmpty()) {
-					operator.setWorkStart(utilities.getDate(workStart));
-				}
-				if (workEnd != null && !workEnd.isEmpty()) {
-					operator.setWorkEnd(utilities.getDate(workEnd));
-				}
-				if (jcbCertified != null) {
-					operator.setJcbCertified(Boolean.parseBoolean(jcbCertified));
-				}
-			} catch (final Exception ex) {
-				ex.printStackTrace();
-				log.error("Unparsable data entry found for date or certification sattus");
+			operator.setOperatorName(operatorName);
+			operator.setPhoneNumber(phoneNumber);
+			operator.setHours(hours);
+			if (workStart != null && !workStart.isEmpty()) {
+				operator.setWorkStart(utilities.getDate(workStart));
 			}
+			if (workEnd != null && !workEnd.isEmpty()) {
+				operator.setWorkEnd(utilities.getDate(workEnd));
+			}
+			if (jcbCertified != null) {
+				operator.setJcbCertified(Boolean.parseBoolean(jcbCertified));
+			}
+
 			final MachineProfileRequest machineProfileRequest = new MachineProfileRequest(vin, operator, tag, site);
 			final Machine machine = machineRepository.findByVinAndUserName(machineProfileRequest.getVin(), userName);
 			if (machine != null) {
@@ -188,7 +184,7 @@ public class MachineProfileServiceImpl implements MachineProfileService {
 						machine.setImage("");
 					}
 				}
-				log.debug("Machine image saved successfully for for vin " + vin);
+                log.debug("Machine image saved successfully for for vin {}", vin);
 				machine.setTag(machineProfileRequest.getTag());
 				machine.setSite(machineProfileRequest.getSite());
 				machine.setOperator(machineProfileRequest.getOperator());
@@ -196,12 +192,12 @@ public class MachineProfileServiceImpl implements MachineProfileService {
 				return "Machine profile updated successfully";
 			}
 		} catch (final Exception ex) {
-			log.error("Processing putMachineProfile request for vin " + vin + "failed with " + ex.getMessage());
+            log.error("Processing putMachineProfile request for vin {}failed with {}", vin, ex.getMessage());
 			ex.printStackTrace();
 			throw new ProcessCustomError("Issue while updating machineprofile for vin " + vin, ex.getMessage(),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		log.error("Machine not found with vin " + vin);
+        log.error("Machine not found with vin {}", vin);
 		throw new ProcessCustomError("Invalid machine vin input", "Server can't find machine request",
 				HttpStatus.EXPECTATION_FAILED);
 	}

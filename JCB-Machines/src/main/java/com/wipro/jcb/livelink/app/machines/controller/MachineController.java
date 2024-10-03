@@ -1,6 +1,7 @@
 package com.wipro.jcb.livelink.app.machines.controller;
 
 import com.wipro.jcb.livelink.app.machines.commonUtils.AuthCommonUtils;
+import com.wipro.jcb.livelink.app.machines.config.AppConfiguration;
 import com.wipro.jcb.livelink.app.machines.constants.MessagesList;
 import com.wipro.jcb.livelink.app.machines.dto.UserDetails;
 import com.wipro.jcb.livelink.app.machines.exception.ApiError;
@@ -9,7 +10,6 @@ import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponse;
 import com.wipro.jcb.livelink.app.machines.service.MachineProfileService;
 import com.wipro.jcb.livelink.app.machines.service.MachineResponseService;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponseV2;
-import com.wipro.jcb.livelink.app.machines.service.response.MachineProfile;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineResponseV3;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -49,46 +49,75 @@ public class MachineController {
     MachineResponseService machineResponseService;
     
     @Autowired
-    private MachineProfileService machineProfileService;
+	MachineProfileService machineProfileService;
 
-    @CrossOrigin
-    @Operation(summary = "List all machines for the current user", description = "Retrieves a paginated list of machines associated with the authenticated user.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Machine List", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MachineListResponse.class))),
-            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
-    })
-    //@Transactional(timeout = ConstantConfig.REQUEST_TIMEOUT, readOnly = true)
-    @GetMapping(value = "/machinesV2")
-    public ResponseEntity<?> getMachinesVTwo(
-            @Parameter(description = "Access token for authentication", required = true) @PathVariable("username") String userName,
-            @Parameter(description = "Access token for authentication", required = true) @RequestHeader("accessToken") String token,
-            @Parameter(description = "Page number (zero-based)") @RequestParam(value = "pageNumber", defaultValue = "0") String pageNumber,
-            @Parameter(description = "Page size") @RequestParam(value = "pageSize", defaultValue = "${controller.customer.machines.pageSize}") String pageSize,
-            @Parameter(description = "Filter criteria (comma-separated values, e.g., '3DX,Super,ecoXcellence')") @RequestParam(value = "filter", defaultValue = "optional") String filter,
-            @Parameter(description = "Search term") @RequestParam(value = "search", defaultValue = "optional") String search,
-            @Parameter(description = "Skip fetching reports (true/false)") @RequestParam(value = "skipReports", required = false) Boolean skipReports) {
 
-        try {
-            if (userName == null) {
-                log.warn("Session expired for token: {}", userName);
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Session expired");
-            }
+	@Autowired
+	AppConfiguration appConfiguration;
 
-            log.info("machines: GET request from user {}", userName);
-            MachineListResponseV2 response = machineResponseService.getMachineResponseListV2(userName, filter, search, skipReports, pageNumber, pageSize, token);
-            return ResponseEntity.ok(response);
+	@GetMapping(value = "/appconfig")
+	@Operation(summary = "Get app configuration", description = "App configuration specific to user")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Config data successfully sent", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AppConfiguration.class))),
+			@ApiResponse(responseCode = "401", description = "Unauthorized user", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
+			@ApiResponse(responseCode = "500", description = "Config request failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
+	})
 
-        } catch (final ProcessCustomError e) {
-            log.error("Issue faced while getting machine list for Customer. Parameters: filter={}, search={}", filter, search, e);
-            log.info("Exception occurred for MachinesV2 API.. Parameters: filter={}, search={}. Exception: {}", filter, search, e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getApiMessages());
-        } catch (final Exception e) {
-            log.error("Issue faced while getting machine list for Customer. Parameters: filter={}, search={}", filter, search, e);
-            log.info("Exception occurred for MachinesV2 API. Parameters: filter={}, search={}. Exception: {}", filter, search, e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to process request");
-        }
-    }
+	public @ResponseBody ResponseEntity<?> getAppConfig() {
+		try {
+			log.info("getAppConfig: Received request for app configuration.");
+			AppConfiguration config = appConfiguration;
+			log.debug("getAppConfig: Retrieved app configuration: {}", config);
+			return new ResponseEntity<>(config, HttpStatus.OK);
+		} catch (Exception e) {
+			log.error("getAppConfig: Error retrieving app configuration.", e);
+			return new ResponseEntity<>(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve app configuration",
+					MessagesList.APP_REQUEST_PROCESSING_FAILED, null), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping(value = "/machinesV2")
+	@Operation(summary = "List all machines for the current user", description = "Retrieves a paginated list of machines associated with the authenticated user.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Machine List", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MachineListResponse.class))),
+			@ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
+			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
+	})
+	public ResponseEntity<?> getMachinesVTwo(
+			@Parameter(description = "User details from the token", required = true) @RequestHeader("LoggedInUserRole") String userDetails,
+			@Parameter(description = "Page number (zero-based)") @RequestParam(value = "pageNumber", defaultValue = "0") String pageNumber,
+			@Parameter(description = "Page size") @RequestParam(value = "pageSize", defaultValue = "${controller.customer.machines.pageSize}") String pageSize,
+			@Parameter(description = "Filter criteria (comma-separated values, e.g., '3DX,Super,ecoXcellence')") @RequestParam(value = "filter", defaultValue = "optional") String filter,
+			@Parameter(description = "Search term") @RequestParam(value = "search", defaultValue = "optional") String search,
+			@Parameter(description = "Skip fetching reports (true/false)") @RequestParam(value = "skipReports", required = false) Boolean skipReports) {
+
+		try {
+			UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+			String userName = userResponse.getUserName();
+			if (userName == null) {
+				log.warn("Session expired for user details: {}", userDetails);
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Session expired");
+			}
+
+			log.info("machines: GET request from user {}", userName);
+			MachineListResponseV2 response = machineResponseService.getMachineResponseListV2(userName, filter, search, skipReports, pageNumber, pageSize);
+			return ResponseEntity.ok(response);
+
+		} catch (final ProcessCustomError e) {
+			log.error("Issue faced while getting machine list for Customer. Parameters: filter={}, search={}", filter, search, e);
+			return ResponseEntity.status(e.getStatus())
+					.body(new ApiError(e.getStatus(), e.getMessage(), e.getErrorCode(), e.getDetails()));
+
+		} catch (final IllegalArgumentException e) {
+			log.warn("Invalid input parameters: filter={}, search={}. Error: {}", filter, search, e.getMessage());
+			return ResponseEntity.badRequest().body(new ApiError(HttpStatus.BAD_REQUEST, "Invalid input parameters", "INVALID_INPUT", null));
+
+		} catch (final Exception e) {
+			log.error("Unexpected error fetching machine list: filter={}, search={}", filter, search, e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to process request", "SERVER_ERROR", null));
+		}
+	}
 
     @GetMapping(value = "/machinesdetailsV3")
     @Operation(summary = "Get machine details for the current user", description = "Retrieves detailed information about a specific machine identified by its VIN.")
@@ -136,22 +165,22 @@ public class MachineController {
     	try {
 			if (userName != null) {
 				log.info("machineprofile:GET Request from user {}", userName);
-				return new ResponseEntity<MachineProfile>(machineProfileService.getMachineProfile(userName, vin),
-						HttpStatus.OK);
+				return new ResponseEntity<>(machineProfileService.getMachineProfile(userName, vin),
+                        HttpStatus.OK);
 			} else {
-				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
-						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+				return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+                        "No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
 			}
 		} catch (final ProcessCustomError e) {
 			log.error("machineprofile:GET Request failed for machineprofile with fields for " + vin);
 			log.info("Exception occured for Machineprofile API :"+userName+"-"+vin+"Exception -"+e.getMessage());
-			return new ResponseEntity<ApiError>(e.getApiMessages(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(e.getApiMessages(), HttpStatus.INTERNAL_SERVER_ERROR);
 		} catch (final Exception e) {
 			log.error("machineprofile:GET Request failed for machineprofile with fields for " + vin);
 			log.info("Exception occured for Machineprofile API :"+userName+"-"+vin+"Exception -"+e.getMessage());
-			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
-					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
-					HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+                    MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}
@@ -159,7 +188,6 @@ public class MachineController {
     /*
      * This End Point is used to Update MachineProfile related details
      */
-	@CrossOrigin
 	@PutMapping(value="/machineprofile", consumes=MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> putMachineProfile(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
 			@RequestPart(value = "operatorName", required = false) String operatorName, @RequestPart("vin") String vin,
@@ -181,20 +209,20 @@ public class MachineController {
 						workStart != null ? workStart : "", workEnd != null ? workEnd : "", jcbCertified,
 						tag != null ? tag : "", site != null ? site : "", image);
 				log.info("machineprofile:GET end of request from user {}", userName);
-				return new ResponseEntity<MachineProfile>(machineProfileService.getMachineProfile(userName, vin),
-						HttpStatus.OK);
+				return new ResponseEntity<>(machineProfileService.getMachineProfile(userName, vin),
+                        HttpStatus.OK);
 			} else {
-				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
-						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+				return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+                        "No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
 			}
 		} catch (final ProcessCustomError e) {
 			log.error("machineprofile:GET request failed for vin {} ", vin);
-			return new ResponseEntity<ApiError>(e.getApiMessages(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(e.getApiMessages(), HttpStatus.INTERNAL_SERVER_ERROR);
 		} catch (final Exception e) {
 			log.error("machineprofile:GET request failed for vin {} ", vin);
-			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
-					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
-					HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+                    MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}

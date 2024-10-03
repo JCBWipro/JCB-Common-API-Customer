@@ -25,13 +25,12 @@ public interface MachineResponseService {
      * @param search      Search term for machines.
      * @param skipReports Whether to skip fetching reports.
      * @param pageNumber  The page number.
-     * @param pageSize    The page size.
-     * @param token       The authentication token.
+     * @param pageSize    The page size
      * @return A {@link MachineListResponseV2} containing the list of machines.
      * @throws ProcessCustomError If an error occurs during processing.
      */
     MachineListResponseV2 getMachineResponseListV2(String userName, String filter, String search, Boolean skipReports, String pageNumber,
-                                                   String pageSize, String token) throws ProcessCustomError;
+                                                   String pageSize) throws ProcessCustomError;
 
     /**
      * Retrieves a paginated list of machines for a user. This method likely represents a newer version of the API.
@@ -59,15 +58,15 @@ public interface MachineResponseService {
      */
     MachineResponseV3 getMachineDetailsListV3(String userName, String vin) throws ProcessCustomError;
 
-    public Machine getMachineDetails(String vin, String userName);
+    Machine getMachineDetails(String vin, String userName);
 
-   // public Machine getMachineDetails(String vin);
-    public EngineFuelHistoryUtilizationDataV2 getEngineFuelDetailData(String vin, Date startDate, Date endDate, String type) throws ProcessCustomError;
-    
+    // public Machine getMachineDetails(String vin);
+    EngineFuelHistoryUtilizationDataV2 getEngineFuelDetailData(String vin, Date startDate, Date endDate, String type) throws ProcessCustomError;
+
     /**
      * Retrieves MachineType based on Vin
      *
-     * @param vin      The VIN of the machine.
+     * @param vin The VIN of the machine.
      */
     String getMachinetype(String vin);
 

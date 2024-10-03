@@ -1,13 +1,12 @@
 package com.wipro.jcb.livelink.app.machines.service.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * This TimefenceParam is to handle start and endTime related Details
  */
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class TimefenceParam {

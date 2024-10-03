@@ -33,7 +33,7 @@ public interface MachineRepository extends CrudRepository<Machine, String> {
     @Query(value = "SELECT m.vin as vin, m.model as model, m.platform as platform, mfd.total_machine_hours as totalmachinehours,c.name as customername,c.phonenumber as customernumber,d.name as dealername,d.phonenumber as dealernumber  FROM machine m join customer c on c.id=m.customer_username join dealer d on d.id= m.dealer_username left outer join machine_feedparser_data mfd on mfd.vin = m.vin where m.vin =:vin AND m.renewal_flag =true ", nativeQuery = true)
     public List<Object[]> fetchMachineDetails(@Param("vin") String vin);
 
-    @Query(value = "SELECT count(m.vin) FROM machine m join machin_user u where user_id=:userName",nativeQuery = true)
+    @Query(value = "SELECT count(m.vin) FROM machine m join machin_user u where user_id=:userName", nativeQuery = true)
     public Long getCountByUserName(String userName);
 
     @Query("SELECT m FROM Machine m join m.users u where ?1 = u.userName AND  (m.platform IN ?2 OR m.model IN ?2)  ORDER by m.machineFeedParserData.statusAsOnTime DESC")
@@ -42,7 +42,6 @@ public interface MachineRepository extends CrudRepository<Machine, String> {
     @Query("SELECT m FROM Machine m join m.users u where ?1 = u.userName AND  (m.model IN ?2 OR m.platform IN ?2) AND ((lower(m.location) LIKE lower(concat('%', ?3,'%'))) OR (lower(m.tag) LIKE lower(concat('%', ?3,'%'))) OR (lower(m.vin) LIKE lower(concat('%', ?3,'%'))) OR (lower(m.site) LIKE lower(concat('%', ?3,'%'))))  ORDER by m.machineFeedParserData.statusAsOnTime DESC")
     public List<Machine> getByUsersUserNameAndModelAndSearchCriteriaByCustomer(String userName, List<String> filters,
                                                                                String search, Pageable pageable);
-
     @Query("SELECT m FROM Machine m join m.users u where ?1 = u.userName  ORDER by m.machineFeedParserData.statusAsOnTime DESC")
     public List<Machine> getByUsersUserNameByCustomer(String userName, Pageable pageable);
 
@@ -58,8 +57,9 @@ public interface MachineRepository extends CrudRepository<Machine, String> {
     @Query(value = "SELECT firmware_version FROM machine where vin = :vin", nativeQuery = true)
     public String getFirmwareVersionByVin(@Param("vin") String vin);
 
-    @Query(value = "SELECT USER_ID ,password, roleName FROM microservices_db.LiveLinkUser where USER_ID=:userName",nativeQuery = true)
+    @Query(value = "SELECT USER_ID ,password, roleName FROM microservices_db.LiveLinkUser where USER_ID=:userName", nativeQuery = true)
     UserResponse findByContactId(@Param("userName") String userName);
 
-
+    @Query("SELECT DISTINCT a.model FROM Machine a")
+    List<String> findDistinctModel();
 }

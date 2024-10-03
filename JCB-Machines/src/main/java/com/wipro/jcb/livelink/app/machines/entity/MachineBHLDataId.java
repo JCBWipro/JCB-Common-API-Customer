@@ -1,5 +1,6 @@
 package com.wipro.jcb.livelink.app.machines.entity;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -10,13 +11,8 @@ import java.util.Date;
  * project: JCB-Common-API-Customer
  */
 public class MachineBHLDataId implements Serializable {
-    /**
-     *
-     */
+    @Serial
     private static final long serialVersionUID = 6037626787004212021L;
-    /**
-     *
-     */
-    private Date day;
-    private String vinId;
+    Date day;
+    String vinId;
 }

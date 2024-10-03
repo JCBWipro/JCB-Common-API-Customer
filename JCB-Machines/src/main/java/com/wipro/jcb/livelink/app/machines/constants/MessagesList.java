@@ -12,7 +12,7 @@ public class MessagesList {
     //Exceptional or Error messages
     public static final String INSUFFICIENT_CREDIT_POINTS = "Due to insufficient credits points in your account, the request is cancelled.";
     public static final String SERVER_DOWN_MESSAGE="Server is under maintenance, please try later.";
-    public static final String INAVALID_USER_TYPE_MESSAGE= "User is not authorized for this information, please check selected user type.";
+    public static final String INVALID_USER_TYPE_MESSAGE = "User is not authorized for this information, please check selected user type.";
     public static final String REQUEST_PROCESSING_FAILED="Failed to process request";
     public static final String USER_ACCOUNT_LOCKED ="User account is temporary locked,Please try again tomorrow.";
     public static final String APP_REQUEST_PROCESSING_FAILED="App server has failed to process request, kindly check after some time.";
@@ -40,7 +40,7 @@ public class MessagesList {
     public static final String BREAKDOWN_MESSAGE="No data exits";
     public static final String SESSION_EXPIRED = "Session Expired";
 
-    public static final String RENEWAL_ALERT ="The selected VIN not renewaled, so please renewal to view the details.";
+    public static final String RENEWAL_ALERT ="The selected VIN not renewed, so please renewal to view the details.";
     
     public static final String LoggedInUserRole = "LoggedInUserRole";
 	public static final String NO_FIRMWARE = "No Firmware";
