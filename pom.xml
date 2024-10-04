@@ -9,6 +9,7 @@
         <module>JCB-Mobile-Authentication</module>
         <module>JCB-Machines</module>
         <module>JCB-User</module>
+        <module>JCB-Web-UserMachine</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
