@@ -3,12 +3,16 @@ package com.wipro.jcb.livelink.app.machines.controller;
 import com.wipro.jcb.livelink.app.machines.commonUtils.AuthCommonUtils;
 import com.wipro.jcb.livelink.app.machines.config.AppConfiguration;
 import com.wipro.jcb.livelink.app.machines.constants.MessagesList;
+import com.wipro.jcb.livelink.app.machines.dto.ResponseData;
 import com.wipro.jcb.livelink.app.machines.dto.UserDetails;
 import com.wipro.jcb.livelink.app.machines.exception.ApiError;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
+import com.wipro.jcb.livelink.app.machines.request.GeofenceSetRequest;
+import com.wipro.jcb.livelink.app.machines.request.TimefenceSetRequest;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponse;
 import com.wipro.jcb.livelink.app.machines.service.MachineProfileService;
 import com.wipro.jcb.livelink.app.machines.service.MachineResponseService;
+import com.wipro.jcb.livelink.app.machines.service.MachineService;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponseV2;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineResponseV3;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,6 +58,9 @@ public class MachineController {
 
 	@Autowired
 	AppConfiguration appConfiguration;
+	
+	@Autowired
+	private MachineService machineService;
 
 	@GetMapping(value = "/appconfig")
 	@Operation(summary = "Get app configuration", description = "App configuration specific to user")
@@ -157,6 +164,12 @@ public class MachineController {
      * This End Point is used to get MachineProfile related details
      */
     @CrossOrigin
+    @Operation(summary = "Get Machine profile", description = "Fetch Machine profile details by Vin")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get Machine profile"),
+            @ApiResponse(responseCode = "401", description = "Auth Failed"),
+            @ApiResponse(responseCode = "500", description = "Request failed")
+    })
 	@Transactional(readOnly = true)
     @GetMapping("/machineprofile")
 	public ResponseEntity<?> getMachineProfile(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails, @RequestParam(required=false) String vin) {
@@ -188,6 +201,13 @@ public class MachineController {
     /*
      * This End Point is used to Update MachineProfile related details
      */
+    @CrossOrigin
+    @Operation(summary = "Update machine profile", description = "Update machine profile and fetch the Latest Machine Profile Details")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Update machine profile"),
+            @ApiResponse(responseCode = "401", description = "Auth Failed"),
+            @ApiResponse(responseCode = "500", description = "Request failed")
+    })
 	@PutMapping(value="/machineprofile", consumes=MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> putMachineProfile(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
 			@RequestPart(value = "operatorName", required = false) String operatorName, @RequestPart("vin") String vin,
@@ -225,5 +245,87 @@ public class MachineController {
                     HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
+	}
+	
+	/*
+     * This End Point is to Set Machine Geofence related details
+     */
+	@CrossOrigin
+	@Operation(summary = "Set Machine Geofence", description = "Setting GeoFencing Parameter for machines")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Setting GeoFencing Parameter for machines"),
+			@ApiResponse(responseCode = "401", description = "Auth Failed"),
+			@ApiResponse(responseCode = "500", description = "Request failed") })
+	@PostMapping("/setmachinegeofenceparam")
+	public ResponseEntity<?> setGeoFencingForMachine(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+			@RequestBody GeofenceSetRequest geofenceSetRequest) {
+		try {
+			GeofenceSetRequest gfSetRequest = geofenceSetRequest;
+			UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+			String userName = userResponse.getUserName();
+			if (userName != null) {
+				log.info("setmachinegeofenceparam: POST Request for machine {} user {} ", gfSetRequest, userName);
+				if (null != gfSetRequest.getVin() && null != gfSetRequest.getCenterLatitude()
+						&& null != gfSetRequest.getCenterLongitude() && null != gfSetRequest.getRadis()) {
+					machineService.setMachineGeoFenceParam(gfSetRequest.getVin(), gfSetRequest.getCenterLatitude(),
+							gfSetRequest.getCenterLongitude(), gfSetRequest.getRadis());
+					log.info("Geofencing parameters updated Successfully");
+					return new ResponseEntity<ResponseData>(
+							new ResponseData("Success", "Geofencing parameters updated Successfully"), HttpStatus.OK);
+				} else {
+					throw new ProcessCustomError("Please provide valid value for geofence",
+							HttpStatus.EXPECTATION_FAILED);
+				}
+			} else {
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+		} catch (final Exception e) {
+			log.error("setGeoFencingForMachine: Issue faced while setting Geofence parameters for machine ", e);
+			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/*
+	 * This End Point is to Set Machine Timefence related details
+	 */
+	@CrossOrigin
+	@Operation(summary = "Set Machine Timefence", description = "Setting Timefencing Parameter for machines")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Setting Timefencing Parameter for machines"),
+			@ApiResponse(responseCode = "401", description = "Auth Failed"),
+			@ApiResponse(responseCode = "500", description = "Request failed") })
+	@PostMapping("/setmachinetimefenceparam")
+	public ResponseEntity<?> setTimeFencingForMachine(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+			@RequestBody TimefenceSetRequest timefenceSetRequest) {
+		try {
+			TimefenceSetRequest tfSetRequest = timefenceSetRequest;
+			UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+			String userName = userResponse.getUserName();
+			if (userName != null) {
+				log.info("setmachinetimefenceparam: POST  params for machine is  {} user {}", tfSetRequest, userName);
+				if (null != tfSetRequest.getVin() && null != tfSetRequest.getStartTime()
+						&& null != tfSetRequest.getEndTime()) {
+					machineService.setMachineTimeFence(tfSetRequest.getVin(), tfSetRequest.getStartTime(),
+							tfSetRequest.getEndTime());
+					log.info("Timefence parameters updated Successfully");
+					return new ResponseEntity<ResponseData>(
+							new ResponseData("Success", "Timefence parameters updated Successfully"), HttpStatus.OK);
+				} else {
+					throw new ProcessCustomError("Please provide valid value for timefence",
+							HttpStatus.EXPECTATION_FAILED);
+				}
+			} else {
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+		} catch (final Exception e) {
+			log.error("setTimeFencingForMachine: Issue faced while setting TimeFence parameters for machine ", e);
+			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 }
