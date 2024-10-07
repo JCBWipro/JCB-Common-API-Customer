@@ -269,9 +269,13 @@ public class MachineController {
 						&& null != gfSetRequest.getCenterLongitude() && null != gfSetRequest.getRadis()) {
 					machineService.setMachineGeoFenceParam(gfSetRequest.getVin(), gfSetRequest.getCenterLatitude(),
 							gfSetRequest.getCenterLongitude(), gfSetRequest.getRadis());
-					log.info("Geofencing parameters updated Successfully");
+					log.info(
+							"Geofencing parameters CenterLatitude:{} "
+									+ "CenterLongitude:{} and Radius():{} updated Successfully",
+							gfSetRequest.getCenterLatitude(), gfSetRequest.getCenterLatitude(),
+							gfSetRequest.getRadis());
 					return new ResponseEntity<ResponseData>(
-							new ResponseData("Success", "Geofencing parameters updated Successfully"), HttpStatus.OK);
+							new ResponseData("Success", "Geofencing parameters CenterLatitude, CenterLongitude and Radius Updated Successfully"), HttpStatus.OK);
 				} else {
 					throw new ProcessCustomError("Please provide valid value for geofence",
 							HttpStatus.EXPECTATION_FAILED);
@@ -310,9 +314,9 @@ public class MachineController {
 						&& null != tfSetRequest.getEndTime()) {
 					machineService.setMachineTimeFence(tfSetRequest.getVin(), tfSetRequest.getStartTime(),
 							tfSetRequest.getEndTime());
-					log.info("Timefence parameters updated Successfully");
+					log.info("Timefence parameters StartTime:{} and EndTime:{} Updated Successfully");
 					return new ResponseEntity<ResponseData>(
-							new ResponseData("Success", "Timefence parameters updated Successfully"), HttpStatus.OK);
+							new ResponseData("Success", "Timefence parameters StartTime and EndTime Updated Successfully"), HttpStatus.OK);
 				} else {
 					throw new ProcessCustomError("Please provide valid value for timefence",
 							HttpStatus.EXPECTATION_FAILED);
