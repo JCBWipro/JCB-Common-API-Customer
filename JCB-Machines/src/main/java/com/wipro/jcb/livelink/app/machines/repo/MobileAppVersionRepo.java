@@ -15,18 +15,14 @@ import java.util.List;
  */
 @Component
 public interface MobileAppVersionRepo extends CrudRepository<MobileAppVersion, String> {
-    /**
-     * Find by os
-     *
-     *            system (ios or android)
-     * @return mobile app version obj
-     */
+
     MobileAppVersion findByOs(String os);
 
-    @Query(value = "SELECT m.os,m.blocked_version FROM mobile_app_version m", nativeQuery = true)
+    //@Query("SELECT os, blocked_version FROM mobile_app_version")
+    @Query(value = "SELECT os, blocked_version FROM mobile_app_version",nativeQuery = true)
     List<MobileAppVersion> getBlockedVersionDetails();
 
-    @Query(value = "SELECT m.os,m.current_version FROM mobile_app_version m",nativeQuery = true)
+    @Query(value = "SELECT os, current_version FROM mobile_app_version", nativeQuery = true)
     List<MobileAppVersion> getCurrentVersionDetails();
 
 }

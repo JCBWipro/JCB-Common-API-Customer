@@ -216,7 +216,7 @@ public class MachineResponseView {
         private final boolean activeFlag;
         private final String premiumFlag;
 
-        public Builder(final Machine machine, final MachineDetailResponse machinedetails, final ServiceStatus machineServiceStatus) {
+        public Builder(final Machine machine, final MachineDetailResponse machineDetails, final ServiceStatus machineServiceStatus) {
             this.vin = machine.getVin();
             this.statusAsOnTime = machine.getStatusAsOnTime();
             this.machineHours = DOUBLE_FORMAT.format(machine.getTotalMachineHours()) + "Hrs";
@@ -230,21 +230,21 @@ public class MachineResponseView {
             this.tag = "";
             this.hours = "8 AM - 8 PM";
             this.image = machine.getImage();
-            this.normalAlert = machinedetails.getNormalAlertCount() > 0;
-            this.serviceAlert = machinedetails.getServiceAlertCount() > 0;
-            this.normalAlertSeverity = machinedetails.getNormalAlertCount() > 0 ?
-                    (machinedetails.getAlertWithRedEventLevel() > 0 ? NormalAlertSeverity.RED : NormalAlertSeverity.YELLOW) :
+            this.normalAlert = machineDetails.getNormalAlertCount() > 0;
+            this.serviceAlert = machineDetails.getServiceAlertCount() > 0;
+            this.normalAlertSeverity = machineDetails.getNormalAlertCount() > 0 ?
+                    (machineDetails.getAlertWithRedEventLevel() > 0 ? NormalAlertSeverity.RED : NormalAlertSeverity.YELLOW) :
                     NormalAlertSeverity.GREEN;
 
             this.platform = machine.getPlatform();
             this.thumbnail = machine.getThumbnail();
-            this.machineStatus = machinedetails.getMachine();
-            this.alert = machinedetails.getAlert();
+            this.machineStatus = machineDetails.getMachine();
+            this.alert = machineDetails.getAlert();
             this.serviceStatus = machineServiceStatus.getServiceStatusName();
             this.serviceReason = machineServiceStatus.getServiceStatusReason();
-            this.updatedFuelList = machinedetails.getUpdatedFuelList();
-            this.updatedPerformanceList = machinedetails.getUpdatedPerformanceList();
-            this.updatedUtilizationList = machinedetails.getUpdatedUtilizationList();
+            this.updatedFuelList = machineDetails.getUpdatedFuelList();
+            this.updatedPerformanceList = machineDetails.getUpdatedPerformanceList();
+            this.updatedUtilizationList = machineDetails.getUpdatedUtilizationList();
             this.activeFlag = machine.getRenewalFlag();
             this.premiumFlag = (machine.getPremiumFlag() != null && !Objects.equals(machine.getPremiumFlag(), "") && !machine.getPremiumFlag().isEmpty()) ? machine.getPremiumFlag() : "Standard";
         }

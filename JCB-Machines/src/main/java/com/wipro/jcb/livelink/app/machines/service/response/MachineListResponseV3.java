@@ -1,6 +1,8 @@
 package com.wipro.jcb.livelink.app.machines.service.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
@@ -13,21 +15,14 @@ import java.util.List;
  */
 @Setter
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class MachineListResponseV3 {
 
     private List<MachineResponseView> machines;
     private AlertCount alertCount;
     private Long machineCount;
     private Long notificationCount;
-
-    public MachineListResponseV3(List<MachineResponseView> machines, AlertCount alertCount, Long machineCount,
-                                 Long notificationCount) {
-        super();
-        this.machines = machines;
-        this.alertCount = alertCount;
-        this.machineCount = machineCount;
-        this.notificationCount = notificationCount;
-    }
 
     @Override
     public String toString() {

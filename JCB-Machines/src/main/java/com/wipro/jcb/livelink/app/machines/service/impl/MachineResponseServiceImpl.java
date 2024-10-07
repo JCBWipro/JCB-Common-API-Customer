@@ -662,38 +662,49 @@ public class MachineResponseServiceImpl implements MachineResponseService {
     }
 
     @Override
-    public MachineListResponseV3 getMachineResponseListV3(String userName, String filter, String search, Boolean skipReports, String pageNumber, String pageSize, String token) throws ProcessCustomError {
+    public MachineListResponseV3 getMachineResponseListV3(String userName, String filter, String search, Boolean skipReports, String pageNumber, String pageSize) throws ProcessCustomError {
         long start = System.currentTimeMillis();
+        log.info("getMachineResponseListV3: Request received for user: {}, filter: {}, search: {}, pageNumber: {}, pageSize: {}", userName, filter, search, pageNumber, pageSize);
         try {
-            Long machineCount;
+            Long machineCount = 0L;
             Long notificationCount = 0L;
             final SimpleDateFormat format = new SimpleDateFormat("dd MMM yy");
             format.setTimeZone(TimeZone.getTimeZone(timezone));
             final String machineStartDateRange = format.format(utilities.getDate(utilities.getStartDate(loadHistoricalDataForDays)));
             final String machineEndDateRange = format.format(utilities.getDate(utilities.getEndDate(-1)));
-            AlertCount alertCount = null;
+            AlertCount alertCount = new AlertCount();
             utilities.getDate(utilities.getStartDate(loadAlertsDataForDays));
             utilities.getDate(utilities.getEndDate(1));
-            machineCount = machineRepository.getCountByUserName(userName);
+
             if ("0".equals(pageNumber)) {
+                log.debug("getMachineResponseListV3: Fetching machine count for user: {}", userName);
+                machineCount = machineRepository.getCountByUserName(userName);
+                log.debug("getMachineResponseListV3: Machine count for user {} is: {}", userName, machineCount);
+
                 if (machineCount == 0) {
-                    log.info("Calling RestTemplate Methods For MachineZero :{}", userName);
-                    final RestTemplate restTemplate = new RestTemplate();
-                    //String url = "http://app.jcbdigital.in/api/v1/livelink-local/user/machineszero";
+                    log.info("getMachineResponseListV3: No machines found for user: {}. Triggering external API call...", userName);
+
+                    //restTemplateUrl and env are configured in application.properties file
                     String url = restTemplateUrl + "/api/v1/" + env + "/user/machineszero";
-                    //logger.info("URL "+url);
-                    final MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-                    headers.add("Authorization", "Basic bGl2ZWxpbms6fGleZXxpXms=");
-                    headers.add("Content-Type", "application/json");
-                    headers.add("accessToken", token);
-                    UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url).queryParam("userName", userName);
-                    HttpEntity<?> entity = new HttpEntity<>(headers);
-                    restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, String.class);
 
+                    // Log the URL for debugging
+                    log.debug("getMachineResponseListV3: Calling external API at URL: {}", url);
+
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+
+                    HttpEntity<String> entity = new HttpEntity<>(headers);
+
+                    ResponseEntity<String> response = new RestTemplate().exchange(UriComponentsBuilder.fromHttpUrl(url).queryParam("userName", userName).toUriString(), HttpMethod.GET, entity, String.class);
+
+                    if (response.getStatusCode() == HttpStatus.OK) {
+                        log.info("getMachineResponseListV3: External API call successful.");
+                    } else {
+                        log.error("getMachineResponseListV3: Error calling external API. Status code: {}, Response body: {}", response.getStatusCode(), response.getBody());
+                    }
                 }
-                if (machineCount > 0) {
 
-                    alertCount = new AlertCount();
+                if (machineCount > 0) {
                     alertCount.setHealth(0);
                     alertCount.setSecurity(0);
                     alertCount.setLocation(0);
@@ -701,47 +712,45 @@ public class MachineResponseServiceImpl implements MachineResponseService {
                     alertCount.setUtilization(0);
                 }
             }
+
             final List<MachineResponseView> machineResponse = new ArrayList<>();
+            log.debug("getMachineResponseListV3: Applying filters: filter={}, search={}", filter, search);
+
             if (!"optional".equals(filter)) {
                 final List<String> filterList = new ArrayList<>(Arrays.asList(filter.split(",")));
                 if ("optional".equals(search)) {
                     for (final Machine machine : machineRepository.getByUsersUserNameAndModelByCustomer(userName, filterList, PageRequest.of(Integer.parseInt(pageNumber), Integer.parseInt(pageSize)))) {
-                        // logger.debug("Loading machine data for filter present and serach optional");
                         loadMachineResponseListNewV2(machine, machineResponse, machineStartDateRange, machineEndDateRange, skipReports, userName);
                     }
                 } else {
                     for (final Machine machine : machineRepository.getByUsersUserNameAndModelAndSearchCriteriaByCustomer(userName, filterList, search, PageRequest.of(Integer.parseInt(pageNumber), Integer.parseInt(pageSize)))) {
-                        // logger.debug("Loading machine data for filter present and serach present");
                         loadMachineResponseListNewV2(machine, machineResponse, machineStartDateRange, machineEndDateRange, skipReports, userName);
                     }
                 }
             } else {
                 if ("optional".equals(search)) {
                     for (final Machine machine : machineRepository.getByUsersUserNameByCustomer(userName, PageRequest.of(Integer.parseInt(pageNumber), Integer.parseInt(pageSize)))) {
-                        // logger.debug("Loading machine data for filter optional and serach optional");
                         loadMachineResponseListNewV2(machine, machineResponse, machineStartDateRange, machineEndDateRange, skipReports, userName);
                     }
                 } else {
                     for (final Machine machine : machineRepository.getByUsersUserNameAndSearchCriteriaByCustomer(userName, search, PageRequest.of(Integer.parseInt(pageNumber), Integer.parseInt(pageSize)))) {
-                        // logger.debug("Loading machine data for filter optional and serach present");
                         loadMachineResponseListNewV2(machine, machineResponse, machineStartDateRange, machineEndDateRange, skipReports, userName);
                     }
                 }
             }
-            log.info("getMachineResponseList: GetMachineResponseList sending response for user {}", userName);
+
+            log.info("getMachineResponseListV3: Retrieved {} machines for user: {}", machineResponse.size(), userName);
 
             // Sorting of machines on the basis of status as on time
             machineResponse.sort((o1, o2) -> o2.getStatusAsOnTime().compareTo(o1.getStatusAsOnTime()));
+
             long end = System.currentTimeMillis();
             long elapsedTime = end - start;
-            log.info("MachinesV3 API Duration :{}-{}-{}-{}", elapsedTime, userName, filter, search);
+            log.info("getMachineResponseListV3: Response sent for user: {}. Total time taken: {}ms", userName, elapsedTime);
             return new MachineListResponseV3(machineResponse, alertCount, machineCount, notificationCount);
 
         } catch (final Exception ex) {
-            log.error("getMachineResponseList: Machine list retrieval failed with message {}", ex.getMessage());
-            log.error("getMachineResponseList: Parameter for api  {} ,{} ,{}  ", userName, filter, search);
-            ex.printStackTrace();
-            log.info("Exception occured for MachinesV3 API :{}Exception -{}", userName, ex.getMessage());
+            log.error("getMachineResponseListV3: Error processing request for user: {}. Error: {}", userName, ex.getMessage(), ex);
             throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED, ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
