@@ -5,18 +5,15 @@ import com.wipro.jcb.livelink.app.machines.repo.MachineRepository;
 import com.wipro.jcb.livelink.app.machines.repo.MobileAppVersionRepo;
 import com.wipro.jcb.livelink.app.machines.repo.WidgetRepo;
 import com.wipro.jcb.livelink.app.machines.service.response.*;
-import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Author: Rituraj Azad
@@ -26,43 +23,29 @@ import java.util.stream.Collectors;
  */
 @PropertySource("configurability.properties")
 @Component
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class AppConfiguration {
-    private final MachineRepository machineRepo;
-    private final MobileAppVersionRepo mobileAppVersionRepo;
-    private final WidgetRepo widgetRepo;
+    private  MachineRepository machineRepo;
+    private  MobileAppVersionRepo mobileAppVersionRepo;
+    private  WidgetRepo widgetRepo;
 
     @Getter
     @JsonIgnore
     @Value("${help.call}")
     String calls;
 
-    @Schema(description = "List of call record required for user", required = true)
     private CallInfo call;
-
-    @Schema(description = "List of UserType/UserRole", required = true)
     private List<UserRole> userTypes;
-
-    @Schema(description = "List of language", required = true)
     private List<Language> language;
-
-    @Schema(description = "List of country", required = true)
     private List<Country> country;
-
-    @Schema(description = "Api timeout", required = true)
     private Long timeout;
-
-    @Schema(description = "when app last sync", required = true)
     private Long lastSync;
-
-    @Schema(description = "default page size", required = true)
     private Integer pageSize;
-
-    @Schema(description = "Models for filter", required = true)
     private List<Filter> models;
-
-    @Schema(description = "default page size", required = true)
     private Integer notificationPageSize;
-
     private BlockedVersion blockedVersion;
     private CurrentVersion currentVersion;
     private RecentVersion recentVersion;
@@ -70,61 +53,14 @@ public class AppConfiguration {
     private WidgetsResponseData widgetsResponseData;
     private LiveLocationData liveLocationData;
 
-    @Autowired
+    /*@Autowired
     public AppConfiguration(MachineRepository machineRepo, MobileAppVersionRepo mobileAppVersionRepo, WidgetRepo widgetRepo) {
         this.machineRepo = machineRepo;
         this.mobileAppVersionRepo = mobileAppVersionRepo;
-        this.widgetRepo = widgetRepo;}
-
-    public Long getTimeout() {
-        if (timeout == null) {
-            timeout = new JSONObject(getCalls()).getLong("timeout");
-        }
-        return timeout;
+        this.widgetRepo = widgetRepo;
     }
 
-    public Long getLastSync() {
-        if (lastSync == null) {
-            lastSync = new JSONObject(getCalls()).getLong("lastSync");
-        }
-        return lastSync;
-    }
-
-    public Integer getPageSize() {
-        if (pageSize == null) {
-            pageSize = new JSONObject(getCalls()).getInt("pageSize");
-        }
-        return pageSize;
-    }
-
-    public Integer getNotificationPageSize() {
-        if (notificationPageSize == null) {
-            notificationPageSize = new JSONObject(getCalls()).getInt("notificationPageSize");
-        }
-        return notificationPageSize;
-    }
-
-    public List<Language> getLanguage() {
-        if (language == null) {
-            language = new ArrayList<>();
-            JSONArray languages = new JSONObject(getCalls()).getJSONArray("language");
-            for (int i = 0; i < languages.length(); i++) {
-                language.add(new Language(languages.getJSONObject(i).getString("name")));
-            }
-        }
-        return language;
-    }
-
-    public List<Country> getCountry() {
-        if (country == null) {
-            country = new ArrayList<>();
-            JSONArray countries = new JSONObject(getCalls()).getJSONArray("country");
-            for (int i = 0; i < countries.length(); i++) {
-                country.add(new Country(countries.getJSONObject(i).getString("name")));
-            }
-        }
-        return country;
-    }
+    // Getters with lazy loading and data retrieval logic
 
     public CallInfo getCall() {
         if (call == null) {
@@ -135,6 +71,7 @@ public class AppConfiguration {
         return call;
     }
 
+    @Schema(description = "List of UserType/UserRole", required = true)
     public List<UserRole> getUserTypes() {
         if (userTypes == null) {
             userTypes = new ArrayList<>();
@@ -146,6 +83,55 @@ public class AppConfiguration {
         return userTypes;
     }
 
+    @Schema(description = "List of language", required = true)
+    public List<Language> getLanguage() {
+        if (language == null) {
+            language = new ArrayList<>();
+            JSONArray languages = new JSONObject(getCalls()).getJSONArray("language");
+            for (int i = 0; i < languages.length(); i++) {
+                language.add(new Language(languages.getJSONObject(i).getString("name")));
+            }
+        }
+        return language;
+    }
+
+    @Schema(description = "List of country", required = true)
+    public List<Country> getCountry() {
+        if (country == null) {
+            country = new ArrayList<>();
+            JSONArray countries = new JSONObject(getCalls()).getJSONArray("country");
+            for (int i = 0; i < countries.length(); i++) {
+                country.add(new Country(countries.getJSONObject(i).getString("name")));
+            }
+        }
+        return country;
+    }
+
+    @Schema(description = "Api timeout", required = true)
+    public Long getTimeout() {
+        if (timeout == null) {
+            timeout = new JSONObject(getCalls()).getLong("timeout");
+        }
+        return timeout;
+    }
+
+    @Schema(description = "when app last sync", required = true)
+    public Long getLastSync() {
+        if (lastSync == null) {
+            lastSync = new JSONObject(getCalls()).getLong("lastSync");
+        }
+        return lastSync;
+    }
+
+    @Schema(description = "default page size", required = true)
+    public Integer getPageSize() {
+        if (pageSize == null) {
+            pageSize = new JSONObject(getCalls()).getInt("pageSize");
+        }
+        return pageSize;
+    }
+
+    @Schema(description = "Models for filter", required = true)
     public List<Filter> getModels() {
         if (models == null) {
             models = machineRepo.findDistinctModel().stream()
@@ -155,28 +141,36 @@ public class AppConfiguration {
         return models;
     }
 
-   /* public BlockedVersion getBlockedVersion() {
+    @Schema(description = "default page size", required = true)
+    public Integer getNotificationPageSize() {
+        if (notificationPageSize == null) {
+            notificationPageSize = new JSONObject(getCalls()).getInt("notificationPageSize");
+        }
+        return notificationPageSize;
+    }
+
+    public BlockedVersion getBlockedVersion() {
         if (blockedVersion == null) {
             blockedVersion = loadBlockedVersion();
         }
         return blockedVersion;
-    }*/
+    }
 
-   /* public CurrentVersion getCurrentVersion() {
+    public CurrentVersion getCurrentVersion() {
         if (currentVersion == null) {
             currentVersion = loadCurrentVersion();
         }
         return currentVersion;
-    }*/
+    }
 
-    /*public RecentVersion getRecentVersion() {
+    public RecentVersion getRecentVersion() {
         if (recentVersion == null) {
             recentVersion = loadRecentVersion();
         }
         return recentVersion;
-    }*/
+    }
 
-    /*public WidgetsResponse getWidgetsResponse() {
+    public WidgetsResponse getWidgetsResponse() {
         if (widgetsResponse == null) {
             widgetsResponse = loadWidgetsResponse();
         }
@@ -195,16 +189,16 @@ public class AppConfiguration {
             liveLocationData = loadLiveLocationData();
         }
         return liveLocationData;
-    }*/
+    }
 
     // Helper methods to load data
 
-    /*private BlockedVersion loadBlockedVersion() {
+    private BlockedVersion loadBlockedVersion() {
         BlockedVersion blockedVersion = new BlockedVersion();
-        //List<MobileAppVersion> blockedDetails = mobileAppVersionRepo.getBlockedVersionDetails();
         List<MobileAppVersion> blockedDetails = mobileAppVersionRepo.getBlockedVersionDetails();
         if (blockedDetails != null && !blockedDetails.isEmpty()) {
-            Map<String, String> blocked = blockedDetails.stream().collect(Collectors.toMap(MobileAppVersion::getOs, MobileAppVersion::getRecentVersion));
+            Map<String, String> blocked = blockedDetails.stream()
+                    .collect(Collectors.toMap(MobileAppVersion::getOs, MobileAppVersion::getBlockedVersion));
             blockedVersion.setAndroid(blocked.get("android"));
             blockedVersion.setIos(blocked.get("ios"));
         } else {
@@ -213,13 +207,14 @@ public class AppConfiguration {
             blockedVersion.setIos(blockedVersionObj.getString("ios"));
         }
         return blockedVersion;
-    }*/
+    }
 
-    /*private CurrentVersion loadCurrentVersion() {
+    private CurrentVersion loadCurrentVersion() {
         CurrentVersion currentVersion = new CurrentVersion();
         List<MobileAppVersion> currentDetails = mobileAppVersionRepo.getCurrentVersionDetails();
         if (currentDetails != null && !currentDetails.isEmpty()) {
-            Map<String, String> current = currentDetails.stream().collect(Collectors.toMap(MobileAppVersion::getOs, MobileAppVersion::getRecentVersion));
+            Map<String, String> current = currentDetails.stream()
+                    .collect(Collectors.toMap(MobileAppVersion::getOs, MobileAppVersion::getCurrentVersion));
             currentVersion.setAndroid(current.get("android"));
             currentVersion.setIos(current.get("ios"));
         } else {
@@ -228,17 +223,17 @@ public class AppConfiguration {
             currentVersion.setIos(currentVersionObj.getString("ios"));
         }
         return currentVersion;
-    }*/
+    }
 
-    /*private RecentVersion loadRecentVersion() {
+    private RecentVersion loadRecentVersion() {
         MobileAppVersion androidVersion = mobileAppVersionRepo.findByOs("android");
         MobileAppVersion iosVersion = mobileAppVersionRepo.findByOs("ios");
         if (androidVersion == null && iosVersion == null) {
             JSONObject versionObj = new JSONObject(getCalls()).getJSONObject("recentVersion");
-            androidVersion = new MobileAppVersion("android", versionObj.getString("android"));
-            iosVersion = new MobileAppVersion("ios", versionObj.getString("ios"));
-        } else if (androidVersion != null && androidVersion.getRecentVersion() == null ||
-                iosVersion != null && iosVersion.getRecentVersion() == null) {
+            androidVersion = new MobileAppVersion("android", versionObj.getString("android"), null, versionObj.getString("android"));
+            iosVersion = new MobileAppVersion("ios", versionObj.getString("ios"), null, versionObj.getString("ios"));
+        } else if ((androidVersion != null && androidVersion.getRecentVersion() == null) ||
+                (iosVersion != null && iosVersion.getRecentVersion() == null)) {
             JSONObject versionObj = new JSONObject(getCalls()).getJSONObject("recentVersion");
             if (androidVersion != null && androidVersion.getRecentVersion() == null) {
                 androidVersion.setRecentVersion(versionObj.getString("android"));
@@ -249,20 +244,21 @@ public class AppConfiguration {
         }
         return new RecentVersion(androidVersion != null ? androidVersion.getRecentVersion() : null,
                 iosVersion != null ? iosVersion.getRecentVersion() : null);
-    }*/
+    }
 
-   /* private WidgetsResponse loadWidgetsResponse() {
+    private WidgetsResponse loadWidgetsResponse() {
         WidgetsResponse widgetsResponse = new WidgetsResponse();
         List<Widgets> widgetDetails = widgetRepo.getWidgetDetails();
         if (widgetDetails != null && !widgetDetails.isEmpty()) {
-            Map<String, String> widgets = widgetDetails.stream().collect(Collectors.toMap(Widgets::getMachine_type, Widgets::getValue));
+            Map<String, String> widgets = widgetDetails.stream()
+                    .collect(Collectors.toMap(Widgets::getMachine_type, Widgets::getValue));
             widgetsResponse.setStandard(widgets.get("Standard"));
             widgetsResponse.setPremium(widgets.get("Premium"));
         }
         return widgetsResponse;
-    }*/
+    }
 
-    /*private WidgetsResponseData loadWidgetsResponseData() {
+    private WidgetsResponseData loadWidgetsResponseData() {
         WidgetsResponseData widgetsResponseData = new WidgetsResponseData();
         List<Widgets> widget = widgetRepo.getJsonData();
         if (!widget.isEmpty()) {
@@ -273,9 +269,9 @@ public class AppConfiguration {
             widgetsResponseData.setLlPlusData(parseStandardData(data.getJSONArray("LLPlus")));
         }
         return widgetsResponseData;
-    }*/
+    }
 
-   /* private LiveLocationData loadLiveLocationData() {
+    private LiveLocationData loadLiveLocationData() {
         LiveLocationData liveLocationData = new LiveLocationData();
         List<Widgets> widget = widgetRepo.getLiveLocationJsonData();
         if (!widget.isEmpty()) {
@@ -284,7 +280,7 @@ public class AppConfiguration {
             liveLocationData.setResponseData(parseStandardData(datas));
         }
         return liveLocationData;
-    }*/
+    }
 
     private List<StandardData> parseStandardData(JSONArray jsonArray) {
         List<StandardData> standardDataList = new ArrayList<>();
@@ -297,5 +293,5 @@ public class AppConfiguration {
             ));
         }
         return standardDataList;
-    }
+    }*/
 }

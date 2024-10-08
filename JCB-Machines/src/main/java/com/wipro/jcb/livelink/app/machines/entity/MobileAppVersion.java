@@ -31,23 +31,15 @@ public class MobileAppVersion implements Serializable {
    // @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String os;
 
-    @Column(name = "current_version")
     private String currentVersion;
 
-    @Column(name = "blocked_version")
     private String blockedVersion;
 
-   @Column(name = "recent_version")
     private String recentVersion;
 
-    public MobileAppVersion(String os, String currentVersion, String blockedVersion) {
-        this.os = os;
-        this.currentVersion = currentVersion;
-        this.blockedVersion = blockedVersion;
+    public MobileAppVersion(String android, String curAndroidVer, String blkAndroidVer) {
     }
 
-    public MobileAppVersion(String os, String recentVersion) {
-        this.os = os;
-        this.recentVersion = recentVersion;
+    public MobileAppVersion(String android, String android1) {
     }
 }

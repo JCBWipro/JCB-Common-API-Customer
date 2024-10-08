@@ -139,16 +139,6 @@ public class MachineServiceImpl implements MachineService {
             MachineFeedParserData machineFeedParserData = machineFeedParserDataRepo.findByVin(vin);
             MachineFeedLocation machineFeedLocation = machineFeedLocationRepo.findByVin(vin);
             if (machine != null) {
-				/*java.util.Date overDueDate = machine.getServiceDueDate();
-				if (overDueDate != null) {
-					overDueDate = new DateTime(Long.valueOf(overDueDate.getTime()), DateTimeZone.forID(timezone))
-							.plusDays(1).toDate();
-				}*/
-                /*final String start = utilities.getStartDate(Integer.parseInt(loadServiceHistDays));
-                final String end = utilities.getEndDate(1);*/
-				/*final List<ServiceHistory> history = serviceHistoryRepository
-						.findByVinAndServiceDateBetweenOrderByServiceDateDesc(machine.getVin(),
-								utilities.getDate(start), utilities.getDate(end));*/
                 final List<ServiceHistoryTimeline> historyline = new ArrayList<>();
 
                 List<MachineServiceHistory> history = machineServiceHistoryRepo.getHistoryDetails(machine.getVin());
@@ -160,7 +150,6 @@ public class MachineServiceImpl implements MachineService {
                     new DateTime(Long.valueOf(overDueDate.getTime()), DateTimeZone.forID(timezone))
                             .plusDays(1).toDate();
                 }
-                //final List<ServiceHistoryTimeline> historyline = new ArrayList<>();
                 Date serviceDoneAt = null;
                 for (final MachineServiceHistory tempObj : history) {
                     historyline.add(new ServiceHistoryTimeline(tempObj.getServiceDoneAt(), tempObj.getJobCardNumber(),
@@ -196,7 +185,7 @@ public class MachineServiceImpl implements MachineService {
     }
 
     @Override
-    public ServiceStatus getMachineServiceStatus(final Machine machine) throws ProcessCustomError {
+    public ServiceStatus getMachineServiceStatus(final Machine machine) {
         try {
 
             if (machine != null && machine.getServiceDueDate() != null) {
@@ -224,8 +213,8 @@ public class MachineServiceImpl implements MachineService {
     }
 
     @Override
-    public ServiceStatus getMachineServiceHistoryStatus(Machine machine) throws ProcessCustomError {
-        return null;
+    public ServiceStatus getMachineServiceHistoryStatus(Machine machine) {
+        return ServiceStatus.NORMAL;
     }
 
     @Override

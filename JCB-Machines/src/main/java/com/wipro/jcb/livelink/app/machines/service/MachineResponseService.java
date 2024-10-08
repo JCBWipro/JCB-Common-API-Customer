@@ -41,12 +41,11 @@ public interface MachineResponseService {
      * @param skipReports Whether to skip fetching reports.
      * @param pageNumber  The page number.
      * @param pageSize    The page size.
-     * @param token       The authentication token.
      * @return A {@link MachineListResponseV3} containing the list of machines.
      * @throws ProcessCustomError If an error occurs during processing.
      */
     MachineListResponseV3 getMachineResponseListV3(String userName, String filter, String search,
-                                                   Boolean skipReports, String pageNumber, String pageSize, String token) throws ProcessCustomError;
+                                                   Boolean skipReports, String pageNumber, String pageSize) throws ProcessCustomError;
 
     /**
      * Retrieves detailed information about a specific machine.

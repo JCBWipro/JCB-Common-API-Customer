@@ -62,9 +62,9 @@ public interface MachineService {
 
     public MachineServiceInfo getMachineServiceInfo(String vin) throws ProcessCustomError;
 
-    public ServiceStatus getMachineServiceStatus(final Machine machine) throws ProcessCustomError;
+    ServiceStatus getMachineServiceStatus(final Machine machine) throws ProcessCustomError;
 
-    public ServiceStatus getMachineServiceHistoryStatus(final Machine machine) throws ProcessCustomError;
+    ServiceStatus getMachineServiceHistoryStatus(final Machine machine) throws ProcessCustomError;
 
     public List<MachineDownQuestion> getAllMachineDownQuestionList();
     public void setMachineTimeFence(String vin, String startTime, String endTime) throws ProcessCustomError;
