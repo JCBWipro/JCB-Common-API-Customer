@@ -1,6 +1,8 @@
 package com.wipro.jcb.livelink.app.machines.service.impl;
 
 import com.wipro.jcb.livelink.app.machines.commonUtils.Utilities;
+import com.wipro.jcb.livelink.app.machines.dto.MachineLocation;
+import com.wipro.jcb.livelink.app.machines.dto.MachineLocationDetail;
 import com.wipro.jcb.livelink.app.machines.entity.*;
 import com.wipro.jcb.livelink.app.machines.enums.ServiceStatus;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
@@ -46,6 +48,9 @@ public class MachineServiceImpl implements MachineService {
 
     @Autowired
     MachineBHLDataRepo machineBHLDataRepo;
+    
+    @Autowired
+	private MachineLocationHistoryDataRepo machineLocationHistoryRepo;
 
     @Value("${machine.approachingservicedays}")
     int machineApproachingServiceDays;
@@ -589,5 +594,79 @@ public class MachineServiceImpl implements MachineService {
     public String generatePremiumRequestReport() {
         return "";
     }
+    
+	@Override
+	public MachineLocation getMachineLocationDetail(String vin, String pageNumber, String pageSize) {
+		log.info("In getMachineLocationDetail() vin:{} pageNumber:{} pageSize:{}", vin, pageNumber, pageSize);
+		MachineLocation machineDetails = new MachineLocation();
+		try {
+			SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+			List<MachineLocationDetail> dataList = new ArrayList<>();
+			machineDetails.setVin(vin);
+			machineDetails.setNextPage(true);
+			Date locationLastDate = utilities.getDate(utilities.getStartDate(29));
+			log.info("Ddata " + locationLastDate + "-" + pageNumber + "-" + pageSize);
+			Date startDate = null;
+			Date endDate = null;
+			Integer startcount = 0;
+			Integer endcount = Integer.parseInt(pageSize);
+			if (Integer.parseInt(pageNumber) == 0) {
+				startcount = 0;
+				endcount = Integer.parseInt(pageSize) - 1;
+			} else {
+				startcount = Integer.parseInt(pageNumber) * Integer.parseInt(pageSize);
+				endcount = (Integer.parseInt(pageNumber) + 1) * (Integer.parseInt(pageSize)) - 1;
+			}
+			if (locationLastDate.equals(utilities.getDate(utilities.getStartDate(endcount)))
+					|| locationLastDate.after(utilities.getDate(utilities.getStartDate(endcount)))) {
+				machineDetails.setNextPage(false);
+			}
+			log.info("count " + endcount + "-" + startcount);
+			for (int i = endcount; i >= startcount; i--) {
+
+				startDate = utilities.getDate(utilities.getStartDate(i));
+				endDate = utilities.getDate(utilities.getStartDate(i - 1));
+				MachineLocationDetail details = new MachineLocationDetail();
+				details.setDate(startDate);
+
+				MachineLocationHistoryData firstLocation = null;
+				firstLocation = machineLocationHistoryRepo.getMachineFirstLocation(vin, startDate, endDate);
+				MachineLocationHistoryData lastLocation = null;
+				lastLocation = machineLocationHistoryRepo.getMachineLastLocation(vin, startDate, endDate);
+
+				if (firstLocation != null && firstLocation.getLatitude() != null
+						&& firstLocation.getLongitude() != null) {
+					details.setStartTime(sdf.format(firstLocation.getDateTime()));
+					details.setStartLatitude(firstLocation.getLatitude());
+					details.setStartLongitude(firstLocation.getLongitude());
+					details.setStartLocation(
+							"Start Location(" + firstLocation.getLatitude() + "," + firstLocation.getLongitude() + ")");
+				}
+
+				if (lastLocation != null && lastLocation.getLatitude() != null && lastLocation.getLongitude() != null) {
+					details.setEndTime(sdf.format(lastLocation.getDateTime()));
+					details.setEndLatitude(lastLocation.getLatitude());
+					details.setEndLongitude(lastLocation.getLongitude());
+					details.setEndLocation(
+							"End Location(" + lastLocation.getLatitude() + "," + lastLocation.getLongitude() + ")");
+				}
+
+				dataList.add(details);
+			}
+			Collections.sort(dataList, new Comparator<MachineLocationDetail>() {
+				@Override
+				public int compare(MachineLocationDetail o1, MachineLocationDetail o2) {
+					return o2.getDate().compareTo(o1.getDate());
+				}
+			});
+
+			machineDetails.setData(dataList);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info("Exception occured in machinelocation detail " + e.getMessage());
+			log.info("Exception occured for Machine Location API -" + vin + "Exception -" + e.getMessage());
+		}
+		return machineDetails;
+	}
 
 }
