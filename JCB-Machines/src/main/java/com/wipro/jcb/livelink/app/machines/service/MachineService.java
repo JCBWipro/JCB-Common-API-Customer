@@ -1,5 +1,6 @@
 package com.wipro.jcb.livelink.app.machines.service;
 
+import com.wipro.jcb.livelink.app.machines.dto.MachineLocation;
 import com.wipro.jcb.livelink.app.machines.entity.Machine;
 import com.wipro.jcb.livelink.app.machines.entity.MachineDownQuestion;
 import com.wipro.jcb.livelink.app.machines.enums.ServiceStatus;
@@ -149,6 +150,8 @@ public interface MachineService {
     String getHigherData(String range, String date);
 
     String generatePremiumRequestReport() throws ProcessCustomError;
+    
+    MachineLocation getMachineLocationDetail(String vin, String pageNumber, String pageSize);
 
 
 }

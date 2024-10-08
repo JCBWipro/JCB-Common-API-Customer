@@ -3,10 +3,13 @@ package com.wipro.jcb.livelink.app.machines.controller;
 import com.wipro.jcb.livelink.app.machines.commonUtils.AuthCommonUtils;
 import com.wipro.jcb.livelink.app.machines.config.AppConfiguration;
 import com.wipro.jcb.livelink.app.machines.constants.MessagesList;
+import com.wipro.jcb.livelink.app.machines.dto.MachineLocation;
 import com.wipro.jcb.livelink.app.machines.dto.ResponseData;
 import com.wipro.jcb.livelink.app.machines.dto.UserDetails;
+import com.wipro.jcb.livelink.app.machines.entity.Machine;
 import com.wipro.jcb.livelink.app.machines.exception.ApiError;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
+import com.wipro.jcb.livelink.app.machines.repo.MachineRepository;
 import com.wipro.jcb.livelink.app.machines.request.GeofenceSetRequest;
 import com.wipro.jcb.livelink.app.machines.request.TimefenceSetRequest;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponse;
@@ -62,6 +65,9 @@ public class MachineController {
 	
 	@Autowired
 	MachineService machineService;
+	
+	@Autowired
+	private MachineRepository machineRepository;
 
 	@GetMapping(value = "/appconfig")
 	@Operation(summary = "Get app configuration", description = "App configuration specific to user")
@@ -314,9 +320,9 @@ public class MachineController {
 							geofenceSetRequest.getCenterLongitude(), geofenceSetRequest.getRadis());
 					log.info(
 							"Geofencing parameters CenterLatitude:{} "
-									+ "CenterLongitude:{} and Radius():{} updated Successfully",
-							geofenceSetRequest.getCenterLatitude(), geofenceSetRequest.getCenterLatitude(),
-							geofenceSetRequest.getRadis());
+									+ "CenterLongitude:{} and Radius:{} updated Successfully",
+									geofenceSetRequest.getCenterLatitude(), geofenceSetRequest.getCenterLongitude(),
+									geofenceSetRequest.getRadis());
 					return new ResponseEntity<>(
                             new ResponseData("Success", "Geofencing parameters CenterLatitude, CenterLongitude and Radius Updated Successfully"), HttpStatus.OK);
 				} else {
@@ -355,7 +361,7 @@ public class MachineController {
 						&& null != timefenceSetRequest.getEndTime()) {
 					machineService.setMachineTimeFence(timefenceSetRequest.getVin(), timefenceSetRequest.getStartTime(),
 							timefenceSetRequest.getEndTime());
-					log.info("Timefence parameters StartTime:{} and EndTime:{} Updated Successfully");
+					log.info("Timefence parameters StartTime:{} and EndTime:{} Updated Successfully", timefenceSetRequest.getStartTime(), timefenceSetRequest.getEndTime());
 					return new ResponseEntity<ResponseData>(
 							new ResponseData("Success", "Timefence parameters StartTime and EndTime Updated Successfully"), HttpStatus.OK);
 				} else {
@@ -372,5 +378,53 @@ public class MachineController {
 					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
+	
+	/*
+	 * This End Point is to Fetch Machine Location related details
+	 */
+	@CrossOrigin
+	@Operation(summary = "Get Machine Location", description = "Get Machine Location related details")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Get Machine Location related details"),
+			@ApiResponse(responseCode = "401", description = "Auth Failed"),
+			@ApiResponse(responseCode = "500", description = "Request failed") })
+	@GetMapping("/machinelocation")
+	public ResponseEntity<?> getMachineLocationDetail(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+			@RequestParam(value = "vin", required = false) String vin, @RequestParam("pageNumber") String pageNumber,
+			@RequestParam(value = "pageSize", defaultValue = "${machines.location.pageSize}") String pageSize) {
+		String userName = null;
+		try {
+			UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+			userName = userResponse.getUserName();
+			log.info("Machine Location History : Get request for machine {} User {} ", vin, userName);
+			if (userName != null) {
+				if (vin != null) {
+					Machine machine = machineRepository.findByVinAndUserName(vin, userName);
+					if (machine != null) {
+						return new ResponseEntity<MachineLocation>(
+								machineService.getMachineLocationDetail(vin, pageNumber, pageSize), HttpStatus.OK);
+					} else {
+						return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+								"Please select correct machine", "Please select correct machine", null),
+								HttpStatus.EXPECTATION_FAILED);
+					}
+				} else {
+					return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+							"Please select machine", "Please select machine", null), HttpStatus.EXPECTATION_FAILED);
+				}
+			} else {
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+		} catch (final Exception e) {
+			e.printStackTrace();
+			log.error("Issue faced while getting machinelocation request " + e.getMessage());
+			log.info("Exception occured for Machine Location API :" + userName + "-" + vin + "Exception -"
+					+ e.getMessage());
+			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
 	}
 }
