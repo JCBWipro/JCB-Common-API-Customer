@@ -501,6 +501,9 @@ public class MachineController {
 
 	}
 	
+	/*
+	 * This End Point is to Get Machine Utilization Report Details
+	 */
 	@CrossOrigin
 	@Operation(summary = "Machine Utilization Report", description = "Machine Utilization Information")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Machine Utilization Information"),
