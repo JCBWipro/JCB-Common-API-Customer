@@ -152,6 +152,8 @@ public interface MachineService {
     String generatePremiumRequestReport() throws ProcessCustomError;
     
     MachineLocation getMachineLocationDetail(String vin, String pageNumber, String pageSize);
+    
+    List<LocationHistory> getMachineLocationHistory(String vin, String date);
 
 
 }

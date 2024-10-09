@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Author: Rituraj Azad
@@ -667,6 +668,41 @@ public class MachineServiceImpl implements MachineService {
 			log.info("Exception occured for Machine Location API -" + vin + "Exception -" + e.getMessage());
 		}
 		return machineDetails;
+	}
+	
+	@Override
+	public List<LocationHistory> getMachineLocationHistory(String vin, String date) {
+		Set<LocationHistory> locationHistory = new HashSet<>();
+		List<LocationHistory> machineLocationHistory = new ArrayList<>();
+		Date fromDate = utilities.getDate(date);
+		Date toDate = utilities.getDate(date);
+		Calendar calender = Calendar.getInstance();
+		calender.set(Calendar.HOUR, 23);
+		calender.set(Calendar.MINUTE, 59);
+		calender.set(Calendar.SECOND, 59);
+		toDate = calender.getTime();
+		try {
+			log.info("Machine Location History Data - " + vin + " - " + fromDate + " - " + toDate);
+			locationHistory = machineLocationHistoryRepo.getMachineLocationHistoryData(vin, fromDate, toDate);
+			log.info("locationHistory " + locationHistory.size());
+			Map<String, LocationHistory> locationDetails = new HashMap<>();
+			locationHistory.forEach(location -> {
+				locationDetails.put(location.getDateTime(), location);
+			});
+			log.info("locationHistory " + locationDetails.size());
+			machineLocationHistory = locationDetails.values().stream().collect(Collectors.toList());
+			Collections.sort(machineLocationHistory, new Comparator<LocationHistory>() {
+				@Override
+				public int compare(LocationHistory o1, LocationHistory o2) {
+					return o1.getDateTime().compareTo(o2.getDateTime());
+				}
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error("Exception occured in getMachineLocationHistory" + e.getMessage());
+			log.info("Exception occured for Machine Location History API :" + vin + "Exception -" + e.getMessage());
+		}
+		return machineLocationHistory;
 	}
 
 }
