@@ -11,9 +11,11 @@ import com.wipro.jcb.livelink.app.machines.entity.Machine;
 import com.wipro.jcb.livelink.app.machines.exception.ApiError;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.machines.repo.MachineRepository;
+import com.wipro.jcb.livelink.app.machines.reports.UtilizationReportResponse;
 import com.wipro.jcb.livelink.app.machines.request.GeofenceSetRequest;
 import com.wipro.jcb.livelink.app.machines.request.TimefenceSetRequest;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponse;
+import com.wipro.jcb.livelink.app.machines.service.AdvanceReportService;
 import com.wipro.jcb.livelink.app.machines.service.MachineProfileService;
 import com.wipro.jcb.livelink.app.machines.service.MachineResponseService;
 import com.wipro.jcb.livelink.app.machines.service.MachineService;
@@ -74,6 +76,9 @@ public class MachineController {
 	
 	@Autowired
 	private Utilities utilities;
+	
+	@Autowired
+	private AdvanceReportService advanceReportService;
 
 	@GetMapping(value = "/appconfig")
 	@Operation(summary = "Get app configuration", description = "App configuration specific to user")
@@ -488,6 +493,82 @@ public class MachineController {
 			e.printStackTrace();
 			log.error("Issue faced while getting listofdownmachines request " + e.getMessage());
 			log.info("Exception occured for Machine Location History API :" + userName + "-" + vin + "Exception -"
+					+ e.getMessage());
+			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
+	
+	@CrossOrigin
+	@Operation(summary = "Machine Utilization Report", description = "Machine Utilization Information")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Machine Utilization Information"),
+			@ApiResponse(responseCode = "401", description = "Auth Failed"),
+			@ApiResponse(responseCode = "500", description = "Request failed") })
+	@GetMapping("/machineutilizationreport")
+	public ResponseEntity<?> getMachineUtilizationReport(
+			@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+			@RequestParam(value = "vin", required = false) String vin,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate) {
+		String userName = null;
+		try {
+			UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+			userName = userResponse.getUserName();
+			log.info(
+					"Machine Utilization Request Request: Get request for machine {} User {} StartDate {}  EndDate {} ",
+					vin, userName, startDate, endDate);
+
+			if (userName != null) {
+				if (vin != null) {
+					Machine machine = machineRepository.findByVinAndUserName(vin, userName);
+					if (machine != null) {
+						if (startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+							if (utilities.getDate(startDate).before(new Date())
+									&& utilities.getDate(endDate).before(new Date())) {
+
+								if (utilities.getDate(startDate).before(utilities.getDate(endDate))
+										|| utilities.getDate(startDate).equals(utilities.getDate(endDate))) {
+									return new ResponseEntity<UtilizationReportResponse>(
+											advanceReportService.getMachineUtilization(vin, startDate, endDate),
+											HttpStatus.OK);
+								} else {
+									return new ResponseEntity<ApiError>(
+											new ApiError(HttpStatus.EXPECTATION_FAILED,
+													"Fromdate should be lessthan todate ",
+													"Fromdate should be lessthan todate", null),
+											HttpStatus.EXPECTATION_FAILED);
+								}
+							} else {
+								return new ResponseEntity<ApiError>(
+										new ApiError(HttpStatus.EXPECTATION_FAILED,
+												"Fromdate,todate should be lessthan current date",
+												"Fromdate,todate should be lessthan current date", null),
+										HttpStatus.EXPECTATION_FAILED);
+							}
+						} else {
+							return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+									"Please select fromdate and todate ", "Please select fromdate and todate", null),
+									HttpStatus.EXPECTATION_FAILED);
+						}
+					} else {
+						return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+								"Please select correct machine", "Please select correct machine", null),
+								HttpStatus.EXPECTATION_FAILED);
+					}
+				} else {
+					return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+							"Please select machine", "Please select machine", null), HttpStatus.EXPECTATION_FAILED);
+				}
+			} else {
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+		} catch (final Exception e) {
+			e.printStackTrace();
+			log.error("Issue faced while getting listofdownmachines request " + e.getMessage());
+			log.info("Exception occured for Machine Utilization Report API :" + userName + "-" + vin + "Exception -"
 					+ e.getMessage());
 			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
 					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),

@@ -5,6 +5,7 @@ import com.wipro.jcb.livelink.app.machines.entity.Machine;
 import com.wipro.jcb.livelink.app.machines.entity.MachineDownQuestion;
 import com.wipro.jcb.livelink.app.machines.enums.ServiceStatus;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
+import com.wipro.jcb.livelink.app.machines.reports.UtilizationReport;
 import com.wipro.jcb.livelink.app.machines.service.reports.NotificationRemovedResponse;
 import com.wipro.jcb.livelink.app.machines.service.reports.StandardMachineBaseResponse;
 import com.wipro.jcb.livelink.app.machines.service.response.*;
@@ -154,6 +155,8 @@ public interface MachineService {
     MachineLocation getMachineLocationDetail(String vin, String pageNumber, String pageSize);
     
     List<LocationHistory> getMachineLocationHistory(String vin, String date);
+    
+    UtilizationReport getMachineUtilization(String vin, Date startDate, Date endDate);
 
 
 }

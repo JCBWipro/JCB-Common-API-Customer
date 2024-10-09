@@ -7,6 +7,9 @@ import com.wipro.jcb.livelink.app.machines.entity.*;
 import com.wipro.jcb.livelink.app.machines.enums.ServiceStatus;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.machines.repo.*;
+import com.wipro.jcb.livelink.app.machines.reports.MachineUtilization;
+import com.wipro.jcb.livelink.app.machines.reports.MachineUtilizationResponse;
+import com.wipro.jcb.livelink.app.machines.reports.UtilizationReport;
 import com.wipro.jcb.livelink.app.machines.service.MachineService;
 import com.wipro.jcb.livelink.app.machines.service.reports.*;
 import com.wipro.jcb.livelink.app.machines.service.response.*;
@@ -52,6 +55,9 @@ public class MachineServiceImpl implements MachineService {
     
     @Autowired
 	private MachineLocationHistoryDataRepo machineLocationHistoryRepo;
+    
+    @Autowired
+    private MachineUtilizationDataRepository machineUtilizationDataRepository;
 
     @Value("${machine.approachingservicedays}")
     int machineApproachingServiceDays;
@@ -703,6 +709,21 @@ public class MachineServiceImpl implements MachineService {
 			log.info("Exception occured for Machine Location History API :" + vin + "Exception -" + e.getMessage());
 		}
 		return machineLocationHistory;
+	}
+	
+	@Override
+	public UtilizationReport getMachineUtilization(String vin, Date startDate, Date endDate) {
+		MachineUtilizationResponse utilization = new MachineUtilizationResponse();
+		try {
+			List<MachineUtilization> machineUtililizationData = machineUtilizationDataRepository
+					.getUtilizationDetails(vin, startDate, endDate);
+			utilization.setMachineUtilization(machineUtililizationData);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info("Exception occured for Machine Utilization Report API :" + vin + "Exception -" + e.getMessage());
+		}
+
+		return utilization;
 	}
 
 }
