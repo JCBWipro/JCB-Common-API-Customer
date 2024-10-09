@@ -1,6 +1,7 @@
 package com.wipro.jcb.livelink.app.machines.controller;
 
 import com.wipro.jcb.livelink.app.machines.commonUtils.AuthCommonUtils;
+import com.wipro.jcb.livelink.app.machines.commonUtils.Utilities;
 import com.wipro.jcb.livelink.app.machines.config.AppConfiguration;
 import com.wipro.jcb.livelink.app.machines.constants.MessagesList;
 import com.wipro.jcb.livelink.app.machines.dto.MachineLocation;
@@ -18,6 +19,7 @@ import com.wipro.jcb.livelink.app.machines.service.MachineResponseService;
 import com.wipro.jcb.livelink.app.machines.service.MachineService;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponseV2;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponseV3;
+import com.wipro.jcb.livelink.app.machines.service.response.MachineLocationHistory;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineResponseV3;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,6 +31,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.HttpURLConnection;
+import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -68,6 +71,9 @@ public class MachineController {
 	
 	@Autowired
 	private MachineRepository machineRepository;
+	
+	@Autowired
+	private Utilities utilities;
 
 	@GetMapping(value = "/appconfig")
 	@Operation(summary = "Get app configuration", description = "App configuration specific to user")
@@ -420,6 +426,68 @@ public class MachineController {
 			e.printStackTrace();
 			log.error("Issue faced while getting machinelocation request " + e.getMessage());
 			log.info("Exception occured for Machine Location API :" + userName + "-" + vin + "Exception -"
+					+ e.getMessage());
+			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
+	
+	/*
+	 * This End Point is to Fetch Machine Location History details
+	 */
+	@CrossOrigin
+	@Operation(summary = "Machine Location History Details", description = "Machine Location History Information")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Machine Location History Information"),
+			@ApiResponse(responseCode = "401", description = "Auth Failed"),
+			@ApiResponse(responseCode = "500", description = "Request failed") })
+	@GetMapping("/machinelocationhistory")
+	public ResponseEntity<?> getMachineLocationHistory(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+			@RequestParam(value = "vin", required = false) String vin,
+			@RequestParam(value = "date", required = false) String date) {
+		String userName = null;
+		try {
+			UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+			userName = userResponse.getUserName();
+			log.info("Machine Location History Details: Get request for machine {} User {} StartDate {}", vin, userName,
+					date);
+			if (userName != null) {
+				if (vin != null) {
+					Machine machine = machineRepository.findByVinAndUserName(vin, userName);
+					if (machine != null) {
+						if (date != null && !date.isEmpty()) {
+							if (utilities.getDate(date).before(new Date())) {
+								return new ResponseEntity<MachineLocationHistory>(new MachineLocationHistory(vin,
+										machineService.getMachineLocationHistory(vin, date)), HttpStatus.OK);
+							} else {
+								return new ResponseEntity<ApiError>(
+										new ApiError(HttpStatus.EXPECTATION_FAILED,
+												"date should be lessthan current date",
+												"date should be lessthan current date", null),
+										HttpStatus.EXPECTATION_FAILED);
+							}
+						} else {
+							return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+									"Please select date", "Please select date", null), HttpStatus.EXPECTATION_FAILED);
+						}
+					} else {
+						return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+								"Please select correct machine", "Please select correct machine", null),
+								HttpStatus.EXPECTATION_FAILED);
+					}
+				} else {
+					return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+							"Please select machine", "Please select machine", null), HttpStatus.EXPECTATION_FAILED);
+				}
+			} else {
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+		} catch (final Exception e) {
+			e.printStackTrace();
+			log.error("Issue faced while getting listofdownmachines request " + e.getMessage());
+			log.info("Exception occured for Machine Location History API :" + userName + "-" + vin + "Exception -"
 					+ e.getMessage());
 			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
 					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
