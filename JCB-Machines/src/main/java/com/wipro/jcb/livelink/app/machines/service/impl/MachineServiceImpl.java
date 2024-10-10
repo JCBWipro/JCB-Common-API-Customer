@@ -151,7 +151,7 @@ public class MachineServiceImpl implements MachineService {
             MachineFeedParserData machineFeedParserData = machineFeedParserDataRepo.findByVin(vin);
             MachineFeedLocation machineFeedLocation = machineFeedLocationRepo.findByVin(vin);
             if (machine != null) {
-                final List<ServiceHistoryTimeline> historyline = new ArrayList<>();
+                final List<ServiceHistoryTimeline> historyLine = new ArrayList<>();
 
                 List<MachineServiceHistory> history = machineServiceHistoryRepo.getHistoryDetails(machine.getVin());
 
@@ -164,33 +164,57 @@ public class MachineServiceImpl implements MachineService {
                 }
                 Date serviceDoneAt = null;
                 for (final MachineServiceHistory tempObj : history) {
-                    historyline.add(new ServiceHistoryTimeline(tempObj.getServiceDoneAt(), tempObj.getJobCardNumber(),
+                    historyLine.add(new ServiceHistoryTimeline(tempObj.getServiceDoneAt(), tempObj.getJobCardNumber(),
                             tempObj.getComments()));
-                    if (history.get(0) != null && history.get(0).getServiceDoneAt() != null && !history.get(0).getServiceDoneAt().equals("NA"))
-                        serviceDoneAt = history.get(0).getServiceDoneAt();
+                    // Check if the history list is not empty
+                    serviceDoneAt = history.get(0).getServiceDoneAt();
                 }
 
                 if (null != machineFeedParserData && null != machineFeedLocation
                         && null != machineFeedParserData.getStatusAsOnTime()) {
-                    return new MachineServiceInfo(machineFeedParserData.getTotalMachineHours(), serviceSchedule != null && serviceSchedule.getOverDueHours() != null && !serviceSchedule.getOverDueHours().equals("NA") ? Double.parseDouble(serviceSchedule.getOverDueHours()) : null,
-                            serviceSchedule != null && serviceSchedule.getOverDueDate() != null && !serviceSchedule.getOverDueDate().equals("NA") ? serviceSchedule.getOverDueDate() : null, serviceSchedule != null && serviceSchedule.getDueHours() != null && !serviceSchedule.getDueHours().equals("NA") ? Double.parseDouble(serviceSchedule.getDueHours()) : null, serviceSchedule != null && serviceSchedule.getDueDate() != null && !serviceSchedule.getDueDate().equals("NA") ? serviceSchedule.getDueDate() : null,
-                            serviceSchedule != null && serviceSchedule.getCurrentCmh() != null && !serviceSchedule.getCurrentCmh().equals("NA") ? Double.parseDouble(serviceSchedule.getCurrentCmh()) : null, serviceDoneAt, machine.getThumbnail(),
-                            machine.getVin(), machine.getModel(), machine.getPlatform(), machine.getTag(),
-                            machine.getImage(), historyline);
+                    log.info("getMachineServiceInfo: Found machine feed data for VIN: {}", vin);
+                    return new MachineServiceInfo(
+                            machineFeedParserData.getTotalMachineHours(),
+                            serviceSchedule != null && serviceSchedule.getOverDueHours() != null && !serviceSchedule.getOverDueHours().equals("NA") ? Double.parseDouble(serviceSchedule.getOverDueHours()) : null,
+                            serviceSchedule != null && serviceSchedule.getOverDueDate() != null ? serviceSchedule.getOverDueDate() : null,
+                            serviceSchedule != null && serviceSchedule.getDueHours() != null && !serviceSchedule.getDueHours().equals("NA") ? Double.parseDouble(serviceSchedule.getDueHours()) : null,
+                            serviceSchedule != null && serviceSchedule.getDueDate() != null ? serviceSchedule.getDueDate() : null,
+                            serviceSchedule != null && serviceSchedule.getCurrentCmh() != null && !serviceSchedule.getCurrentCmh().equals("NA") ? Double.parseDouble(serviceSchedule.getCurrentCmh()) : null,
+                            serviceDoneAt,
+                            machine.getThumbnail(),
+                            machine.getVin(),
+                            machine.getModel(),
+                            machine.getPlatform(),
+                            machine.getTag(),
+                            machine.getImage(),
+                            historyLine
+                    );
                 } else {
-                    return new MachineServiceInfo(machine.getTotalMachineHours(), serviceSchedule != null && serviceSchedule.getOverDueHours() != null && !serviceSchedule.getOverDueHours().equals("NA") ? Double.parseDouble(serviceSchedule.getOverDueHours()) : null,
-                            serviceSchedule != null && serviceSchedule.getOverDueDate() != null && !serviceSchedule.getOverDueDate().equals("NA") ? serviceSchedule.getOverDueDate() : null, serviceSchedule != null && serviceSchedule.getDueHours() != null && !serviceSchedule.getDueHours().equals("NA") ? Double.parseDouble(serviceSchedule.getDueHours()) : null, serviceSchedule != null && serviceSchedule.getDueDate() != null && !serviceSchedule.getDueDate().equals("NA") ? serviceSchedule.getDueDate() : null,
-                            serviceSchedule != null && serviceSchedule.getCurrentCmh() != null && !serviceSchedule.getCurrentCmh().equals("NA") ? Double.parseDouble(serviceSchedule.getCurrentCmh()) : null, serviceDoneAt, machine.getThumbnail(),
-                            machine.getVin(), machine.getModel(), machine.getPlatform(), machine.getTag(),
-                            machine.getImage(), historyline);
+                    log.info("getMachineServiceInfo: Machine feed data not found for VIN: {}, using machine data", vin);
+                    return new MachineServiceInfo(
+                            machine.getTotalMachineHours(),
+                            serviceSchedule != null && serviceSchedule.getOverDueHours() != null && !serviceSchedule.getOverDueHours().equals("NA") ? Double.parseDouble(serviceSchedule.getOverDueHours()) : null,
+                            serviceSchedule != null && serviceSchedule.getOverDueDate() != null ? serviceSchedule.getOverDueDate() : null,
+                            serviceSchedule != null && serviceSchedule.getDueHours() != null && !serviceSchedule.getDueHours().equals("NA") ? Double.parseDouble(serviceSchedule.getDueHours()) : null,
+                            serviceSchedule != null && serviceSchedule.getDueDate() != null ? serviceSchedule.getDueDate() : null,
+                            serviceSchedule != null && serviceSchedule.getCurrentCmh() != null && !serviceSchedule.getCurrentCmh().equals("NA") ? Double.parseDouble(serviceSchedule.getCurrentCmh()) : null,
+                            serviceDoneAt,
+                            machine.getThumbnail(),
+                            machine.getVin(),
+                            machine.getModel(),
+                            machine.getPlatform(),
+                            machine.getTag(),
+                            machine.getImage(),
+                            historyLine
+                    );
                 }
 
             } else {
+                log.info("getMachineServiceInfo: Machine not found for VIN: {}", vin);
                 return new MachineServiceInfo();
             }
         } catch (final Exception ex) {
-            ex.printStackTrace();
-            log.error("MachineServiceInfo : Internal Server Error");
+            log.error("getMachineServiceInfo: Internal Server Error: {}", ex.getMessage());
             throw new ProcessCustomError("Failed to process MachineServiceInfo Request",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }

@@ -21,6 +21,6 @@ public interface ServiceScheduleRepo  extends CrudRepository<ServiceSchedule, In
     public <S extends ServiceSchedule> S save(S entity);
 
     @Query("SELECT ms from ServiceSchedule ms where ?1 = ms.vin")
-    public ServiceSchedule findById(String id);
+    ServiceSchedule findById(String id);
 
 }
