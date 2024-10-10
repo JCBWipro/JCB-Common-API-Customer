@@ -2,6 +2,7 @@ package com.wipro.jcb.livelink.app.machines.repo;
 
 
 import com.wipro.jcb.livelink.app.machines.entity.MachineUtilizationData;
+import com.wipro.jcb.livelink.app.machines.reports.MachineUtilization;
 import com.wipro.jcb.livelink.app.machines.entity.Machine;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Pageable;
@@ -211,21 +212,13 @@ public interface MachineUtilizationDataRepository extends CrudRepository<Machine
 	@Query(value="SELECT COUNT(m.vin) FROM machineutilizationdata m WHERE m.vin= :vin and day = :day and idle_hours= :idleHours and off_hours= :offHours and working_hours= :workingHours ",nativeQuery=true)
 	public long getCountByVin(@Param("vin")String vin,@Param("day")Date day, @Param("idleHours")Double idleHours, @Param("offHours")Double offHours, @Param("workingHours")Double workingHours);
 	
-	/*@Query("SELECT new com.jcb.livelinkappserver.api.response.visualization.report.MachineUtilization(m.day , m.workingHours, m.idleHours, m.offHours) FROM MachineUtilizationData m where m.vin =?1 and m.day between ?2 and ?3 order by m.day")
+	@Query(value="SELECT day,working_hours,idle_hours,off_hours FROM machineutilizationdata m where m.vin =:vin and m.day between :reportStartDate and :reportEndDate order by m.day",nativeQuery=true)
 	public List<MachineUtilization> getUtilizationDetails(String vin, Date reportStartDate, Date reportEndDate);
 	
-	@Query("SELECT new com.jcb.livelinkappserver.api.response.visualization.report.MachineUtilization(m.day , m.workingHours, m.idleHours, m.offHours) FROM MachineUtilizationData m where m.vin =?1 and workingHours>0 and idleHours>0 and m.offHours>0 and m.day = ?2 ")
-	public List<MachineUtilization> getUtilizationDetailsReport(String vin, Date reportStartDate);
-	*/
 	@Query("SELECT m FROM MachineUtilizationData  m join m.machine.users u where m.workingHours > 0.5 and m.machine.renewalFlag = true and ?1 = u.userName and m.day=?2  ORDER BY m.machine.statusAsOnTime")
 	public List<MachineUtilizationData> findByUserNameWithPagesize(String userName, Date selectedDate,Pageable pageable);
 	
 	@Query("SELECT count(m) FROM MachineUtilizationData  m join m.machine.users u where m.workingHours > 0.5 and m.machine.renewalFlag = true and ?1 = u.userName and m.day=?2")
 	public long getCountByUserName(String userName,Date selectedDate);
 	
-	
-	
-	
-	
-
 }
