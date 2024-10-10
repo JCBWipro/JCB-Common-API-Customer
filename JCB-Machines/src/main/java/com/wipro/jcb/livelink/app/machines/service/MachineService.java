@@ -62,7 +62,7 @@ public interface MachineService {
      */
     List<Filter> getFilters(String userName);
 
-    public MachineServiceInfo getMachineServiceInfo(String vin) throws ProcessCustomError;
+    MachineServiceInfo getMachineServiceInfo(String vin) throws ProcessCustomError;
 
     ServiceStatus getMachineServiceStatus(final Machine machine) throws ProcessCustomError;
 

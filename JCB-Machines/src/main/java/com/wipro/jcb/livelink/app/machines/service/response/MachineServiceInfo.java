@@ -51,7 +51,7 @@ public class MachineServiceInfo {
     private String tag;
     @Schema(description = "Machine image", example = "Image URL/Path", required = true)
     private String image;
-    @Schema(description = "Service history of machine for confidured years", example = "list of hist", required = true)
+    @Schema(description = "Service history of machine for configured years", example = "list of hist", required = true)
     private List<ServiceHistoryTimeline> history;
 
 }

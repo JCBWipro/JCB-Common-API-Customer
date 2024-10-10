@@ -14,15 +14,11 @@ import com.wipro.jcb.livelink.app.machines.repo.MachineRepository;
 import com.wipro.jcb.livelink.app.machines.reports.UtilizationReportResponse;
 import com.wipro.jcb.livelink.app.machines.request.GeofenceSetRequest;
 import com.wipro.jcb.livelink.app.machines.request.TimefenceSetRequest;
-import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponse;
+import com.wipro.jcb.livelink.app.machines.service.response.*;
 import com.wipro.jcb.livelink.app.machines.service.AdvanceReportService;
 import com.wipro.jcb.livelink.app.machines.service.MachineProfileService;
 import com.wipro.jcb.livelink.app.machines.service.MachineResponseService;
 import com.wipro.jcb.livelink.app.machines.service.MachineService;
-import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponseV2;
-import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponseV3;
-import com.wipro.jcb.livelink.app.machines.service.response.MachineLocationHistory;
-import com.wipro.jcb.livelink.app.machines.service.response.MachineResponseV3;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -578,5 +574,44 @@ public class MachineController {
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
+	}
+
+	@GetMapping(value = "/machineserviceinfo")
+	@Operation(summary = "Get machine service information", description = "Retrieves service information for a specific machine identified by its VIN.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Machine Service Information", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MachineServiceInfo.class))),
+			@ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
+			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
+	})
+	public ResponseEntity<?> getMachineServiceInfo(
+			@Parameter(description = "User details from the token", required = true) @RequestHeader("LoggedInUserRole") String userDetails,
+			@Parameter(description = "Vehicle Identification Number (VIN) of the machine", required = true) @RequestParam("vin") String vin) {
+
+		try {
+			UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+			String userName = userResponse.getUserName();
+			if (userName == null) {
+				log.warn("Session expired for user details : {}", userDetails);
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Session expired");
+			}
+
+			log.info("machineServiceInfo: GET request from user {} for VIN {}", userName, vin);
+			MachineServiceInfo response = machineService.getMachineServiceInfo(vin);
+			return ResponseEntity.ok(response);
+
+		} catch (final ProcessCustomError e) {
+			log.error("Issue faced while getting machine service info for VIN {}. ", vin, e);
+			return ResponseEntity.status(e.getStatus())
+					.body(new ApiError(e.getStatus(), e.getMessage(), e.getErrorCode(), e.getDetails()));
+
+		} catch (final IllegalArgumentException e) {
+			log.warn("Invalid input parameters: VIN: ={} Error: {}", vin, e.getMessage());
+			return ResponseEntity.badRequest().body(new ApiError(HttpStatus.BAD_REQUEST, "Invalid input parameters", "INVALID_INPUT", null));
+
+		} catch (final Exception e) {
+			log.error("Unexpected error fetching machine service info for VIN {}.", vin, e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to process request", "SERVER_ERROR", null));
+		}
 	}
 }
