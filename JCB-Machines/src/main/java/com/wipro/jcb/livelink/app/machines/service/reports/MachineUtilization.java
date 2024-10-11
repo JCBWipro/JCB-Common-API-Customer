@@ -1,4 +1,4 @@
-package com.wipro.jcb.livelink.app.machines.reports;
+package com.wipro.jcb.livelink.app.machines.service.reports;
 
 import java.util.Date;
 
@@ -8,8 +8,8 @@ import java.util.Date;
  */
 public interface MachineUtilization {
 
-	Date getday();
-	Double getworking_hours();
-	Double getidle_hours();
-	Double getoff_hours();
+	Date getdate();
+	Double getworking();
+	Double getidle();
+	Double getoff();
 }

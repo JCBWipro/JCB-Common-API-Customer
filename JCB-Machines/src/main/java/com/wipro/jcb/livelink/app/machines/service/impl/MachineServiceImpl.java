@@ -7,9 +7,7 @@ import com.wipro.jcb.livelink.app.machines.entity.*;
 import com.wipro.jcb.livelink.app.machines.enums.ServiceStatus;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.machines.repo.*;
-import com.wipro.jcb.livelink.app.machines.reports.MachineUtilization;
-import com.wipro.jcb.livelink.app.machines.reports.MachineUtilizationResponse;
-import com.wipro.jcb.livelink.app.machines.reports.UtilizationReport;
+import com.wipro.jcb.livelink.app.machines.service.MachineFeatureInfoService;
 import com.wipro.jcb.livelink.app.machines.service.MachineService;
 import com.wipro.jcb.livelink.app.machines.service.reports.*;
 import com.wipro.jcb.livelink.app.machines.service.response.*;
@@ -20,6 +18,7 @@ import org.joda.time.DateTimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -58,6 +57,24 @@ public class MachineServiceImpl implements MachineService {
     
     @Autowired
     private MachineUtilizationDataRepository machineUtilizationDataRepository;
+    
+    @Autowired
+	private MachineFeatureInfoService machineFeatureService;
+    
+    @Autowired
+	private MachineFeatureDataRepo machineFeatureDataRepo;
+    
+    @Autowired
+	private MachineWheelLoaderDataRepository machineWheelLoaderDataRepository;
+    
+    @Autowired
+	private MachineExcavatorRepo machineExcavatorRepo;
+    
+    @Autowired
+	private MachineCompactionCoachDataRepository machineCompactionCoachDataRepository;
+    
+    @Autowired 
+	private MachineTelehandlerDataRepository machineTelehandlerDataRepository;
 
     @Value("${machine.approachingservicedays}")
     int machineApproachingServiceDays;
@@ -748,6 +765,45 @@ public class MachineServiceImpl implements MachineService {
 		}
 
 		return utilization;
+	}
+	
+	@Override
+	public UtilizationReport getFuelUtilization(String vin, Date startDate, Date endDate) {
+		MachineFuelUtilizationResponse utilizationResponse = new MachineFuelUtilizationResponse();
+		try {
+			if (machineFeatureService.isExist(vin)) {
+				List<MachineFeatureInfo> list = machineFeatureDataRepo.findByVinAndFlagOrderByDayDescLimit1(vin, true, PageRequest.of(0, 1));
+				for (MachineFeatureInfo machineFeatureInfo : list) {
+					log.info("Calendar View Data VIN Type :" + vin + " - " + machineFeatureInfo.getType());
+					List<FuelConsumption> fuelConsumptionList = new ArrayList<FuelConsumption>();
+					if (machineFeatureInfo.getType().equals("CANBHL") || machineFeatureInfo.getType().equals("HBBHL")) {
+						fuelConsumptionList = machineBHLDataRepo.getFuelConsumptionReport(vin, startDate, endDate);
+						utilizationResponse.setFuelUtilization(fuelConsumptionList);
+						break;
+					} else if (machineFeatureInfo.getType().equals("CANWLS") || machineFeatureInfo.getType().equals("INTELLILOAD")) {
+						fuelConsumptionList = machineWheelLoaderDataRepository.getFuelConsumptionReport(vin, startDate,endDate);
+						utilizationResponse.setFuelUtilization(fuelConsumptionList);
+						break;
+					} else if (machineFeatureInfo.getType().equals("CANEXCAVATOR") || machineFeatureInfo.getType().equals("HBEXCAVATOR")) {
+						fuelConsumptionList = machineExcavatorRepo.getFuelConsumptionReport(vin, startDate, endDate);
+						utilizationResponse.setFuelUtilization(fuelConsumptionList);
+						break;
+					} else if (machineFeatureInfo.getType().equals("CANCOMPACTOR") || machineFeatureInfo.getType().equals("INTELLICOMPACTOR")) {
+						fuelConsumptionList = machineCompactionCoachDataRepository.getFuelConsumptionReport(vin,startDate, endDate);
+						utilizationResponse.setFuelUtilization(fuelConsumptionList);
+						break;
+					} else if (machineFeatureInfo.getType().equals("CANTELEHANDLER")) {
+						fuelConsumptionList = machineTelehandlerDataRepository.getFuelConsumptionReport(vin, startDate,endDate);
+						utilizationResponse.setFuelUtilization(fuelConsumptionList);
+						break;
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info("Exception occured for Fuel Utilization Report API :" + vin + "Exception -" + e.getMessage());
+		}
+		return utilizationResponse;
 	}
 
 }

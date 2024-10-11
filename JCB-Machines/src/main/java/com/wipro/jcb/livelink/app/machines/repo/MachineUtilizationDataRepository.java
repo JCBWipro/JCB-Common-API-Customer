@@ -2,7 +2,7 @@ package com.wipro.jcb.livelink.app.machines.repo;
 
 
 import com.wipro.jcb.livelink.app.machines.entity.MachineUtilizationData;
-import com.wipro.jcb.livelink.app.machines.reports.MachineUtilization;
+import com.wipro.jcb.livelink.app.machines.service.reports.MachineUtilization;
 import com.wipro.jcb.livelink.app.machines.entity.Machine;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Pageable;
@@ -212,7 +212,7 @@ public interface MachineUtilizationDataRepository extends CrudRepository<Machine
 	@Query(value="SELECT COUNT(m.vin) FROM machineutilizationdata m WHERE m.vin= :vin and day = :day and idle_hours= :idleHours and off_hours= :offHours and working_hours= :workingHours ",nativeQuery=true)
 	public long getCountByVin(@Param("vin")String vin,@Param("day")Date day, @Param("idleHours")Double idleHours, @Param("offHours")Double offHours, @Param("workingHours")Double workingHours);
 	
-	@Query(value="SELECT day,working_hours,idle_hours,off_hours FROM machineutilizationdata m where m.vin =:vin and m.day between :reportStartDate and :reportEndDate order by m.day",nativeQuery=true)
+	@Query(value="SELECT day as date,working_hours as working,idle_hours as idle,off_hours as off FROM machineutilizationdata m where m.vin =:vin and m.day between :reportStartDate and :reportEndDate order by m.day",nativeQuery=true)
 	public List<MachineUtilization> getUtilizationDetails(String vin, Date reportStartDate, Date reportEndDate);
 	
 	@Query("SELECT m FROM MachineUtilizationData  m join m.machine.users u where m.workingHours > 0.5 and m.machine.renewalFlag = true and ?1 = u.userName and m.day=?2  ORDER BY m.machine.statusAsOnTime")
