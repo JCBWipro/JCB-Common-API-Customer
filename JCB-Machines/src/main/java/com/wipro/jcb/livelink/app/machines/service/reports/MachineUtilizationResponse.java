@@ -1,4 +1,4 @@
-package com.wipro.jcb.livelink.app.machines.reports;
+package com.wipro.jcb.livelink.app.machines.service.reports;
 
 import java.util.List;
 

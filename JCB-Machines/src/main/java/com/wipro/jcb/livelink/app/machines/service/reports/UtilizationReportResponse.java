@@ -1,4 +1,4 @@
-package com.wipro.jcb.livelink.app.machines.reports;
+package com.wipro.jcb.livelink.app.machines.service.reports;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

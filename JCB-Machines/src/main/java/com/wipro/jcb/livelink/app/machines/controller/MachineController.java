@@ -17,6 +17,8 @@ import com.wipro.jcb.livelink.app.machines.service.AdvanceReportService;
 import com.wipro.jcb.livelink.app.machines.service.MachineProfileService;
 import com.wipro.jcb.livelink.app.machines.service.MachineResponseService;
 import com.wipro.jcb.livelink.app.machines.service.MachineService;
+import com.wipro.jcb.livelink.app.machines.service.reports.UtilizationReportResponse;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -600,4 +602,82 @@ public class MachineController {
                     .body(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to process request", "SERVER_ERROR", null));
         }
     }
+    
+	/*
+	 * This End Point is to Get Fuel Utilization Report Details
+	 */
+	@CrossOrigin
+	@Operation(summary = "Fuel Utilization Report", description = "Fuel Utilization Information")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Fuel Utilization Information"),
+			@ApiResponse(responseCode = "401", description = "Auth Failed"),
+			@ApiResponse(responseCode = "500", description = "Request failed") })
+	@Transactional(readOnly = true)
+	@GetMapping("/fuelutilizationreport")
+	public ResponseEntity<?> getFuelUtilizationReport(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+			@RequestParam(value = "vin", required = false) String vin,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate) {
+		String userName = null;
+		try {
+			UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+			userName = userResponse.getUserName();
+			log.info("Fuel Utilization Request: Get request for machine {} User {} StartDate {}  EndDate {} ", vin,
+					userName, startDate, endDate);
+			if (userName != null) {
+				if (vin != null) {
+
+					Machine machine = machineRepository.findByVinAndUserName(vin, userName);
+					if (machine != null) {
+						if (startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+							if (utilities.getDate(startDate).before(new Date())
+									&& utilities.getDate(endDate).before(new Date())) {
+
+								if (utilities.getDate(startDate).before(utilities.getDate(endDate))
+										|| utilities.getDate(startDate).equals(utilities.getDate(endDate))) {
+									return new ResponseEntity<UtilizationReportResponse>(
+											advanceReportService.getFuelUtilization(vin, startDate, endDate),
+											HttpStatus.OK);
+								} else {
+									return new ResponseEntity<ApiError>(
+											new ApiError(HttpStatus.EXPECTATION_FAILED,
+													"Fromdate should be lessthan todate ",
+													"Fromdate should be lessthan todate", null),
+											HttpStatus.EXPECTATION_FAILED);
+								}
+							} else {
+								return new ResponseEntity<ApiError>(
+										new ApiError(HttpStatus.EXPECTATION_FAILED,
+												"Fromdate,todate should be lessthan current date",
+												"Fromdate,todate should be lessthan current date", null),
+										HttpStatus.EXPECTATION_FAILED);
+							}
+						} else {
+							return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+									"Please select fromdate and todate ", "Please select fromdate and todate", null),
+									HttpStatus.EXPECTATION_FAILED);
+						}
+					} else {
+						return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+								"Please select correct machine", "Please select correct machine", null),
+								HttpStatus.EXPECTATION_FAILED);
+					}
+				} else {
+					return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+							"Please select machine", "Please select machine", null), HttpStatus.EXPECTATION_FAILED);
+				}
+			} else {
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+		} catch (final Exception e) {
+			e.printStackTrace();
+			log.error("Issue faced while getting listofdownmachines request " + e.getMessage());
+			log.info("Exception occured for Fuel Utilization Report API :" + userName + "-" + vin + "Exception -"
+					+ e.getMessage());
+			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
 }

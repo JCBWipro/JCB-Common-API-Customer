@@ -5,9 +5,9 @@ import com.wipro.jcb.livelink.app.machines.entity.Machine;
 import com.wipro.jcb.livelink.app.machines.entity.MachineDownQuestion;
 import com.wipro.jcb.livelink.app.machines.enums.ServiceStatus;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
-import com.wipro.jcb.livelink.app.machines.reports.UtilizationReport;
 import com.wipro.jcb.livelink.app.machines.service.reports.NotificationRemovedResponse;
 import com.wipro.jcb.livelink.app.machines.service.reports.StandardMachineBaseResponse;
+import com.wipro.jcb.livelink.app.machines.service.reports.UtilizationReport;
 import com.wipro.jcb.livelink.app.machines.service.response.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -71,54 +71,15 @@ public interface MachineService {
     public List<MachineDownQuestion> getAllMachineDownQuestionList();
     public void setMachineTimeFence(String vin, String startTime, String endTime) throws ProcessCustomError;
     public void setMachineGeoFenceParam(String vin, Double centerLatitude, Double centerLongitude, Long radius) throws ProcessCustomError;
-   // public VisualizationReport getReportInstance(final String vin, Date startDate, Date endDate);
-   // public IntelliReport getIntelliReport(final String vin, Date startDate, Date endDate);
     public boolean doSupportFeatures(final String vin);
-  //  public IntelliReport loadIntelliDigReport(final String vin, Date startDate, Date endDate);
 
     List<Filter> getUserPlatform(String userName);
 
-
-    //public String  setGeoFenceParam(GeofenceRequest gfSetRequest,String userName,String machineType,String tokenId) throws Exception;
-
-   // GeofenceRequest getGeofenceDetails(String vin,String userName,String token);
-
-    //String deleteGeofenceDetails(GeofenceRequest geofenceParam,String userName,String tokenId);
-
-    //String setTimeFenceParam(TimefenceRequest timefenceParam, String userName,String machineType,String tokenId);
-
-    //TimefenceRequest getTimefenceDetails(String vin,String userName,String tokenId);
-
-    // getLandmarkDetails(String userName, String landmarkName);
-
     String deleteTimefenceDetails(String vin, String userName,String tokenId);
-
-    //GeofenceLandmarkResponse getLandmarkDetails(String userName, String landmarkName,String livelinkTokenId,String vin);
-
-
-    //public RdMachineResponse fetchNewMachines(Date startdate, Date enddate) throws ProcessCustomError;
 
     String storeServiceCallRequestFileUpload(String vin, String customerName, String customerPhone, String contactName, String customerAlternativePhone, String machineHmr, String serviceDealerName, String model, String machineLocation, String warrantyStatus, String contractStatus, String machineStatus, String remarks, List<MultipartFile> image, String userName);
 
-    //CalendarView getCalendarViewData(String vin,String userName, String startDate, String endDate);
-
-    //CalendarViewDetails getCalendarViewDetailsList(String vin, String userName, String date);
-
-    //List<LocationHistory> getMachineLocationHistory(String vin, String date);
-
-    //MachineLocation getMachineLocationDetail(String vin, String pageNumber, String pageSize);
-
-    //VisualizationReport getReportInstanceV2(String vin, Date startDate, Date endDate);
-
-    //IntelliReport getIntelliReportV2(String vin, Date startDate, Date endDate);
-
     Double getFuelConsumptionData(String vin);
-
-    //NotificationListResponseDto getNotificationListByGroupingDate(String userName,Date startDate,Date endDate, String pageNumber, String pageSize);
-
-    //UtilizationReport getMachineUtilization(String vin, Date startDate, Date endDate);
-
-    //UtilizationReport getFuelUtilization(String vin, Date startDate, Date endDate);
 
     RdMachineResponse fetchNewMachines(Date startdate, Date enddate) throws ProcessCustomError;
 
@@ -132,19 +93,11 @@ public interface MachineService {
 
     NotificationRemovedResponse deleteNotification(Integer id, String userName);
 
-    //VisualizationReport getReportInstanceV3(String vin, Date startDate, Date endDate);
-
-    //IntelliReport getIntelliReportV3(String vin, Date startDate, Date endDate);
-
     RdMachineDetailsResponse fetchMachinesDetails(String vin) throws ProcessCustomError;
-
-    //MachineServiceInfoV2 getMachineServiceInfoV2(String vin) throws ProcessCustomError;
 
     MachineServiceInfoV2 getMachineServiceInfoV2(String vin) throws ProcessCustomError;
 
     void updatePremiumFlag(String userName, String vin, String premiumFlag) throws ProcessCustomError;
-
-    //IntelliMachineDetails getIntelliMachineDetails(String vin) throws ProcessCustomError;
 
     List<String> getIntelliAutoSuggetions(String word);
 
@@ -157,6 +110,7 @@ public interface MachineService {
     List<LocationHistory> getMachineLocationHistory(String vin, String date);
     
     UtilizationReport getMachineUtilization(String vin, Date startDate, Date endDate);
-
+    
+    UtilizationReport getFuelUtilization(String vin, Date startDate, Date endDate);
 
 }
