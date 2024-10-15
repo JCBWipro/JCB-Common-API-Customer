@@ -6,10 +6,12 @@ import java.util.List;
 import com.wipro.jcb.livelink.app.machines.entity.Machine;
 import com.wipro.jcb.livelink.app.machines.service.response.*;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface MachineRepository extends CrudRepository<Machine, String> {
@@ -59,6 +61,25 @@ public interface MachineRepository extends CrudRepository<Machine, String> {
 
     @Query(value = "SELECT USER_ID ,password, roleName FROM microservices_db.LiveLinkUser where USER_ID=:userName", nativeQuery = true)
     UserResponse findByContactId(@Param("userName") String userName);
+
+    @Query(value = "SELECT m.vin FROM machine m join machin_user mu ON m.vin = mu.vin where mu.user_id = ?1" ,nativeQuery = true)
+    List<String> findVinByUsersUserName(String userName);
+
+    @Modifying
+    @Query(value = "delete from machin_user where vin = :vin and user_id = :userName", nativeQuery = true)
+    void deleteUserMapping(@Param("vin") String vin,@Param("userName") String userName);
+
+    @Query("SELECT count(m.vin) FROM Machine m join m.users u where ?1 = u.userName")
+    Long countByUsersUserName(String userName);
+
+    @Modifying
+    @Query(value="insert into machin_user (vin,user_id) select vin ,:userName from machine",nativeQuery=true)
+     void mapAllMachineTouser(@Param("userName") String userName);
+
+    @Transactional
+    @Modifying
+    @Query(value="insert into machin_user (vin,user_id) select m.vin ,:userName from machine m left join (select u.vin from machin_user u where u.user_id=:userName) x on m.vin=x.vin where x.vin is null",nativeQuery=true)
+    void mapMachineTouser(@Param("userName") String userName);
 
     @Query("SELECT DISTINCT a.model FROM Machine a")
     List<String> findDistinctModel();
