@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
-import com.wipro.jcb.livelink.app.reports.commonUtils.Utilities;
+import com.wipro.jcb.livelink.app.reports.commonUtils.ReportUtilities;
 import com.wipro.jcb.livelink.app.reports.entity.Machine;
 import com.wipro.jcb.livelink.app.reports.entity.MachineFeatureInfo;
 import com.wipro.jcb.livelink.app.reports.entity.MachineWheelLoaderData;
@@ -58,7 +58,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MachineServiceImpl implements MachineService{
 	
 	@Autowired
-    Utilities utilities;
+    ReportUtilities utilities;
 	
 	@Autowired
     MachineRepository machineRepository;

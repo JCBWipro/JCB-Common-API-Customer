@@ -1,6 +1,6 @@
 package com.wipro.jcb.livelink.app.reports.constants;
 
-public class MessagesList {
+public class MessagesConstantsList {
 	
 	public static final String MISSING_TOKEN_ID = "TokenId is mandatory in the header.";
 	

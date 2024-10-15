@@ -12,8 +12,7 @@ import java.util.Date;
 /**
  * This Class is to Handle Response related to DutyCycleBHL
  */
-@Setter
-@Getter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class DutyCycleBHL {
@@ -42,9 +41,4 @@ public class DutyCycleBHL {
     @JsonProperty("roading")
     private Double roading;
 
-    @Override
-    public String toString() {
-        return "DutyCycleBHL [day=" + day + ", attachment=" + attachment + ", idling=" + idling + ", excavation="
-                + excavation + ", loading=" + loading + ", roading=" + roading + "]";
-    }
 }

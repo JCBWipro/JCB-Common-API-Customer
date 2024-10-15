@@ -40,12 +40,4 @@ public class GearTimeSpentBHL {
     @JsonProperty("forthGear")
     private Double forthGear;
 
-    @Override
-    public String toString() {
-        return "GearTimeSpentBHL [day=" + day + ", firstGear=" + firstGear + ", secoundGear=" + secoundGear
-                + ", thirdGear=" + thirdGear + ", forthGear=" + forthGear + "]";
-    }
-
-
-
 }

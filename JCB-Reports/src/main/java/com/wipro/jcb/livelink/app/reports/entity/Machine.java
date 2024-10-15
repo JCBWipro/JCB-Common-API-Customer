@@ -2,7 +2,6 @@ package com.wipro.jcb.livelink.app.reports.entity;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -39,7 +38,6 @@ import lombok.Getter;
 public class Machine implements Serializable {
     @Serial
     private static final long serialVersionUID = -1391422651545394702L;
-    private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat(".##");
 
     private Boolean airFilterAlertStatus = false;
     private Boolean batteryChargeHighStatus = false;

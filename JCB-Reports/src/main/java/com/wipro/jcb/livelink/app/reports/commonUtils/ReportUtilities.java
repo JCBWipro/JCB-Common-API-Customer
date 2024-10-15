@@ -33,7 +33,7 @@ import static com.wipro.jcb.livelink.app.reports.constants.AppServerConstants.ti
 
 @Slf4j
 @Component
-public class Utilities {
+public class ReportUtilities {
 
     @Value("${openstreetmap.basepath}")
     String openstreetmapBasepath;
