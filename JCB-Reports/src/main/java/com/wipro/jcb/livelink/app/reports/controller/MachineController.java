@@ -19,9 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.wipro.jcb.livelink.app.reports.commonUtils.AuthCommonUtils;
-import com.wipro.jcb.livelink.app.reports.commonUtils.Utilities;
-import com.wipro.jcb.livelink.app.reports.constants.MessagesList;
+import com.wipro.jcb.livelink.app.reports.commonUtils.ReportCommonUtils;
+import com.wipro.jcb.livelink.app.reports.commonUtils.ReportUtilities;
+import com.wipro.jcb.livelink.app.reports.constants.MessagesConstantsList;
 import com.wipro.jcb.livelink.app.reports.dto.UserDetails;
 import com.wipro.jcb.livelink.app.reports.entity.Machine;
 import com.wipro.jcb.livelink.app.reports.exception.ApiError;
@@ -49,7 +49,7 @@ public class MachineController {
 	private String timezone;
 	
 	@Autowired
-    Utilities utilities;
+    ReportUtilities utilities;
 	
 	@Autowired
     MachineService machineService;
@@ -67,12 +67,12 @@ public class MachineController {
 			@ApiResponse(responseCode = "500", description = "Request failed") })
 	@Transactional(readOnly = true)
 	@GetMapping("/getAdvanceReportsV2")
-	public ResponseEntity<?> getMachineAdvanceReportV2(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+	public ResponseEntity<?> getMachineAdvanceReportV2(@RequestHeader(MessagesConstantsList.LoggedInUserRole) String userDetails,
 			@RequestParam("vin") String vin) {
 		String userName = null;
 		try {
 			log.info("getMachineAdvanceReportV2: machine advance report request received for machine: " + vin);
-			UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+			UserDetails userResponse = ReportCommonUtils.getUserDetails(userDetails);
 			userName = userResponse.getUserName();
 			if (userName != null) {
 				Machine machine = machineResponseService.getMachineDetails(vin, userName);
@@ -100,7 +100,7 @@ public class MachineController {
 		} catch (final Exception e) {
 			log.error("getMachineAdvanceReportV2: Get Machine Advance Report data failed: " + e.getMessage());
 			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
-					MessagesList.ADVANCE_REPORT_ERROR, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+					MessagesConstantsList.ADVANCE_REPORT_ERROR, MessagesConstantsList.APP_REQUEST_PROCESSING_FAILED, null),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}

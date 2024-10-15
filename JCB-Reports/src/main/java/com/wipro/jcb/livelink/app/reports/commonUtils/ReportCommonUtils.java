@@ -6,7 +6,7 @@ import java.util.Map;
 import com.google.gson.Gson;
 import com.wipro.jcb.livelink.app.reports.dto.UserDetails;
 
-public class AuthCommonUtils {
+public class ReportCommonUtils {
 
     public static String getRolesByID(int roleId) {
         Map<Integer, String> map = new HashMap<>();
@@ -30,7 +30,7 @@ public class AuthCommonUtils {
     public static UserDetails getUserDetails(String userDetails) {
         UserDetails userResponse = new Gson().fromJson(userDetails, UserDetails.class);
         int roleId = Integer.parseInt(userResponse.getRoleName());
-        String roleName = AuthCommonUtils.getRolesByID(roleId);
+        String roleName = ReportCommonUtils.getRolesByID(roleId);
         userResponse.setRoleName(roleName);
         return userResponse;
     }

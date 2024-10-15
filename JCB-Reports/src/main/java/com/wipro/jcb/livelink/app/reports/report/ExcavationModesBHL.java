@@ -8,15 +8,13 @@ import com.wipro.jcb.livelink.app.reports.constants.AppServerConstants;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * This Class is to Handle Response related to ExcavationModesBHL
  */
-@Setter
-@Getter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class ExcavationModesBHL {
@@ -36,12 +34,6 @@ public class ExcavationModesBHL {
     @Schema(description = "activeModeHrs", example = "1.1", required = true)
     @JsonProperty("active_mode_hrs")
     private Double activeModeHrs;
-
-    @Override
-    public String toString() {
-        return "ExcavationModes [day=" + day + ", economyModeHrs=" + economyModeHrs + ", powerModeHrs=" + powerModeHrs
-                + ", activeModeHrs=" + activeModeHrs + "]";
-    }
 
 }
 

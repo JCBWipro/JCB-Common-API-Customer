@@ -105,45 +105,4 @@ public class User implements Serializable {
 	@Schema(description = "User Language", example = "English", required = true)
 	private String language;
 
-	public User(String userName, String email, UserType userType, String firstName, String lastName, String phoneNumber,
-			String address, String smsLanguage, String timeZone, String image, String thumbnail, String country,
-			String password, Boolean sysGenPass, String activityCompleted, List<String> livelinkPersonName,
-			String roleName, Boolean isSecretQuestion, String serviceHistoryStatus,
-			Boolean machineUpdateNotificationEnabled, String language) {
-		super();
-		this.userName = userName;
-		this.email = email;
-		this.userType = userType;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.phoneNumber = phoneNumber;
-		this.address = address;
-		this.smsLanguage = smsLanguage;
-		this.timeZone = timeZone;
-		this.image = image;
-		this.thumbnail = thumbnail;
-		this.country = country;
-		this.password = password;
-		this.sysGenPass = sysGenPass;
-		this.activityCompleted = activityCompleted;
-		this.livelinkPersonName = livelinkPersonName;
-		this.roleName = roleName;
-		this.isSecretQuestion = isSecretQuestion;
-		this.serviceHistoryStatus = serviceHistoryStatus;
-		this.machineUpdateNotificationEnabled = machineUpdateNotificationEnabled;
-		this.language = language;
-	}
-
-	@Override
-	public String toString() {
-		return "User [userName=" + userName + ", email=" + email + ", userType=" + userType + ", firstName=" + firstName
-				+ ", lastName=" + lastName + ", phoneNumber=" + phoneNumber + ", address=" + address + ", smsLanguage="
-				+ smsLanguage + ", timeZone=" + timeZone + ", image=" + image + ", thumbnail=" + thumbnail
-				+ ", country=" + country + ", password=" + password + ", sysGenPass=" + sysGenPass
-				+ ", activityCompleted=" + activityCompleted + ", serviceHistoryStatus=" + serviceHistoryStatus
-				+ ", livelinkPersonName=" + livelinkPersonName + ", roleName=" + roleName + ", isSecretQuestion="
-				+ isSecretQuestion + ", machineUpdateNotificationEnabled=" + machineUpdateNotificationEnabled
-				+ ", userAppVersion=" + userAppVersion + ", createdAt=" + createdAt + "]";
-	}
-
 }

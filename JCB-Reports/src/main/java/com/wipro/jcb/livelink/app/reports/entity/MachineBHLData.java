@@ -32,28 +32,18 @@ public class MachineBHLData implements Serializable {
     @JsonFormat(pattern = AppServerConstants.DateFormat, timezone = AppServerConstants.timezone)
     @Column(name = "day")
     private Date day;
-    /*
-     * optional Example : "string" string
-     */
+    
     private String model;
-    /*
-     * optional Example : "string" string
-     */
     private String platform;
-    /*
-     * optional Example : "string" string
-     */
 
     @Schema(description = "travel attachment", example = "1.1", required = true)
     @JsonProperty("attachment")
     private Double attachment;
 
-
     @Schema(description = "loading", example = "1.1", required = true)
     @JsonProperty("loading")
     private Double loading;
 
-    //@CreatedDate
     @JsonIgnore
     @Temporal(TemporalType.TIMESTAMP)
     @Column(columnDefinition = "timestamp default current_timestamp", insertable = false, updatable = false)
@@ -110,7 +100,6 @@ public class MachineBHLData implements Serializable {
     @Schema(description = "neutralDirection", example = "1.1", required = true)
     @JsonProperty("neutral_direction")
     private Double neutralDirection;
-
 
     @OneToOne
     @JoinColumn(name = "vin", referencedColumnName = "vin")
@@ -181,8 +170,6 @@ public class MachineBHLData implements Serializable {
     @JsonProperty("subid_fuel_used_at_excavation_plus_mode_perct")
     private Double subidFuelUsedAtExcavationPlusModePerct;
 
-    //V6 API column
-
     @Schema(description = "distanceTravelledInRoading", example = "1.1", required = true)
     @JsonProperty("distance_travelled_in_roading")
     private Double distanceTravelledInRoading;
@@ -207,10 +194,8 @@ public class MachineBHLData implements Serializable {
     @JsonProperty("fuel_used_in_idle_perct")
     private Double fuelUsedInIdlePerct;
 
-
     @Column(name = "vin", updatable = false, insertable = false)
     private String vin;
-
 
     @Schema(description = "prb1", example = "1.1", required = true)
     @JsonProperty("prb1")
@@ -264,49 +249,25 @@ public class MachineBHLData implements Serializable {
     @JsonProperty("pdrbem1")
     private Double pdrbem1;
 
-
     @Schema(description = "pdrbem2", example = "1.1", required = true)
     @JsonProperty("pdrbem2")
     private Double pdrbem2;
-
 
     @Schema(description = "pdrbem3", example = "1.1", required = true)
     @JsonProperty("pdrbem3")
     private Double pdrbem3;
 
-
     @Schema(description = "pdrbem4", example = "1.1", required = true)
     @JsonProperty("pdrbem4")
     private Double pdrbem4;
-
 
     @Schema(description = "pdrbem5", example = "1.1", required = true)
     @JsonProperty("pdrbem5")
     private Double pdrbem5;
 
-
     @Schema(description = "pdrbem6", example = "1.1", required = true)
     @JsonProperty("pdrbem6")
     private Double pdrbem6;
-
-
-    @Override
-    public String toString() {
-        return "MachineBHLData [vinId=" + vinId + ", day=" + day + ", model=" + model + ", platform=" + platform
-                + ", attachment=" + attachment + ", loading=" + loading + ", creationAt=" + creationAt
-                + ", excavation=" + excavation + ", roading=" + roading + ", idling=" + idling + ", economyModeHrs="
-                + economyModeHrs + ", powerModeHrs=" + powerModeHrs + ", activeModeHrs=" + activeModeHrs
-                + ", gear1Utilization=" + gear1Utilization + ", gear2Utilization=" + gear2Utilization
-                + ", gear3Utilization=" + gear3Utilization + ", gear4Utilization=" + gear4Utilization
-                + ", forwardDirection=" + forwardDirection + ", reverseDirection=" + reverseDirection
-                + ", neutralDirection=" + neutralDirection + ", machine=" + machine + ", vin=" + vin + ", prb1="
-                + prb1 + ", prb2=" + prb2 + ", prb3=" + prb3 + ", prb4=" + prb4 + ", prb5=" + prb5 + ", prb6="
-                + prb6 + ", prbem1=" + prbem1 + ", prbem2=" + prbem2 + ", prbem3=" + prbem3 + ", prbem4=" + prbem4
-                + ", prbem5=" + prbem5 + ", prbem6=" + prbem6 + ", pdrbem1=" + pdrbem1 + ", pdrbem2=" + pdrbem2
-                + ", pdrbem3=" + pdrbem3 + ", pdrbem4=" + pdrbem4 + ", pdrbem5=" + pdrbem5 + ", pdrbem6=" + pdrbem6
-                + "]";
-    }
-
 
 }
 
