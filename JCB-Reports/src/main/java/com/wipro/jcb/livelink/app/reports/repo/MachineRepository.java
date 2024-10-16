@@ -41,5 +41,8 @@ public interface MachineRepository extends CrudRepository<Machine, String> {
 
     @Query("SELECT m FROM Machine m join m.users u where ?1 = u.userName  AND (lower(m.platform) LIKE lower(concat('%', ?2,'%')) OR lower(m.model) LIKE lower(concat('%', ?2,'%')) OR lower(m.location) LIKE lower(concat('%', ?2,'%')) OR lower(m.tag) LIKE lower(concat('%', ?2,'%')) OR lower(m.vin) LIKE lower(concat('%', ?2,'%')) OR lower(m.site) LIKE lower(concat('%', ?2,'%')))  ORDER by m.machineFeedParserData.statusAsOnTime DESC")
     public List<Machine> getByUsersUserNameAndSearchCriteriaByCustomer(String userName, String search, Pageable pageable);
+    
+    @Query("SELECT sum(m.totalMachineHours) FROM Machine m join m.users u where ?1 = u.userName AND m.renewalFlag = true AND m.vin IN ?2")
+    public Double getTotalMachineHoursForListedMachines(String userName, List<String> vinList);
 
 }

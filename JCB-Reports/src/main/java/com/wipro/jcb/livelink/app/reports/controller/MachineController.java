@@ -25,7 +25,10 @@ import com.wipro.jcb.livelink.app.reports.constants.MessagesConstantsList;
 import com.wipro.jcb.livelink.app.reports.dto.UserDetails;
 import com.wipro.jcb.livelink.app.reports.entity.Machine;
 import com.wipro.jcb.livelink.app.reports.exception.ApiError;
+import com.wipro.jcb.livelink.app.reports.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.reports.report.AdvanceReportsV2;
+import com.wipro.jcb.livelink.app.reports.report.ReportResponseV2;
+import com.wipro.jcb.livelink.app.reports.service.CustomerReportService;
 import com.wipro.jcb.livelink.app.reports.service.MachineResponseService;
 import com.wipro.jcb.livelink.app.reports.service.MachineService;
 
@@ -49,13 +52,16 @@ public class MachineController {
 	private String timezone;
 	
 	@Autowired
-    ReportUtilities utilities;
+    private ReportUtilities utilities;
 	
 	@Autowired
-    MachineService machineService;
+    private MachineService machineService;
 	
-	 @Autowired
-	 MachineResponseService machineResponseService;
+	@Autowired
+	private MachineResponseService machineResponseService;
+	
+	@Autowired
+	private CustomerReportService customerReportService;
 	
 	/*
 	 * This End Point is to Get Machine Reports Data
@@ -103,6 +109,55 @@ public class MachineController {
 					MessagesConstantsList.ADVANCE_REPORT_ERROR, MessagesConstantsList.APP_REQUEST_PROCESSING_FAILED, null),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
+	
+	
+	/*
+	 * This End Point is to Get Reports for Current User
+	 */
+	@CrossOrigin
+	@Operation(summary = "List Report for current user", description = "Report for current user")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Report for current user"),
+			@ApiResponse(responseCode = "401", description = "Auth Failed"),
+			@ApiResponse(responseCode = "500", description = "Request failed") })
+	@Transactional(readOnly = true)
+	@GetMapping("/reportV2")
+	public ResponseEntity<?> getReportV2(@RequestHeader(MessagesConstantsList.LoggedInUserRole) String userDetails,
+			@RequestParam(value = "filter", defaultValue = "optional") String filter,
+			@RequestParam(value = "startDate", defaultValue = "optional") String startDate,
+			@RequestParam(value = "endDate", defaultValue = "optional") String endDate) {
+		String userName = null;
+		try {
+			UserDetails userResponse = ReportCommonUtils.getUserDetails(userDetails);
+			userName = userResponse.getUserName();
+			if (userName != null) {
+				log.info("report: GET request from user {}", userName);
+				Machine machine = machineResponseService.getMachineDetails(filter, userName);
+				if (machine != null) {
+					return new ResponseEntity<ReportResponseV2>(
+							customerReportService.getCustomerReportV2(userName, filter, startDate, endDate),
+							HttpStatus.OK);
+				} else {
+					return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+							"Please select correct machine", "Please select correct machine", null),
+							HttpStatus.EXPECTATION_FAILED);
+				}
+			} else {
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+		} catch (final ProcessCustomError e) {
+			log.error(" report: Issue faced while getting report for Customer and inputs will be ", filter, startDate,
+					endDate);
+			return new ResponseEntity<ApiError>(e.getApiMessages(), HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (final Exception e) {
+			log.error(" report: Issue faced while getting report for Customer and inputs will be ", filter, startDate,
+					endDate);
+			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+					MessagesConstantsList.APP_REQUEST_PROCESSING_FAILED, MessagesConstantsList.APP_REQUEST_PROCESSING_FAILED, null),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
 	}
 
 }
