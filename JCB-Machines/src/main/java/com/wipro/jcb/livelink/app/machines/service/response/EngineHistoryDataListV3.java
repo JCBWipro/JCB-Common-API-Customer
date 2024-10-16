@@ -17,7 +17,10 @@ import java.util.List;
  * Author: Jitendra Prasad
  * User: JI20319932
  * Date:9/17/2024
- * project: JCB-Common-API-Customer
+ */
+
+/**
+ * This class represents the engine history data for a specific date.
  */
 public class EngineHistoryDataListV3 {
     @NonNull
@@ -25,7 +28,7 @@ public class EngineHistoryDataListV3 {
     @JsonProperty("date")
     @JsonFormat(pattern= AppServerConstants.DateFormat, timezone=AppServerConstants.timezone)
     public Date date;
-    public List<Integer> values = new LinkedList<>();
-    public List<Date> timestamps =new LinkedList<>();
+    public List<IntegerValue> values = new LinkedList<>();
+    public List<DateValue> timestamps =new LinkedList<>();
     public String message;
 }

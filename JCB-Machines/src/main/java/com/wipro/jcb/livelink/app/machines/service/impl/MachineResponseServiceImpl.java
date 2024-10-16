@@ -648,7 +648,7 @@ public class MachineResponseServiceImpl implements MachineResponseService {
     }
 
     private Date addMinutesToDate(EngineHistoryDataListV3 engineHistoryData) {
-        Date engineValues = engineHistoryData.timestamps.get(engineHistoryData.values.size() - 1);
+        Date engineValues = engineHistoryData.timestamps.get(engineHistoryData.values.size() - 1).getKey();
         Date nextTime = new Date();
         nextTime.setDate(engineValues.getDate());
         nextTime.setHours(engineValues.getHours());
@@ -911,8 +911,8 @@ public class MachineResponseServiceImpl implements MachineResponseService {
                     }
                     if (engineHistoryData.values.size() > 1) {
                         Date nextTime = addMinutesToDate(engineHistoryData);
-                        engineHistoryData.timestamps.add(new DateValue(nextTime).getKey());
-                        engineHistoryData.values.add(new IntegerValue().getVal());
+                        engineHistoryData.timestamps.add(new DateValue(nextTime));
+                        engineHistoryData.values.add(new IntegerValue());
                     }
                     engineHistoryDayDataList.add(engineHistoryData);
 
@@ -980,4 +980,93 @@ public class MachineResponseServiceImpl implements MachineResponseService {
 		}
 		return machineType;
 	}
+
+    /**
+     *    Retrieves engine fuel history and utilization data for a specific machine within a given date range.
+     */
+    @Override
+    public EngineFuelHistoryUtilizationDataV2 getMachineEngineFuelDataV3(String vin, Date startDate, Date endDate)
+            throws ProcessCustomError {
+        EngineFuelHistoryUtilizationDataV2 engineFuelHistoryUtilizationData = new EngineFuelHistoryUtilizationDataV2();
+        SimpleDateFormat format = new SimpleDateFormat("dd MMM yy");
+        format.setTimeZone(TimeZone.getTimeZone(timezone));
+        Machine machine = machineRepository.findByVin(vin);
+        engineFuelHistoryUtilizationData.setVin(vin);
+        engineFuelHistoryUtilizationData.setDateRange(format.format(startDate) + " - " + format.format(endDate));
+        List<EngineHistoryDataListV3> engineHistoryDayDataList = new ArrayList<>();
+        List<FuelHistoryDataListV3> fuelHistoryDayDataList = new ArrayList<>();
+        try {
+            final Long startDateDayDifference = TimeUnit.DAYS.convert(
+                    utilities.getDate(utilities.getStartDate(0)).getTime() - startDate.getTime(),
+                    TimeUnit.MILLISECONDS);
+            final Long endDateDayDifference = TimeUnit.DAYS.convert(
+                    utilities.getDate(utilities.getStartDate(0)).getTime() - endDate.getTime(), TimeUnit.MILLISECONDS);
+
+            boolean flag = true;
+            if ((!FuelLevelNAConstant.getExceptionMachines().contains(vin))
+                    && FuelLevelNAConstant.getFuellevelnaconfig().containsKey(machine.getPlatform()) && FuelLevelNAConstant
+                    .getFuellevelnaconfig().get(machine.getPlatform()).contains(vin.substring(3, 8))) {
+                flag = false;
+            }
+
+            for (int i = startDateDayDifference.intValue(); i >= endDateDayDifference.intValue(); i--) {
+                Date sDate = utilities.getDate(utilities.getStartDate(i));
+                Date eDate = utilities.getDate(utilities.getStartDate(i - 1));
+                EngineHistoryDataListV3 engineHistoryData = new EngineHistoryDataListV3();
+                engineHistoryData.date = sDate;
+
+                if(machine.getPremiumFlag()!=null && machine.getPremiumFlag().equalsIgnoreCase("LLPlusmachines")) {
+                    if(i!=0) {
+                        engineHistoryData.timestamps = new ArrayList<>();
+                        engineHistoryData.values = new ArrayList<>();
+                        engineHistoryData.message = "Join Livelink premium to access these reports data";
+                    }else {
+                        engineHistoryData.timestamps = machineEngineStatusHistoryDataRepo.getDateByVin(vin, sDate, eDate);
+                        engineHistoryData.values = machineEngineStatusHistoryDataRepo.getByVin(vin, sDate, eDate);
+                    }
+                }else {
+                    engineHistoryData.timestamps = machineEngineStatusHistoryDataRepo.getDateByVin(vin, sDate, eDate);
+                    engineHistoryData.values = machineEngineStatusHistoryDataRepo.getByVin(vin, sDate, eDate);
+                }
+                if(engineHistoryData!=null && engineHistoryData.values.size()>1)
+                {
+                    Date nextTime = addMinutesToDate(engineHistoryData);
+                    engineHistoryData.timestamps.add(new DateValue(nextTime));
+                    engineHistoryData.values.add(new IntegerValue(0));
+                }
+
+
+                engineHistoryDayDataList.add(engineHistoryData);
+
+                if (flag) {
+                    FuelHistoryDataListV3 fuelHistoryData = new FuelHistoryDataListV3();
+                    fuelHistoryData.date = sDate;
+
+                    if(machine.getPremiumFlag()!=null && machine.getPremiumFlag().equalsIgnoreCase("LLPlusmachines")) {
+                        if(i!=0) {
+                            fuelHistoryData.timestamps = new ArrayList<>();
+                            fuelHistoryData.values = new ArrayList<>();
+                            fuelHistoryData.message = "Join Livelink premium to access these reports data";
+                        }else {
+                            fuelHistoryData.values = machineFuelHistoryDataRepo.getFuelLevelByVin(vin, sDate, eDate);
+                            fuelHistoryData.timestamps = machineFuelHistoryDataRepo.getDateByVin(vin, sDate, eDate);
+                        }
+                    }else {
+                        fuelHistoryData.values = machineFuelHistoryDataRepo.getFuelLevelByVin(vin, sDate, eDate);
+                        fuelHistoryData.timestamps = machineFuelHistoryDataRepo.getDateByVin(vin, sDate, eDate);
+                    }
+                    fuelHistoryDayDataList.add(fuelHistoryData);
+                }
+            }
+            engineFuelHistoryUtilizationData.setEngineHistoryDayDataList(engineHistoryDayDataList);
+            engineFuelHistoryUtilizationData.setFuelHistoryDayDataList(fuelHistoryDayDataList);
+        } catch (final Exception ex) {
+            ex.printStackTrace();
+            log.error("Failed to process request with message {}", ex.getMessage());
+            log.info("Exception occured for EngineFuelDataV3 API  Param -{} Exception -{}", vin, ex.getMessage());
+            throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return engineFuelHistoryUtilizationData;
+    }
+
 }

@@ -37,7 +37,6 @@ import java.util.Map;
  * Author: Jitendra Prasad
  * User: JI20319932
  * Date:9/16/2024
- * project: JCB-Common-API-Customer
  */
 @Slf4j
 @RestController
@@ -162,6 +161,79 @@ public class EngineFuelController {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
+
+    }
+
+    /*
+     * Api to get Engine and Fuel utilization day data based on standard/premium user.standard user only can view current day data.premiun user can view last 15 days data.
+     */
+    @Operation(summary = "Get Machine Engine and Fuel Utilization")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Engine and Fuel Data",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = MachineListResponse.class))}),
+            @ApiResponse(responseCode = "401", description = "Auth Failed", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))}),
+            @ApiResponse(responseCode = "500", description = "Request failed", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))})})
+    @GetMapping( "/getEngineFuelDataV3")
+    public ResponseEntity<?> getEngineFuelDataV3(
+            @RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+            @RequestParam("vin") String vin,
+            @RequestParam(value = "startDate", defaultValue = "optional") String startDate,
+            @RequestParam(value = "endDate", defaultValue = "optional") String endDate) {
+
+        UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+        String userName = userResponse.getUserName();
+        try {
+            if (userName != null) {
+                if(vin!=null) {
+                    Machine machine = machineResponseService.getMachineDetails(vin, userName);
+                    if(machine!=null) {
+                        logger.info("getEngineFuelDataV3: GET machine fuel and engine utilization: " + vin + "\nstartDate: "
+                                + startDate + "\nendDate: " + endDate);
+                        if (startDate.equalsIgnoreCase("optional")) {
+                            startDate = utilities.getStartDate(6);
+                            endDate = utilities.getStartDate(0);
+                        }
+                        if(utilities.getDate(endDate).before(new Date()) && utilities.getDate(startDate).before(new Date())) {
+                            if(utilities.getDate(startDate).before(utilities.getDate(endDate)) || utilities.getDate(startDate).equals(utilities.getDate(endDate))) {
+                                return new ResponseEntity<EngineFuelHistoryUtilizationDataV2>(machineResponseService
+                                        .getMachineEngineFuelDataV3(vin, utilities.getDate(startDate), utilities.getDate(endDate)),
+                                        HttpStatus.OK);
+                            }else {
+                                return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED, "Fromdate should be lessthan todate ", "Fromdate should be lessthan todate", null), HttpStatus.EXPECTATION_FAILED);
+                            }
+
+                        }else {
+                            return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED, "Date should be lessthan or equal to current date", "Date should be lessthan or equal to current date", null), HttpStatus.EXPECTATION_FAILED);
+                        }
+
+                    }else {
+                        return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED, "Please select correct machine", "Please select correct machine", null), HttpStatus.EXPECTATION_FAILED);
+                    }
+
+                }else {
+                    return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED, "Please select machine", "Please select machine", null), HttpStatus.EXPECTATION_FAILED);
+                }
+
+
+            } else {
+                log.info("getEngineFuelDataV3: No valid session present");
+                return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+                        "No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+            }
+        } catch (final ProcessCustomError e) {
+            log.error(
+                    "getEngineFuelDataV3: Issue faced while getting machine fuel and engine utilization data for vin");
+            log.info("Exception occured for EngineFuelDataV3 API :{} Param {} Exception -{}", userName, vin, e.getMessage());
+            return new ResponseEntity<>(e.getApiMessages(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (final Exception e) {
+            log.error(
+                    "getEngineFuelDataV3: Issue faced while getting machine fuel and engine utilization data for vin ",
+                    e);
+            log.info("Exception occured for EngineFuelDataV3 API :{} Param {} Exception -{}", userName, vin, e.getMessage());
+            return new ResponseEntity<>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+                    MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
     }
 

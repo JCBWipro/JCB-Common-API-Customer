@@ -2,8 +2,8 @@ package com.wipro.jcb.livelink.app.machines.service.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sun.jdi.DoubleValue;
 import com.wipro.jcb.livelink.app.machines.commonUtils.DateValue;
+import com.wipro.jcb.livelink.app.machines.commonUtils.DoubleValue;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -17,7 +17,10 @@ import java.util.List;
  * Author: Jitendra Prasad
  * User: JI20319932
  * Date:9/17/2024
- * project: JCB-Common-API-Customer
+ */
+
+/**
+ * This class represents the fuel history data for a specific date.
  */
 public class FuelHistoryDataListV3 {
     @NonNull

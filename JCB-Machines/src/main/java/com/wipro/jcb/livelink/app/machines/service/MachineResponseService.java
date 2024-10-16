@@ -68,5 +68,10 @@ public interface MachineResponseService {
      * @param vin The VIN of the machine.
      */
     String getMachinetype(String vin);
+    /**
+     * Retrieves engine fuel history and utilization data for a specific machine within a given date range.
+     */
+    EngineFuelHistoryUtilizationDataV2 getMachineEngineFuelDataV3(String vin, Date startDate, Date endDate) throws ProcessCustomError;
+
 
 }
