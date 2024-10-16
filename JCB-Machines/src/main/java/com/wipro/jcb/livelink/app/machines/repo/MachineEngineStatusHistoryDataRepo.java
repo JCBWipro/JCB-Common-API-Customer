@@ -35,7 +35,7 @@ public interface MachineEngineStatusHistoryDataRepo extends CrudRepository<Machi
     List<MachineEngineStatusHistoryData> getEngineDetails(String vin, Date startDate, Date endDate);
 
     //to get time stamp list for a machine
-    @Query(value = "SELECT new com.wipro.jcb.livelink.app.machines.commonUtils.DateValue( enginedata.dateTime) from MachineEnginestatusHistory enginedata where ?1 = enginedata.vin And enginedata.dateTime between ?2 and ?3 order by enginedata.dateTime ASC")
+    @Query("SELECT new com.wipro.jcb.livelink.app.machines.commonUtils.DateValue( enginedata.dateTime) from MachineEnginestatusHistory enginedata where ?1 = enginedata.vin And enginedata.dateTime between ?2 and ?3 order by enginedata.dateTime ASC")
     List<DateValue> getDateByVin(String vin, Date startdate, Date endDate);
 
     //To get engine status list for a machine
