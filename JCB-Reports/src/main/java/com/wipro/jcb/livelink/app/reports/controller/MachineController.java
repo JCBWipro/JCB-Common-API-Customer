@@ -28,6 +28,8 @@ import com.wipro.jcb.livelink.app.reports.exception.ApiError;
 import com.wipro.jcb.livelink.app.reports.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.reports.report.AdvanceReportsV2;
 import com.wipro.jcb.livelink.app.reports.report.ReportResponseV2;
+import com.wipro.jcb.livelink.app.reports.report.VisualizationReportResponse;
+import com.wipro.jcb.livelink.app.reports.service.AdvanceReportService;
 import com.wipro.jcb.livelink.app.reports.service.CustomerReportService;
 import com.wipro.jcb.livelink.app.reports.service.MachineResponseService;
 import com.wipro.jcb.livelink.app.reports.service.MachineService;
@@ -62,6 +64,9 @@ public class MachineController {
 	
 	@Autowired
 	private CustomerReportService customerReportService;
+	
+	@Autowired
+	private AdvanceReportService advanceReportService;
 	
 	/*
 	 * This End Point is to Get Machine Reports Data
@@ -158,6 +163,67 @@ public class MachineController {
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
+	}
+	
+	/*
+	 * This End Point is to Get Visualization Machine Report
+	 */
+	@CrossOrigin
+	@Operation(summary = "Visualization Report", description = "Visualization Report")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Visualization Report"),
+			@ApiResponse(responseCode = "401", description = "Auth Failed"),
+			@ApiResponse(responseCode = "500", description = "Request failed") })
+	@Transactional(readOnly = true)
+	@GetMapping("/getVisualizationReportsV2")
+	public ResponseEntity<?> getMachineVisualizationReportV2(
+			@RequestHeader(MessagesConstantsList.LoggedInUserRole) String userDetails, @RequestParam("vin") String vin,
+			@RequestParam("startDate") String startDate, @RequestParam("endDate") String endDate) {
+		try {
+			UserDetails userResponse = ReportCommonUtils.getUserDetails(userDetails);
+			final String userName = userResponse.getUserName();
+			log.info("getMachineVisualizationReportV2: machine intelli report request received for machine: " + vin);
+			if (userName != null) {
+				Date date = new Date();
+				date.setDate(date.getDate() - 1);
+				if (utilities.getDate(endDate).before(date) && utilities.getDate(startDate).before(date)) {
+					if (utilities.getDate(startDate).before(utilities.getDate(endDate))
+							|| utilities.getDate(startDate).equals(utilities.getDate(endDate))) {
+						Machine machine = machineResponseService.getMachineDetails(vin, userName);
+						if (machine != null) {
+							return new ResponseEntity<VisualizationReportResponse>(
+									advanceReportService.getVisualizationReportV2(vin, startDate, endDate),
+									HttpStatus.OK);
+						} else {
+							return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+									"Please select correct machine", "Please select correct machine", null),
+									HttpStatus.EXPECTATION_FAILED);
+						}
+					} else {
+						return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+								"Fromdate should be lessthan todate ", "Fromdate should be lessthan todate", null),
+								HttpStatus.EXPECTATION_FAILED);
+					}
+
+				} else {
+					return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+							"Date should be lessthan current date", "Date should be lessthan current date", null),
+							HttpStatus.EXPECTATION_FAILED);
+				}
+			} else {
+				log.info("getMachineVisualizationReportV2 : No Vallid session present");
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+		} catch (final ProcessCustomError e) {
+			log.error("getMachineVisualizationReportV2 Report data failed: " + e.getMessage());
+			return new ResponseEntity<ApiError>(e.getApiMessages(), HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (final Exception e) {
+			log.error("getMachineVisualizationReportV2 Report data failed: " + e.getMessage());
+			return new ResponseEntity<ApiError>(
+					new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR, MessagesConstantsList.ADVANCE_REPORT_ERROR,
+							MessagesConstantsList.APP_REQUEST_PROCESSING_FAILED, null),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 }
