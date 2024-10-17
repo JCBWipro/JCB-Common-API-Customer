@@ -10,6 +10,7 @@
         <module>JCB-Machines</module>
         <module>JCB-User</module>
         <module>JCB-Reports</module>
+        <module>JCB-Alerts</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
