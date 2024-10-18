@@ -1,17 +1,12 @@
 package com.wipro.jcb.livelink.app.alerts.commonUtils;
 
 import com.wipro.jcb.livelink.app.alerts.constants.AppServerConstants;
-import com.wipro.jcb.livelink.app.alerts.exception.ProcessCustomError;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -19,7 +14,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -37,7 +31,7 @@ import static com.wipro.jcb.livelink.app.alerts.constants.AppServerConstants.tim
  */
 @Slf4j
 @Component
-public class Utilities {
+public class AlertUtilities {
 
     @Value("${openstreetmap.basepath}")
     String openstreetmapBasepath;

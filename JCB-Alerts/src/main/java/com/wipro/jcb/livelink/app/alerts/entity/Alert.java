@@ -8,10 +8,7 @@ import com.wipro.jcb.livelink.app.alerts.constants.EventLevel;
 import com.wipro.jcb.livelink.app.alerts.constants.EventType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.io.Serial;
@@ -30,6 +27,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @Table(name = "Alert", uniqueConstraints = @UniqueConstraint(columnNames = { "eventGeneratedTime", "eventType",
         "vin" ,"eventName" }))
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -158,15 +156,6 @@ public class Alert implements Serializable {
     @Setter
     @Schema(description = "createdBy", example = "A/S", required = true)
     private String createdBy;
-
-    @Override
-    public String toString() {
-        return "Alert [id=" + id + ", eventDescription=" + eventDescription + ", eventGeneratedTime="
-                + eventGeneratedTime + ", latitude=" + latitude + ", longitude=" + longitude + ", location=" + location
-                + ", eventLevel=" + eventLevel + ", eventName=" + eventName + ", eventType=" + eventType + ", machine="
-                + machine + ", vin=" + vin + ", readFlag=" + readFlag + ", isOpen=" + isOpen + ", isUpdated="
-                + isUpdated + ", is_generated=" + isGenerated + "]";
-    }
 
     public Alert(String id, String eventDescription, Date eventGeneratedTime, Double latitude, Double longitude,
                  String location, EventLevel eventLevel, String eventName, EventType eventType, Machine machine, String vin,

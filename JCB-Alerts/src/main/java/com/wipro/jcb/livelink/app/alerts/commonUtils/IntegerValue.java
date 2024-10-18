@@ -14,26 +14,14 @@ import java.io.Serializable;
 
 @Setter
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class IntegerValue implements Serializable {
 
     @Serial
     private static final long serialVersionUID = -6313377994788070591L;
 
     Integer val;
-
-
-    public IntegerValue() {
-        super();
-    }
-
-    public IntegerValue(Integer val) {
-        super();
-        this.val = val;
-    }
-
-    @Override
-    public String toString() {
-        return "IntegerValue [val=" + val + "]";
-    }
 }
 

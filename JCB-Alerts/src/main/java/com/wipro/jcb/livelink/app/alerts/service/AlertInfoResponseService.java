@@ -13,22 +13,10 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public interface AlertInfoResponeService {
+public interface AlertInfoResponseService {
     AlertInfoResponse getAlertInfo(final Alert alert, String startDate, String endDate)
             throws ProcessCustomError;
 
-   /* AlertObject getAlertInfoObj(String userName, String id, String vin, String startDate, String endDate)
-            throws ProcessCustomError;*/
-
     AlertResponse getAlerts(String userName, String startDate, String endDate, int pageNumber, int pageSize,
                             String filter, String search, Boolean isVTwo) throws ProcessCustomError;
-
-    //ServiceAlertInfo getServiceAlertInfo(final Alert alert, String vin) throws ProcessCustomError;
-
-    //ServiceAlert getServiceAlertInfoObj(String userName, String id, String vin) throws ProcessCustomError;
-
-    /*ServiceAlertList getServiceAlertsList(String userName, String startDate, String endDate, int pageNumber,
-                                          int pageSize, String filter, String search, Boolean isVTwo) throws ProcessCustomError;*/
-
-    //boolean setAlertReadFlag(String userName, List<String> alertIds) throws ProcessCustomError;
 }

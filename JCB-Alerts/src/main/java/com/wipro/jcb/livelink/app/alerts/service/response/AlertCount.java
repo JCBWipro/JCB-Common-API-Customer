@@ -14,6 +14,7 @@ import lombok.*;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AlertCount {
     @Schema(description = "service", example = "300")
@@ -26,10 +27,4 @@ public class AlertCount {
     private Integer utilization=0;
     @Schema(description = "location", example = "800")
     private Integer location =0;
-
-    @Override
-    public String toString() {
-        return "AlertCount [service=" + service + ", health=" + health + ", security=" + security + ", utilization="
-                + utilization + ", location=" + location + "]";
-    }
 }

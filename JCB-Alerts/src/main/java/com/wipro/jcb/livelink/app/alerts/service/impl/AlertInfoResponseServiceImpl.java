@@ -1,6 +1,6 @@
 package com.wipro.jcb.livelink.app.alerts.service.impl;
 
-import com.wipro.jcb.livelink.app.alerts.commonUtils.Utilities;
+import com.wipro.jcb.livelink.app.alerts.commonUtils.AlertUtilities;
 import com.wipro.jcb.livelink.app.alerts.constants.EventType;
 import com.wipro.jcb.livelink.app.alerts.constants.MessagesList;
 import com.wipro.jcb.livelink.app.alerts.dto.AlertResponse;
@@ -10,7 +10,7 @@ import com.wipro.jcb.livelink.app.alerts.entity.MachineServiceHistory;
 import com.wipro.jcb.livelink.app.alerts.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.alerts.repo.AlertRepository;
 import com.wipro.jcb.livelink.app.alerts.repo.MachineServiceHistoryRepo;
-import com.wipro.jcb.livelink.app.alerts.service.AlertInfoResponeService;
+import com.wipro.jcb.livelink.app.alerts.service.AlertInfoResponseService;
 import com.wipro.jcb.livelink.app.alerts.service.response.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ import java.util.List;
 @Slf4j
 @Service
 @PropertySource("application.properties")
-public class AlertInfoResponseServiceImpl implements AlertInfoResponeService {
+public class AlertInfoResponseServiceImpl implements AlertInfoResponseService {
 
     @Value("${livelinkserver.loadHistoricalDataForServiceHistoryDays}")
     String loadServiceHistDays;
@@ -44,7 +44,7 @@ public class AlertInfoResponseServiceImpl implements AlertInfoResponeService {
     AlertRepository alertRepository;
 
     @Autowired
-    Utilities utilities;
+    AlertUtilities alertUtilities;
 
     @Override
     public AlertResponse getAlerts(String userName, String startDate, String endDate, int pageNumber, int pageSize,
@@ -225,9 +225,9 @@ public class AlertInfoResponseServiceImpl implements AlertInfoResponeService {
         try {
             final Machine machine = alert.getMachine();
             final List<ServiceHistoryDetails> historyLine = new ArrayList<>();
-            final String start = utilities.getStartDate(Integer.parseInt(loadServiceHistDays));
-            List<MachineServiceHistory> serviceHistory = machineServiceHistoryRepo.findByVinAndServiceDateBetweenOrderByServiceDateDesc(alert.getVin(), utilities.getDate(start),
-                    utilities.getDate(endDate));
+            final String start = alertUtilities.getStartDate(Integer.parseInt(loadServiceHistDays));
+            List<MachineServiceHistory> serviceHistory = machineServiceHistoryRepo.findByVinAndServiceDateBetweenOrderByServiceDateDesc(alert.getVin(), alertUtilities.getDate(start),
+                    alertUtilities.getDate(endDate));
 
             // Populate service history details
             for (final MachineServiceHistory tempObj : serviceHistory) {

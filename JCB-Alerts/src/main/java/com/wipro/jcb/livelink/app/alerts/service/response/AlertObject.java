@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wipro.jcb.livelink.app.alerts.constants.AppServerConstants;
 import com.wipro.jcb.livelink.app.alerts.constants.EventLevel;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Date;
 
@@ -21,6 +18,7 @@ import java.util.Date;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class AlertObject {
     @Schema(description = "Unique identifier of Alert", example = "280", required = true)
     public String id;
@@ -46,12 +44,5 @@ public class AlertObject {
     private Boolean isActive;
     @Schema(description = "isDtcAlert", example = "false", allowableValues = "true,false", required = true)
     private Boolean isDtcAlert;
-
-    @Override
-    public String toString() {
-        return "AlertObject [id=" + id + ", vin=" + vin + ", name=" + name + ", eventLevel=" + eventLevel
-                + ", eventGeneratedTime=" + eventGeneratedTime + ", tag=" + tag + ", thumbnail=" + thumbnail
-                + ", readFlag=" + readFlag + ", alertInfoResponse=" + alertInfoResponse + ", isDtcAlert=" + isDtcAlert + "]";
-    }
 
 }

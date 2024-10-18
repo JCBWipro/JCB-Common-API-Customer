@@ -1,7 +1,6 @@
 package com.wipro.jcb.livelink.app.alerts.commonUtils;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -14,21 +13,12 @@ import java.io.Serializable;
  */
 @Setter
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class DoubleValue implements Serializable {
-    /**
-     *
-     */
     @Serial
     private static final long serialVersionUID = 8445175318692900690L;
     Double val;
-
-    public DoubleValue(Double val) {
-        super();
-        this.val = val;
-    }
-
-    public DoubleValue() {
-        super();
-    }
 
 }

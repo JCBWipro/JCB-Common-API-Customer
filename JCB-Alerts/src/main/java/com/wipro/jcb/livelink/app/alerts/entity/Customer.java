@@ -2,9 +2,7 @@ package com.wipro.jcb.livelink.app.alerts.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.io.Serial;
@@ -20,6 +18,7 @@ import java.util.Date;
 @Getter
 @Setter
 @RequiredArgsConstructor
+@ToString
 @Entity
 @DynamicUpdate
 @Table(name = "customer", indexes = {
@@ -51,12 +50,6 @@ public class Customer implements Serializable {
         this.address = address;
         this.firstName = firstName;
         this.lastName = lastName;
-    }
-
-    @Override
-    public String toString() {
-        return "Customer [id=" + id + ", name=" + name + ", phonenumber=" + phonenumber + ", country=" + country
-                + ", address=" + address + ", firstName=" + firstName + ", lastName=" + lastName + "]";
     }
 
 }

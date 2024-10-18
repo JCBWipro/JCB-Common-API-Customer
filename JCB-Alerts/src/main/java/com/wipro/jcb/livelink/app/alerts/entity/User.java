@@ -7,9 +7,7 @@ import com.wipro.jcb.livelink.app.alerts.constants.UserType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -28,6 +26,7 @@ import java.util.List;
 @Getter
 @Entity
 @RequiredArgsConstructor
+@ToString
 @XmlRootElement
 @Table(name = "LiveLinkUser", indexes = { @Index(name = "LiveLinkUser_email", columnList = "email"),
         @Index(name = "LiveLinkUser_userId", columnList = "USER_ID") })
@@ -93,7 +92,7 @@ public class User implements Serializable {
     @Column(name="analytic_last_visited_time")
     private Date analyticLastVistedTime;
 
-    @Schema(description = "Day", example = "2017-07-13", required = false)
+    @Schema(description = "Day", example = "2017-07-13")
     @Temporal(TemporalType.DATE)
     @JsonFormat(pattern = AppServerConstants.DateFormat, timezone = AppServerConstants.timezone)
     @Column(name = "feed_date")
@@ -129,18 +128,6 @@ public class User implements Serializable {
         this.serviceHistoryStatus= serviceHistoryStatus;
         this.machineUpdateNotificationEnabled = machineUpdateNotificationEnabled;
         this.language=language;
-    }
-
-    @Override
-    public String toString() {
-        return "User [userName=" + userName + ", email=" + email + ", userType=" + userType + ", firstName=" + firstName
-                + ", lastName=" + lastName + ", phoneNumber=" + phoneNumber + ", address=" + address + ", smsLanguage="
-                + smsLanguage + ", timeZone=" + timeZone + ", image=" + image + ", thumbnail=" + thumbnail
-                + ", country=" + country + ", password=" + password + ", sysGenPass=" + sysGenPass
-                + ", activityCompleted=" + activityCompleted + ", serviceHistoryStatus=" + serviceHistoryStatus
-                + ", livelinkPersonName=" + livelinkPersonName + ", roleName=" + roleName + ", isSecretQuestion="
-                + isSecretQuestion + ", machineUpdateNotificationEnabled=" + machineUpdateNotificationEnabled
-                + ", userAppVersion=" + userAppVersion + ", createdAt=" + createdAt + "]";
     }
 
 }

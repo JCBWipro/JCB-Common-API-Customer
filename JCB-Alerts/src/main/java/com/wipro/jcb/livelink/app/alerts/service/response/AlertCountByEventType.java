@@ -2,10 +2,7 @@ package com.wipro.jcb.livelink.app.alerts.service.response;
 
 import com.wipro.jcb.livelink.app.alerts.constants.EventType;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * Author: Rituraj Azad
@@ -17,13 +14,10 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class AlertCountByEventType {
     @Schema(description =  "Machine unique identifier", example = "PUNJD22CV0000IIII", required = true)
     private Long machineCount;
     @Schema(description =  "XXXXX", required = true)
     private EventType eventType;
-    @Override
-    public String toString() {
-        return "AlertCountByEventType [machineCount=" + machineCount + ", eventType=" + eventType + "]";
-    }
 }

@@ -1,13 +1,13 @@
 package com.wipro.jcb.livelink.app.alerts.controller;
 
-import com.wipro.jcb.livelink.app.alerts.commonUtils.AuthCommonUtils;
-import com.wipro.jcb.livelink.app.alerts.commonUtils.Utilities;
+import com.wipro.jcb.livelink.app.alerts.commonUtils.AlertCommonUtils;
+import com.wipro.jcb.livelink.app.alerts.commonUtils.AlertUtilities;
 import com.wipro.jcb.livelink.app.alerts.constants.MessagesList;
 import com.wipro.jcb.livelink.app.alerts.dto.AlertResponse;
 import com.wipro.jcb.livelink.app.alerts.dto.UserDetails;
 import com.wipro.jcb.livelink.app.alerts.exception.ApiError;
 import com.wipro.jcb.livelink.app.alerts.exception.ProcessCustomError;
-import com.wipro.jcb.livelink.app.alerts.service.AlertInfoResponeService;
+import com.wipro.jcb.livelink.app.alerts.service.AlertInfoResponseService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -43,10 +43,10 @@ public class AlertController {
     int loadAlertDataForDays;
 
     @Autowired
-    AlertInfoResponeService alertInfoResponeService;
+    AlertInfoResponseService alertInfoResponseService;
 
     @Autowired
-    Utilities utilities;
+    AlertUtilities alertUtilities;
 
     @GetMapping(value = "/alertsV2")
     @Operation(summary = "Get alerts information typed by alert type. Giving previous 7 days data by default.")
@@ -68,21 +68,21 @@ public class AlertController {
         try {
             // Handle default date values
             if ("serverDecided".equals(from)) {
-                from = utilities.getStartDate(loadAlertDataForDays);
+                from = alertUtilities.getStartDate(loadAlertDataForDays);
                 log.debug("Start date set to default: {}", from);
             }
             if ("serverDecided".equals(to)) {
-                to = utilities.getEndDate(1);
+                to = alertUtilities.getEndDate(1);
                 log.debug("End date set to default: {}", to);
             }
 
-            UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+            UserDetails userResponse = AlertCommonUtils.getUserDetails(userDetails);
             String userName = userResponse.getUserName();
             if (userName != null) {
                 log.info("Fetching alerts for user: {}", userName);
 
                 // Fetch alerts data
-                AlertResponse response = alertInfoResponeService.getAlerts(userName, from, to, pageNumber, pageSize, filter, search, true);
+                AlertResponse response = alertInfoResponseService.getAlerts(userName, from, to, pageNumber, pageSize, filter, search, true);
 
                 log.info("Successfully retrieved alerts for user: {}", userName);
                 return ResponseEntity.ok(response);

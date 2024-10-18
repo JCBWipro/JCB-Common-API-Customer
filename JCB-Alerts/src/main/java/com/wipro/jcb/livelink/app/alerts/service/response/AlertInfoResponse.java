@@ -15,14 +15,10 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class AlertInfoResponse {
     @Schema(description =  "Detail about alert for provided machine", required = true)
     private AlertInfoData alert;
     @Schema(description =  "Service history", required = true)
     private List<ServiceHistoryDetails> history;
-
-    @Override
-    public String toString() {
-        return "AlertInfoResponse [alert=" + alert + ", history=" + history + "]";
-    }
 }

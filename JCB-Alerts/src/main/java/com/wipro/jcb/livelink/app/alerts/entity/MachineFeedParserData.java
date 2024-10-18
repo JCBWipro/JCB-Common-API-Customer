@@ -3,8 +3,7 @@ package com.wipro.jcb.livelink.app.alerts.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wipro.jcb.livelink.app.alerts.constants.AppServerConstants;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.json.JSONObject;
 import org.springframework.data.annotation.CreatedDate;
@@ -22,6 +21,9 @@ import java.util.Date;
 @Getter
 @Setter
 @Entity
+@AllArgsConstructor
+@ToString
+@NoArgsConstructor
 @DynamicUpdate
 @Table(name = "machine_feedparser_data", indexes = {
         @Index(name = "machine_feedparser_indexes",columnList = "vin,lastModifiedDate")})
@@ -67,10 +69,6 @@ public class MachineFeedParserData implements Serializable {
 
     private String engineStatus = "Off";
 
-
-    public MachineFeedParserData() {
-        super();
-    }
     public MachineFeedParserData (Builder build) {
         this.vin = build.vin;
         this.statusAsOnTime = build.statusAsOnTime;
@@ -78,16 +76,6 @@ public class MachineFeedParserData implements Serializable {
         this.totalMachineHours = build.totalMachineHours;
         this.batteryVoltage = build.batteryVoltage;
     }
-
-
-    @Override
-    public String toString() {
-        return "MachineFeedParserData [vin=" + vin + ", statusAsOnTime=" + statusAsOnTime + ", fuelLevel=" + fuelLevel
-                + ", totalMachineHours=" + totalMachineHours + ", batteryVoltage=" + batteryVoltage + ", creationDate="
-                + creationDate + ", lastModifiedDate=" + lastModifiedDate + "]";
-    }
-
-
 
     public static class Builder{
 

@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wipro.jcb.livelink.app.alerts.constants.AppServerConstants;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.io.Serial;
@@ -26,6 +23,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicUpdate
+@ToString
 @Table(name = "machine_service_history", indexes = {
         @Index(name = "machine_service_history_vin_jobCardNumber", columnList = "vin,job_card_number", unique = false) })
 public class MachineServiceHistory implements Serializable {
@@ -71,12 +69,5 @@ public class MachineServiceHistory implements Serializable {
     @Column(name = "created_at",columnDefinition = "timestamp default current_timestamp", insertable = false)
     private Date createdAt;
 
-
-    @Override
-    public String toString() {
-        return "MachineServiceHistoryNew [jobCardNumber=" + jobCardNumber + ", serviceDoneAt=" + serviceDoneAt
-                + ", serviceDone=" + serviceDone + ", comments=" + comments + ", vin=" + vin + ", createdAt="
-                + createdAt + "]";
-    }
 }
 

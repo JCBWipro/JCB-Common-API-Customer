@@ -12,7 +12,7 @@ import java.util.Map;
  * Date:25-09-2024
  *
  */
-public class AuthCommonUtils {
+public class AlertCommonUtils {
 
     public static String getRolesByID(int roleId) {
         Map<Integer, String> map = new HashMap<>();
@@ -36,7 +36,7 @@ public class AuthCommonUtils {
     public static UserDetails getUserDetails(String userDetails) {
         UserDetails userResponse = new Gson().fromJson(userDetails, UserDetails.class);
         int roleId = Integer.parseInt(userResponse.getRoleName());
-        String roleName = AuthCommonUtils.getRolesByID(roleId);
+        String roleName = AlertCommonUtils.getRolesByID(roleId);
         userResponse.setRoleName(roleName);
         return userResponse;
     }

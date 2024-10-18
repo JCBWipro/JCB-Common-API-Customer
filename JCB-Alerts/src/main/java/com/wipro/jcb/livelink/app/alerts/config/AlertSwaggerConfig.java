@@ -14,7 +14,7 @@ import io.swagger.v3.oas.models.info.Info;
  */
 
 @Configuration
-public class SwaggerConfig {
+public class AlertSwaggerConfig {
 
     @Bean
     public OpenAPI openAPIConfig() {

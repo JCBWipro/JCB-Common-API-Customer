@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.wipro.jcb.livelink.app.alerts.service.response.AlertCount;
 import com.wipro.jcb.livelink.app.alerts.service.response.AlertObject;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -21,6 +18,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AlertResponse {
     @Schema(description = "List of Health alerts generated", required = true)
@@ -32,10 +30,4 @@ public class AlertResponse {
     @Schema(description = "List of Location alerts generated", required = true)
     List<AlertObject> location;
     private AlertCount alertCount;
-
-    @Override
-    public String toString() {
-        return "AlertResponse [health=" + health + ", security=" + security + ", utilization=" + utilization
-                + ", location=" + location + ", alertCount=" + alertCount + "]";
-    }
 }
