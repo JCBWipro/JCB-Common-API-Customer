@@ -1,14 +1,20 @@
 package com.wipro.jcb.livelink.app.machines.commonUtils;
 
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
+import com.wipro.jcb.livelink.app.machines.enums.FilterSearchType;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
+import com.wipro.jcb.livelink.app.machines.service.AlertService;
+import com.wipro.jcb.livelink.app.machines.service.MachineService;
+import com.wipro.jcb.livelink.app.machines.service.UserService;
 import com.wipro.jcb.livelink.app.machines.service.response.AddressResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -34,7 +40,6 @@ import static com.wipro.jcb.livelink.app.machines.constants.AppServerConstants.t
  * Author: Rituraj Azad
  * User: RI20474447
  * Date:14-09-2024
- * project: JCB-Common-API-Customer
  */
 @Slf4j
 @Component
@@ -47,6 +52,14 @@ public class Utilities {
     int connectTimeout;
     @Value("${livelinkserver.readTimeout}")
     int readTimeout;
+
+    @Autowired
+    AlertService alertService;
+    @Autowired
+    @Lazy
+    MachineService machineService;
+    @Autowired
+    UserService userService;
 
     private static RestTemplate restTemplate;
     private static HttpEntity<?> request;
@@ -131,7 +144,6 @@ public class Utilities {
         if (request == null) {
             final MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
             headers.add("Accept", "text/html");
-            headers.add("Authorization", "Basic amNiX2xvY2F0aW9uOmwwY0B0fDBe");
             request = new HttpEntity<>(headers);
         }
         return request;
@@ -153,35 +165,57 @@ public class Utilities {
     }
 
     public AddressResponse getLocationDetails(String lat, String lng) throws ProcessCustomError {
-        String address = "-";
+        String address = "";
         try {
             long start = System.currentTimeMillis();
-            final String url = "" + openstreetmapBasepath + "" + "/nominatim/reverse?format=json";
-            final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url).queryParam("lat", lat).queryParam("lon", lng);
-            final ResponseEntity<String> out = getRestTemplate().exchange(builder.build().encode().toUri(), HttpMethod.GET, getHttpRequest(), String.class);
-//			logger.info("getLocationDetails Response Code: "+out.getStatusCode());
+
+            //final String url = "https://" + openstreetmapBasepath + "/reverse.php";
+            final String url = "https://" + openstreetmapBasepath + "/reverse.php";
+            //final String url = "https://nominatim.openstreetmap.org/ui/reverse.html";
+            final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url)
+                    .queryParam("format", "jsonv2") // Note: Using jsonv2 as per your request
+                    .queryParam("lat", lat)
+                    .queryParam("lon", lng)
+                    .queryParam("zoom", 12); // Adding zoom parameter
+
+            final ResponseEntity<String> out = getRestTemplate().exchange(
+                    builder.build().encode().toUri(),
+                    HttpMethod.GET,
+                    getHttpRequest(),
+                    String.class
+            );
+
             if (out.getStatusCode() == HttpStatus.OK) {
-                final String responseentity = out.getBody();
-                final JSONObject jsonObj = new JSONObject(responseentity);
+                final String responseEntity = out.getBody();
+                final JSONObject jsonObj = new JSONObject(responseEntity);
                 if (jsonObj.has("display_name")) {
                     address = jsonObj.getString("display_name");
-//					logger.info("getLocationDetails display_name : "+address);
                 }
-//				logger.info("getLocationDetails : "+address);
                 long end = System.currentTimeMillis();
                 long elapsedTime = end - start;
-                log.info("LocationV3 API Duration :" + elapsedTime);
+                log.info("LocationV3 API Duration :{}", elapsedTime);
                 return new AddressResponse(address);
             } else {
-                log.error("getLocationDetails : Unable to fetch address");
-                throw new ProcessCustomError("", HttpStatus.BAD_REQUEST);
+                log.error("getLocationDetails : Unable to fetch address. Status Code: {}", out.getStatusCode());
+                throw new ProcessCustomError("Unable to fetch address from OpenStreetMap", HttpStatus.BAD_REQUEST);
             }
         } catch (final Exception ex) {
-            log.error("getLocationDetails : Unable to fetch address");
+            log.error("getLocationDetails : Unable to fetch address. Error: {}", ex.getMessage());
             ex.printStackTrace();
-            log.info("Exception occured for LocationV3 API :Param-" + lat + "-" + lng + "Exception -" + ex.getMessage());
+            log.info("Exception occurred for LocationV3 API :Param-{}-{} Exception - {}", lat, lng, ex.getMessage());
             return new AddressResponse(address);
         }
+    }
+
+    public List<String> getSuggestions(String word, String userName, FilterSearchType type) {
+        if (FilterSearchType.ALERT.equals(type)) {
+            return alertService.getSuggestions(word, userName);
+        } else if (FilterSearchType.MACHINE.equals(type)) {
+            return machineService.getSuggestions(word, userName);
+        } else if (FilterSearchType.CUSTOMER.equals(type)) {
+            return userService.getSuggestions(word, userName);
+        }
+        return new ArrayList<>();
     }
 
 }

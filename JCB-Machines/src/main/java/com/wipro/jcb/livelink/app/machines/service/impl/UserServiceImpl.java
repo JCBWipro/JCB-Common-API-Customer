@@ -1,11 +1,11 @@
 package com.wipro.jcb.livelink.app.machines.service.impl;
 
-import com.wipro.jcb.livelink.app.machines.commonUtils.Utilities;
 import com.wipro.jcb.livelink.app.machines.config.UsermappingThread;
 import com.wipro.jcb.livelink.app.machines.constants.MessagesList;
 import com.wipro.jcb.livelink.app.machines.constants.UserType;
 import com.wipro.jcb.livelink.app.machines.entity.User;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
+import com.wipro.jcb.livelink.app.machines.repo.MachineRepository;
 import com.wipro.jcb.livelink.app.machines.repo.UserRepository;
 import com.wipro.jcb.livelink.app.machines.service.UserService;
 import com.wipro.jcb.livelink.app.machines.service.response.UserProfile;
@@ -34,11 +34,14 @@ public class UserServiceImpl implements UserService {
     @Autowired
     UserRepository userRepository;
     @Value("${livelinkserver.resttemplateurl}")
-    private String restTemplateUrl;
+    String restTemplateUrl;
     @Value("${server.evn.baseurl}")
-    private String env;
+    String env;
     @Autowired
     UserMappingRequest userMappingRequest;
+
+    @Autowired
+    MachineRepository machineRepository;
 
 
     @Override
@@ -104,7 +107,7 @@ public class UserServiceImpl implements UserService {
                     userRepository.versionUpdate(version, userName);
                 }
             } catch (Exception e) {
-                log.error("Exception occured at userprofile : {}-{}-{}", userName, version, e.getMessage());
+                log.error("Exception occurred at userprofile : {}-{}-{}", userName, version, e.getMessage());
                 e.printStackTrace();
             }
             user = userRepository.findByUserName(userName);
@@ -144,6 +147,21 @@ public class UserServiceImpl implements UserService {
             log.error("Exception in usermapping :{}-{}", userName, e.getMessage());
         }
         return status;
+    }
+
+    @Override
+    public List<String> getSuggestions(String word, String userName) {
+        log.debug("Creating suggestion list for Customer ");
+        final List<String> suggestions = new ArrayList<>();
+        log.debug("Creating suggestion list for Customer {}", userName);
+        suggestions.addAll(machineRepository.getByUserNameAndSuggestionCustomerName(userName, word));
+        suggestions.addAll(machineRepository.getByUserPhoneNumberAndSuggestionCustomerPhone(userName, word));
+        suggestions.addAll(machineRepository.getByUsersUserNameAndSuggestionModel(userName, word));
+        suggestions.addAll(machineRepository.getByUsersUserNameAndSuggestionTag(userName, word));
+        suggestions.addAll(machineRepository.getByUsersUserNameAndSuggestionLocation(userName, word));
+        suggestions.addAll(machineRepository.getByUsersUserNameAndSuggestionVin(userName, word));
+        suggestions.addAll(machineRepository.getByUsersUserNameAndSuggestionSite(userName, word));
+        return suggestions;
     }
 
 }
