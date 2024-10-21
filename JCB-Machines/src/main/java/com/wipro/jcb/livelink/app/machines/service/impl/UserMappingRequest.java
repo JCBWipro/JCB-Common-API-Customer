@@ -13,7 +13,6 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 
-import com.wipro.jcb.livelink.app.machines.commonUtils.Utilities;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
 import com.wipro.jcb.livelink.app.machines.entity.Machine;
 import com.wipro.jcb.livelink.app.machines.entity.User;
@@ -37,9 +36,9 @@ import javax.ws.rs.core.MultivaluedMap;
 @Component
 public class UserMappingRequest {
     @Value("${livelinkserver.connectTimeout}")
-    private int connectTimeout;
+    int connectTimeout;
     @Value("${livelinkserver.readTimeout}")
-    private int readTimeout;
+    int readTimeout;
     @Autowired
     MachineRepository machineRepository;
     @Autowired
@@ -96,8 +95,7 @@ public class UserMappingRequest {
                             //livelinkToken = utilities.updateLivelinkServerToken(user, true);
                         }
                     } else {
-                        logger.error("Exception while processing userVinDetailsService API with status code "
-                                + out.getStatus());
+                        logger.error("Exception while processing userVinDetailsService API with status code {}", out.getStatus());
                         throw new ProcessCustomError("Unable to process request", HttpStatus.INTERNAL_SERVER_ERROR);
                     }
                 }
@@ -138,14 +136,14 @@ public class UserMappingRequest {
                         nonexistvin.add(vin);
                     }
                 }
-                logger.info("nonexistvin API for User " + userName + " - VIN " + vinListToSave.size() + "-" + nonexistvin.size());
+                logger.info("nonexistvin API for User {} - VIN {}-{}", userName, vinListToSave.size(), nonexistvin.size());
                 vinListToSave.removeAll(nonexistvin);
                 logger.info("Aftermoving  VINList : {} - {}", userName, vinListToSave.size());
                 if (!vinListToSave.isEmpty() && !vinListToSave.contains(null)) {
                     logger.info("vinListToSaveCmp {} - {}", userName, vinListToSave.size());
                     alluserMapping(vinListToSave, userName);
                 } else {
-                    logger.info("Wipro return null values " + vinListToSave.size());
+                    logger.info("Wipro return null values {}", vinListToSave.size());
                 }
                 if (!machineList.isEmpty()) {
                     machineRepository.saveAll(machineList);
@@ -192,7 +190,7 @@ public class UserMappingRequest {
 
         } else {
             logger.info(" else allMachinesVinListWithUser :{}", userName);
-            machineRepository.mapMachineTouser(userName);
+            machineRepository.mapMachineToUser(userName);
             logger.info(" else allMachinesVinListWithUser end :{}", userName);
         }
         logger.info(" findVinByUsersUserName end :{}", userName);

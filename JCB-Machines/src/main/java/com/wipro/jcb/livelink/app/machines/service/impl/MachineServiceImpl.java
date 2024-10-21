@@ -25,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Author: Rituraj Azad
@@ -51,30 +50,30 @@ public class MachineServiceImpl implements MachineService {
 
     @Autowired
     MachineBHLDataRepo machineBHLDataRepo;
-    
+
     @Autowired
-	private MachineLocationHistoryDataRepo machineLocationHistoryRepo;
-    
+    MachineLocationHistoryDataRepo machineLocationHistoryRepo;
+
     @Autowired
-    private MachineUtilizationDataRepository machineUtilizationDataRepository;
-    
+    MachineUtilizationDataRepository machineUtilizationDataRepository;
+
     @Autowired
-	private MachineFeatureInfoService machineFeatureService;
-    
+    MachineFeatureInfoService machineFeatureService;
+
     @Autowired
-	private MachineFeatureDataRepo machineFeatureDataRepo;
-    
+    MachineFeatureDataRepo machineFeatureDataRepo;
+
     @Autowired
-	private MachineWheelLoaderDataRepository machineWheelLoaderDataRepository;
-    
+    MachineWheelLoaderDataRepository machineWheelLoaderDataRepository;
+
     @Autowired
-	private MachineExcavatorRepo machineExcavatorRepo;
-    
+    MachineExcavatorRepo machineExcavatorRepo;
+
     @Autowired
-	private MachineCompactionCoachDataRepository machineCompactionCoachDataRepository;
-    
-    @Autowired 
-	private MachineTelehandlerDataRepository machineTelehandlerDataRepository;
+    MachineCompactionCoachDataRepository machineCompactionCoachDataRepository;
+
+    @Autowired
+    MachineTelehandlerDataRepository machineTelehandlerDataRepository;
 
     @Value("${machine.approachingservicedays}")
     int machineApproachingServiceDays;
@@ -118,6 +117,15 @@ public class MachineServiceImpl implements MachineService {
     @Value("${livelink.premium.image.machine-navigation-ios}")
     String machineNavigationImgIos;
 
+    @Value("${custom.formatter.timezone}")
+    String timezone;
+
+    @Autowired
+    MachineFeedParserDataRepo machineFeedParserDataRepo;
+    @Autowired
+    MachineFeedLocationRepo machineFeedLocationRepo;
+
+
     @Override
     public Machine machineByVin(String vin) {
         return machineRepository.findByVin(vin);
@@ -129,18 +137,18 @@ public class MachineServiceImpl implements MachineService {
     }
 
     @Override
-    public List<String> getSuggetions(String word, String userName) {
-        return List.of();
+    public List<String> getSuggestions(String word, String userName) {
+        log.debug("generating suggestion list ");
+        final List<String> suggestions = new ArrayList<>();
+        log.debug("generating suggestion list for machines of Customer ");
+        suggestions.addAll(machineRepository.getByUsersUserNameAndSuggestionModel(userName, word));
+        suggestions.addAll(machineRepository.getByUsersUserNameAndSuggestionPlatform(userName, word));
+        suggestions.addAll(machineRepository.getByUsersUserNameAndSuggestionTag(userName, word));
+        suggestions.addAll(machineRepository.getByUsersUserNameAndSuggestionLocation(userName, word));
+        suggestions.addAll(machineRepository.getByUsersUserNameAndSuggestionVin(userName, word));
+        suggestions.addAll(machineRepository.getByUsersUserNameAndSuggestionSite(userName, word));
+        return suggestions;
     }
-
-    @Value("${custom.formatter.timezone}")
-    String timezone;
-
-    @Autowired
-    MachineFeedParserDataRepo machineFeedParserDataRepo;
-    @Autowired
-    MachineFeedLocationRepo machineFeedLocationRepo;
-
 
     @Override
     public List<Filter> getFilters(String userName) {
@@ -390,22 +398,22 @@ public class MachineServiceImpl implements MachineService {
             e.printStackTrace();
         }
         return fuelLevel;
-    }*/
-
- /*   @Override
+    }
+*/
+    @Override
     public UtilizationReport getMachineUtilization(String vin, Date startDate, Date endDate) {
         MachineUtilizationResponse utilization = new MachineUtilizationResponse();
         try {
-            List<MachineUtilization> machineUtililizationData = machineUtilizationDataRepository
+            List<MachineUtilization> machineUtilizationData = machineUtilizationDataRepository
                     .getUtilizationDetails(vin, startDate, endDate);
-            utilization.setMachineUtilization(machineUtililizationData);
+            utilization.setMachineUtilization(machineUtilizationData);
         } catch (Exception e) {
             e.printStackTrace();
-            log.info("Exception occured for Machine Utilization Report API :"+vin+"Exception -"+e.getMessage());
+            log.info("Exception occurred for Machine Utilization Report API :{}Exception -{}", vin, e.getMessage());
         }
 
         return utilization;
-    }*/
+    }
 
 
     @Override
@@ -489,8 +497,7 @@ public class MachineServiceImpl implements MachineService {
     public NotificationRemovedResponse deleteNotification(Integer id, String userName) {
         NotificationRemovedResponse response = new NotificationRemovedResponse();
         try {
-            log.info("Delete notification details for the user " + userName);
-            //notificationDetailsRepo.deleteById(id);
+            log.info("Delete notification details for the user {}", userName);
             String message = "Notification(s) deleted successfully";
             response.setMessage(message);
         } catch (Exception e) {
@@ -504,7 +511,7 @@ public class MachineServiceImpl implements MachineService {
     public RdMachineDetailsResponse fetchMachinesDetails(String vin) throws ProcessCustomError {
         RdMachineDetailsResponse response = new RdMachineDetailsResponse();
         try {
-            log.info("Machine Detills for " + vin);
+            log.info("Machine Details for {}", vin);
             RdMachineDetails machineDetails = machineRepository.getMachinesDetails(vin);
 
             if (machineDetails != null) {
@@ -642,168 +649,154 @@ public class MachineServiceImpl implements MachineService {
     public String generatePremiumRequestReport() {
         return "";
     }
-    
-	@Override
-	public MachineLocation getMachineLocationDetail(String vin, String pageNumber, String pageSize) {
-		log.info("In getMachineLocationDetail() vin:{} pageNumber:{} pageSize:{}", vin, pageNumber, pageSize);
-		MachineLocation machineDetails = new MachineLocation();
-		try {
-			SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-			List<MachineLocationDetail> dataList = new ArrayList<>();
-			machineDetails.setVin(vin);
-			machineDetails.setNextPage(true);
-			Date locationLastDate = utilities.getDate(utilities.getStartDate(29));
-			log.info("Ddata " + locationLastDate + "-" + pageNumber + "-" + pageSize);
-			Date startDate = null;
-			Date endDate = null;
-			Integer startcount = 0;
-			Integer endcount = Integer.parseInt(pageSize);
-			if (Integer.parseInt(pageNumber) == 0) {
-				startcount = 0;
-				endcount = Integer.parseInt(pageSize) - 1;
-			} else {
-				startcount = Integer.parseInt(pageNumber) * Integer.parseInt(pageSize);
-				endcount = (Integer.parseInt(pageNumber) + 1) * (Integer.parseInt(pageSize)) - 1;
-			}
-			if (locationLastDate.equals(utilities.getDate(utilities.getStartDate(endcount)))
-					|| locationLastDate.after(utilities.getDate(utilities.getStartDate(endcount)))) {
-				machineDetails.setNextPage(false);
-			}
-			log.info("count " + endcount + "-" + startcount);
-			for (int i = endcount; i >= startcount; i--) {
 
-				startDate = utilities.getDate(utilities.getStartDate(i));
-				endDate = utilities.getDate(utilities.getStartDate(i - 1));
-				MachineLocationDetail details = new MachineLocationDetail();
-				details.setDate(startDate);
+    @Override
+    public MachineLocation getMachineLocationDetail(String vin, String pageNumber, String pageSize) {
+        log.info("In getMachineLocationDetail() vin:{} pageNumber:{} pageSize:{}", vin, pageNumber, pageSize);
+        MachineLocation machineDetails = new MachineLocation();
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+            List<MachineLocationDetail> dataList = new ArrayList<>();
+            machineDetails.setVin(vin);
+            machineDetails.setNextPage(true);
+            Date locationLastDate = utilities.getDate(utilities.getStartDate(29));
+            log.info("Ddata " + locationLastDate + "-" + pageNumber + "-" + pageSize);
+            Date startDate = null;
+            Date endDate = null;
+            Integer startcount = 0;
+            Integer endcount = Integer.parseInt(pageSize);
+            if (Integer.parseInt(pageNumber) == 0) {
+                startcount = 0;
+                endcount = Integer.parseInt(pageSize) - 1;
+            } else {
+                startcount = Integer.parseInt(pageNumber) * Integer.parseInt(pageSize);
+                endcount = (Integer.parseInt(pageNumber) + 1) * (Integer.parseInt(pageSize)) - 1;
+            }
+            if (locationLastDate.equals(utilities.getDate(utilities.getStartDate(endcount)))
+                    || locationLastDate.after(utilities.getDate(utilities.getStartDate(endcount)))) {
+                machineDetails.setNextPage(false);
+            }
+            log.info("count " + endcount + "-" + startcount);
+            for (int i = endcount; i >= startcount; i--) {
 
-				MachineLocationHistoryData firstLocation = null;
-				firstLocation = machineLocationHistoryRepo.getMachineFirstLocation(vin, startDate, endDate);
-				MachineLocationHistoryData lastLocation = null;
-				lastLocation = machineLocationHistoryRepo.getMachineLastLocation(vin, startDate, endDate);
+                startDate = utilities.getDate(utilities.getStartDate(i));
+                endDate = utilities.getDate(utilities.getStartDate(i - 1));
+                MachineLocationDetail details = new MachineLocationDetail();
+                details.setDate(startDate);
 
-				if (firstLocation != null && firstLocation.getLatitude() != null
-						&& firstLocation.getLongitude() != null) {
-					details.setStartTime(sdf.format(firstLocation.getDateTime()));
-					details.setStartLatitude(firstLocation.getLatitude());
-					details.setStartLongitude(firstLocation.getLongitude());
-					details.setStartLocation(
-							"Start Location(" + firstLocation.getLatitude() + "," + firstLocation.getLongitude() + ")");
-				}
+                MachineLocationHistoryData firstLocation = null;
+                firstLocation = machineLocationHistoryRepo.getMachineFirstLocation(vin, startDate, endDate);
+                MachineLocationHistoryData lastLocation = null;
+                lastLocation = machineLocationHistoryRepo.getMachineLastLocation(vin, startDate, endDate);
 
-				if (lastLocation != null && lastLocation.getLatitude() != null && lastLocation.getLongitude() != null) {
-					details.setEndTime(sdf.format(lastLocation.getDateTime()));
-					details.setEndLatitude(lastLocation.getLatitude());
-					details.setEndLongitude(lastLocation.getLongitude());
-					details.setEndLocation(
-							"End Location(" + lastLocation.getLatitude() + "," + lastLocation.getLongitude() + ")");
-				}
+                if (firstLocation != null && firstLocation.getLatitude() != null
+                        && firstLocation.getLongitude() != null) {
+                    details.setStartTime(sdf.format(firstLocation.getDateTime()));
+                    details.setStartLatitude(firstLocation.getLatitude());
+                    details.setStartLongitude(firstLocation.getLongitude());
+                    details.setStartLocation(
+                            "Start Location(" + firstLocation.getLatitude() + "," + firstLocation.getLongitude() + ")");
+                }
 
-				dataList.add(details);
-			}
-			Collections.sort(dataList, new Comparator<MachineLocationDetail>() {
-				@Override
-				public int compare(MachineLocationDetail o1, MachineLocationDetail o2) {
-					return o2.getDate().compareTo(o1.getDate());
-				}
-			});
+                if (lastLocation != null && lastLocation.getLatitude() != null && lastLocation.getLongitude() != null) {
+                    details.setEndTime(sdf.format(lastLocation.getDateTime()));
+                    details.setEndLatitude(lastLocation.getLatitude());
+                    details.setEndLongitude(lastLocation.getLongitude());
+                    details.setEndLocation(
+                            "End Location(" + lastLocation.getLatitude() + "," + lastLocation.getLongitude() + ")");
+                }
 
-			machineDetails.setData(dataList);
-		} catch (Exception e) {
-			e.printStackTrace();
-			log.info("Exception occured in machinelocation detail " + e.getMessage());
-			log.info("Exception occured for Machine Location API -" + vin + "Exception -" + e.getMessage());
-		}
-		return machineDetails;
-	}
-	
-	@Override
-	public List<LocationHistory> getMachineLocationHistory(String vin, String date) {
-		Set<LocationHistory> locationHistory = new HashSet<>();
-		List<LocationHistory> machineLocationHistory = new ArrayList<>();
-		Date fromDate = utilities.getDate(date);
-		Date toDate = utilities.getDate(date);
-		Calendar calender = Calendar.getInstance();
-		calender.set(Calendar.HOUR, 23);
-		calender.set(Calendar.MINUTE, 59);
-		calender.set(Calendar.SECOND, 59);
-		toDate = calender.getTime();
-		try {
-			log.info("Machine Location History Data - " + vin + " - " + fromDate + " - " + toDate);
-			locationHistory = machineLocationHistoryRepo.getMachineLocationHistoryData(vin, fromDate, toDate);
-			log.info("locationHistory " + locationHistory.size());
-			Map<String, LocationHistory> locationDetails = new HashMap<>();
-			locationHistory.forEach(location -> {
-				locationDetails.put(location.getDateTime(), location);
-			});
-			log.info("locationHistory " + locationDetails.size());
-			machineLocationHistory = locationDetails.values().stream().collect(Collectors.toList());
-			Collections.sort(machineLocationHistory, new Comparator<LocationHistory>() {
-				@Override
-				public int compare(LocationHistory o1, LocationHistory o2) {
-					return o1.getDateTime().compareTo(o2.getDateTime());
-				}
-			});
-		} catch (Exception e) {
-			e.printStackTrace();
-			log.error("Exception occured in getMachineLocationHistory" + e.getMessage());
-			log.info("Exception occured for Machine Location History API :" + vin + "Exception -" + e.getMessage());
-		}
-		return machineLocationHistory;
-	}
-	
-	@Override
-	public UtilizationReport getMachineUtilization(String vin, Date startDate, Date endDate) {
-		MachineUtilizationResponse utilization = new MachineUtilizationResponse();
-		try {
-			List<MachineUtilization> machineUtililizationData = machineUtilizationDataRepository
-					.getUtilizationDetails(vin, startDate, endDate);
-			utilization.setMachineUtilization(machineUtililizationData);
-		} catch (Exception e) {
-			e.printStackTrace();
-			log.info("Exception occured for Machine Utilization Report API :" + vin + "Exception -" + e.getMessage());
-		}
+                dataList.add(details);
+            }
+            Collections.sort(dataList, new Comparator<MachineLocationDetail>() {
+                @Override
+                public int compare(MachineLocationDetail o1, MachineLocationDetail o2) {
+                    return o2.getDate().compareTo(o1.getDate());
+                }
+            });
 
-		return utilization;
-	}
-	
-	@Override
-	public UtilizationReport getFuelUtilization(String vin, Date startDate, Date endDate) {
-		MachineFuelUtilizationResponse utilizationResponse = new MachineFuelUtilizationResponse();
-		try {
-			if (machineFeatureService.isExist(vin)) {
-				List<MachineFeatureInfo> list = machineFeatureDataRepo.findByVinAndFlagOrderByDayDescLimit1(vin, true, PageRequest.of(0, 1));
-				for (MachineFeatureInfo machineFeatureInfo : list) {
-					log.info("Calendar View Data VIN Type :" + vin + " - " + machineFeatureInfo.getType());
-					List<FuelConsumption> fuelConsumptionList = new ArrayList<FuelConsumption>();
-					if (machineFeatureInfo.getType().equals("CANBHL") || machineFeatureInfo.getType().equals("HBBHL")) {
-						fuelConsumptionList = machineBHLDataRepo.getFuelConsumptionReport(vin, startDate, endDate);
-						utilizationResponse.setFuelUtilization(fuelConsumptionList);
-						break;
-					} else if (machineFeatureInfo.getType().equals("CANWLS") || machineFeatureInfo.getType().equals("INTELLILOAD")) {
-						fuelConsumptionList = machineWheelLoaderDataRepository.getFuelConsumptionReport(vin, startDate,endDate);
-						utilizationResponse.setFuelUtilization(fuelConsumptionList);
-						break;
-					} else if (machineFeatureInfo.getType().equals("CANEXCAVATOR") || machineFeatureInfo.getType().equals("HBEXCAVATOR")) {
-						fuelConsumptionList = machineExcavatorRepo.getFuelConsumptionReport(vin, startDate, endDate);
-						utilizationResponse.setFuelUtilization(fuelConsumptionList);
-						break;
-					} else if (machineFeatureInfo.getType().equals("CANCOMPACTOR") || machineFeatureInfo.getType().equals("INTELLICOMPACTOR")) {
-						fuelConsumptionList = machineCompactionCoachDataRepository.getFuelConsumptionReport(vin,startDate, endDate);
-						utilizationResponse.setFuelUtilization(fuelConsumptionList);
-						break;
-					} else if (machineFeatureInfo.getType().equals("CANTELEHANDLER")) {
-						fuelConsumptionList = machineTelehandlerDataRepository.getFuelConsumptionReport(vin, startDate,endDate);
-						utilizationResponse.setFuelUtilization(fuelConsumptionList);
-						break;
-					}
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			log.info("Exception occured for Fuel Utilization Report API :" + vin + "Exception -" + e.getMessage());
-		}
-		return utilizationResponse;
-	}
+            machineDetails.setData(dataList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.info("Exception occurred in machineLocation detail {}", e.getMessage());
+            log.info("Exception occurred for Machine Location API -{}Exception -{}", vin, e.getMessage());
+        }
+        return machineDetails;
+    }
+
+    @Override
+    public List<LocationHistory> getMachineLocationHistory(String vin, String date) {
+        Set<LocationHistory> locationHistory = new HashSet<>();
+        List<LocationHistory> machineLocationHistory = new ArrayList<>();
+        Date fromDate = utilities.getDate(date);
+        Date toDate = utilities.getDate(date);
+        Calendar calender = Calendar.getInstance();
+        calender.set(Calendar.HOUR, 23);
+        calender.set(Calendar.MINUTE, 59);
+        calender.set(Calendar.SECOND, 59);
+        toDate = calender.getTime();
+        try {
+            log.info("Machine Location History Data - {} - {} - {}", vin, fromDate, toDate);
+            locationHistory = machineLocationHistoryRepo.getMachineLocationHistoryData(vin, fromDate, toDate);
+            log.info("locationHistory {}", locationHistory.size());
+            Map<String, LocationHistory> locationDetails = new HashMap<>();
+            locationHistory.forEach(location -> {
+                locationDetails.put(location.getDateTime(), location);
+            });
+            log.info("locationHistory {}", locationDetails.size());
+            machineLocationHistory = new ArrayList<>(locationDetails.values());
+            machineLocationHistory.sort(Comparator.comparing(LocationHistory::getDateTime));
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("Exception occurred in getMachineLocationHistory{}", e.getMessage());
+            log.info("Exception occurred for Machine Location History API :{}Exception -{}", vin, e.getMessage());
+        }
+        return machineLocationHistory;
+    }
+
+    @Override
+    public UtilizationReport getFuelUtilization(String vin, Date startDate, Date endDate) {
+        MachineFuelUtilizationResponse utilizationResponse = new MachineFuelUtilizationResponse();
+        try {
+            if (machineFeatureService.isExist(vin)) {
+                List<MachineFeatureInfo> list = machineFeatureDataRepo.findByVinAndFlagOrderByDayDescLimit1(vin, true, PageRequest.of(0, 1));
+                label:
+                for (MachineFeatureInfo machineFeatureInfo : list) {
+                    log.info("Calendar View Data VIN Type :{} - {}", vin, machineFeatureInfo.getType());
+                    List<FuelConsumption> fuelConsumptionList = new ArrayList<FuelConsumption>();
+                    switch (machineFeatureInfo.getType()) {
+                        case "CANBHL":
+                        case "HBBHL":
+                            fuelConsumptionList = machineBHLDataRepo.getFuelConsumptionReport(vin, startDate, endDate);
+                            utilizationResponse.setFuelUtilization(fuelConsumptionList);
+                            break label;
+                        case "CANWLS":
+                        case "INTELLILOAD":
+                            fuelConsumptionList = machineWheelLoaderDataRepository.getFuelConsumptionReport(vin, startDate, endDate);
+                            utilizationResponse.setFuelUtilization(fuelConsumptionList);
+                            break label;
+                        case "CANEXCAVATOR":
+                        case "HBEXCAVATOR":
+                            fuelConsumptionList = machineExcavatorRepo.getFuelConsumptionReport(vin, startDate, endDate);
+                            utilizationResponse.setFuelUtilization(fuelConsumptionList);
+                            break label;
+                        case "CANCOMPACTOR":
+                        case "INTELLICOMPACTOR":
+                            fuelConsumptionList = machineCompactionCoachDataRepository.getFuelConsumptionReport(vin, startDate, endDate);
+                            utilizationResponse.setFuelUtilization(fuelConsumptionList);
+                            break label;
+                        case "CANTELEHANDLER":
+                            fuelConsumptionList = machineTelehandlerDataRepository.getFuelConsumptionReport(vin, startDate, endDate);
+                            utilizationResponse.setFuelUtilization(fuelConsumptionList);
+                            break label;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.info("Exception occurred for Fuel Utilization Report API :{}Exception -{}", vin, e.getMessage());
+        }
+        return utilizationResponse;
+    }
 
 }

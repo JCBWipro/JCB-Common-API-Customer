@@ -51,7 +51,7 @@ public interface MachineService {
      *            identifier for user
      * @return List<String> is the list of sentences
      */
-    List<String> getSuggetions(String word, String userName);
+    List<String> getSuggestions(String word, String userName);
 
     /**
      * List of filters for machine

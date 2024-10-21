@@ -4,9 +4,11 @@ import com.wipro.jcb.livelink.app.machines.commonUtils.AuthCommonUtils;
 import com.wipro.jcb.livelink.app.machines.commonUtils.Utilities;
 import com.wipro.jcb.livelink.app.machines.config.AppConfiguration;
 import com.wipro.jcb.livelink.app.machines.constants.MessagesList;
+import com.wipro.jcb.livelink.app.machines.dto.ApiOK;
 import com.wipro.jcb.livelink.app.machines.dto.ResponseData;
 import com.wipro.jcb.livelink.app.machines.dto.UserDetails;
 import com.wipro.jcb.livelink.app.machines.entity.Machine;
+import com.wipro.jcb.livelink.app.machines.enums.FilterSearchType;
 import com.wipro.jcb.livelink.app.machines.exception.ApiError;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.machines.repo.MachineRepository;
@@ -17,7 +19,6 @@ import com.wipro.jcb.livelink.app.machines.service.AdvanceReportService;
 import com.wipro.jcb.livelink.app.machines.service.MachineProfileService;
 import com.wipro.jcb.livelink.app.machines.service.MachineResponseService;
 import com.wipro.jcb.livelink.app.machines.service.MachineService;
-import com.wipro.jcb.livelink.app.machines.service.reports.UtilizationReportResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.net.HttpURLConnection;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -44,7 +46,6 @@ import org.springframework.web.multipart.MultipartFile;
  * Author: Rituraj Azad
  * User: RI20474447
  * Date:14-09-2024
- * project: JCB-Common-API-Customer
  */
 
 @Slf4j
@@ -602,82 +603,148 @@ public class MachineController {
                     .body(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to process request", "SERVER_ERROR", null));
         }
     }
-    
-	/*
-	 * This End Point is to Get Fuel Utilization Report Details
-	 */
-	@CrossOrigin
-	@Operation(summary = "Fuel Utilization Report", description = "Fuel Utilization Information")
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Fuel Utilization Information"),
-			@ApiResponse(responseCode = "401", description = "Auth Failed"),
-			@ApiResponse(responseCode = "500", description = "Request failed") })
-	@Transactional(readOnly = true)
-	@GetMapping("/fuelutilizationreport")
-	public ResponseEntity<?> getFuelUtilizationReport(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
-			@RequestParam(value = "vin", required = false) String vin,
-			@RequestParam(value = "startDate", required = false) String startDate,
-			@RequestParam(value = "endDate", required = false) String endDate) {
-		String userName = null;
-		try {
-			UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
-			userName = userResponse.getUserName();
-			log.info("Fuel Utilization Request: Get request for machine {} User {} StartDate {}  EndDate {} ", vin,
-					userName, startDate, endDate);
-			if (userName != null) {
-				if (vin != null) {
 
-					Machine machine = machineRepository.findByVinAndUserName(vin, userName);
-					if (machine != null) {
-						if (startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
-							if (utilities.getDate(startDate).before(new Date())
-									&& utilities.getDate(endDate).before(new Date())) {
+    /*
+     * This End Point is to Get Fuel Utilization Report Details
+     */
+    @CrossOrigin
+    @Operation(summary = "Fuel Utilization Report", description = "Fuel Utilization Information")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Fuel Utilization Information"),
+            @ApiResponse(responseCode = "401", description = "Auth Failed"),
+            @ApiResponse(responseCode = "500", description = "Request failed")})
+    @Transactional(readOnly = true)
+    @GetMapping("/fuelutilizationreport")
+    public ResponseEntity<?> getFuelUtilizationReport(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+                                                      @RequestParam(value = "vin", required = false) String vin,
+                                                      @RequestParam(value = "startDate", required = false) String startDate,
+                                                      @RequestParam(value = "endDate", required = false) String endDate) {
+        String userName = null;
+        try {
+            UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+            userName = userResponse.getUserName();
+            log.info("Fuel Utilization Request: Get request for machine {} User {} StartDate {}  EndDate {} ", vin,
+                    userName, startDate, endDate);
+            if (userName != null) {
+                if (vin != null) {
 
-								if (utilities.getDate(startDate).before(utilities.getDate(endDate))
-										|| utilities.getDate(startDate).equals(utilities.getDate(endDate))) {
-									return new ResponseEntity<UtilizationReportResponse>(
-											advanceReportService.getFuelUtilization(vin, startDate, endDate),
-											HttpStatus.OK);
-								} else {
-									return new ResponseEntity<ApiError>(
-											new ApiError(HttpStatus.EXPECTATION_FAILED,
-													"Fromdate should be lessthan todate ",
-													"Fromdate should be lessthan todate", null),
-											HttpStatus.EXPECTATION_FAILED);
-								}
-							} else {
-								return new ResponseEntity<ApiError>(
-										new ApiError(HttpStatus.EXPECTATION_FAILED,
-												"Fromdate,todate should be lessthan current date",
-												"Fromdate,todate should be lessthan current date", null),
-										HttpStatus.EXPECTATION_FAILED);
-							}
-						} else {
-							return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
-									"Please select fromdate and todate ", "Please select fromdate and todate", null),
-									HttpStatus.EXPECTATION_FAILED);
-						}
-					} else {
-						return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
-								"Please select correct machine", "Please select correct machine", null),
-								HttpStatus.EXPECTATION_FAILED);
-					}
-				} else {
-					return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
-							"Please select machine", "Please select machine", null), HttpStatus.EXPECTATION_FAILED);
-				}
-			} else {
-				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
-						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
-			}
-		} catch (final Exception e) {
-			e.printStackTrace();
-			log.error("Issue faced while getting listofdownmachines request " + e.getMessage());
-			log.info("Exception occured for Fuel Utilization Report API :" + userName + "-" + vin + "Exception -"
-					+ e.getMessage());
-			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
-					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
-					HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+                    Machine machine = machineRepository.findByVinAndUserName(vin, userName);
+                    if (machine != null) {
+                        if (startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+                            if (utilities.getDate(startDate).before(new Date())
+                                    && utilities.getDate(endDate).before(new Date())) {
 
-	}
+                                if (utilities.getDate(startDate).before(utilities.getDate(endDate))
+                                        || utilities.getDate(startDate).equals(utilities.getDate(endDate))) {
+                                    return new ResponseEntity<>(
+                                            advanceReportService.getFuelUtilization(vin, startDate, endDate),
+                                            HttpStatus.OK);
+                                } else {
+                                    return new ResponseEntity<>(
+                                            new ApiError(HttpStatus.EXPECTATION_FAILED,
+                                                    "Fromdate should be lessthan todate ",
+                                                    "Fromdate should be lessthan todate", null),
+                                            HttpStatus.EXPECTATION_FAILED);
+                                }
+                            } else {
+                                return new ResponseEntity<>(
+                                        new ApiError(HttpStatus.EXPECTATION_FAILED,
+                                                "Fromdate,todate should be lessthan current date",
+                                                "Fromdate,todate should be lessthan current date", null),
+                                        HttpStatus.EXPECTATION_FAILED);
+                            }
+                        } else {
+                            return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+                                    "Please select fromdate and todate ", "Please select fromdate and todate", null),
+                                    HttpStatus.EXPECTATION_FAILED);
+                        }
+                    } else {
+                        return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+                                "Please select correct machine", "Please select correct machine", null),
+                                HttpStatus.EXPECTATION_FAILED);
+                    }
+                } else {
+                    return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+                            "Please select machine", "Please select machine", null), HttpStatus.EXPECTATION_FAILED);
+                }
+            } else {
+                return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+                        "No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+            }
+        } catch (final Exception e) {
+            log.error("Issue faced while getting listofdownmachines request {}", e.getMessage());
+            log.info("Exception occured for Fuel Utilization Report API :{}-{}Exception -{}", userName, vin, e.getMessage());
+            return new ResponseEntity<>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+                    MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    @GetMapping(value = "/locationV3", produces = {MediaType.APPLICATION_JSON_VALUE})
+    @Operation(summary = "Get Machine Location Data", description = "Get Machine Location Data")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Machine Location", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiOK.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))})
+    public ResponseEntity<?> getMachineLocationData(
+            @Parameter(description = "User details from the token", required = true) @RequestHeader("LoggedInUserRole") String userDetails,
+            @Parameter(description = "Latitude of the location") @RequestParam("latitude") String latitude,
+            @Parameter(description = "Longitude of the location") @RequestParam("longitude") String longitude) {
+
+        try {
+            UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+            String userName = userResponse.getUserName();
+            if (userName == null) {
+                log.warn("getMachineLocationData: Username not found in user details.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiError(HttpStatus.UNAUTHORIZED, "Invalid user details"));
+            }
+
+            log.info("getMachineLocationData: GET request from user {} for latitude {}, longitude {}", userName, latitude, longitude);
+
+            if (latitude == null || latitude.isEmpty() || longitude == null || longitude.isEmpty()) {
+                log.warn("getMachineLocationData: Latitude or longitude is missing.");
+                return ResponseEntity.badRequest().body(new ApiError(HttpStatus.BAD_REQUEST, "Latitude and longitude are required."));
+            }
+
+            AddressResponse locationData = utilities.getLocationDetails(latitude, longitude);
+            return ResponseEntity.ok(locationData);
+
+        } catch (ProcessCustomError e) {
+            log.error("getMachineLocationData: ProcessCustomError occurred while fetching location data: {}", e.getMessage(), e);
+            return ResponseEntity.status(e.getStatus()).body(new ApiError(e.getStatus(), e.getMessage()));
+
+        } catch (Exception e) {
+            log.error("getMachineLocationData: An unexpected error occurred while fetching location data: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to process request"));
+        }
+    }
+
+    @GetMapping(value = "/autosuggestion")
+    @Operation(summary = "Auto suggestion based on type")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of suggested words based on the type eg alerts of machine owned by user", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "500", description = "Request failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))})
+    public ResponseEntity<?> autoSuggestion(
+            @Parameter(description = "User details from the token", required = true) @RequestHeader("LoggedInUserRole") String userDetails,
+            @Parameter(description = "Word for suggestion") @RequestParam String word,
+            @Parameter(description = "Filter search type") @RequestParam FilterSearchType type) {
+
+        try {
+            UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+            String userName = userResponse.getUserName();
+            if (userName == null) {
+                log.warn("autoSuggestion: Username not found in user details.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiError(HttpStatus.UNAUTHORIZED, "Invalid user details"));
+            }
+
+            log.info("autoSuggestion: GET Request for filter type {} user {}", type, userName);
+            List<String> suggestions = utilities.getSuggestions(word, userName, type);
+            return ResponseEntity.ok(suggestions);
+
+        } catch (Exception e) {
+            log.error("autoSuggestion: An unexpected error occurred while fetching suggestions: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to process request"));
+        }
+    }
 }

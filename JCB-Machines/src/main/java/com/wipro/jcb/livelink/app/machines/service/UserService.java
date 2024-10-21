@@ -4,6 +4,8 @@ import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.machines.service.response.UserProfile;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * UserService deals with all the interaction with UserRepository
  * <p>
@@ -24,5 +26,7 @@ public interface UserService {
     UserProfile getUserProfile(String userName, String version) throws ProcessCustomError;
 
     Boolean getuserMapping(String userName);
+
+    List<String> getSuggestions(String word, String userName);
 
 }
