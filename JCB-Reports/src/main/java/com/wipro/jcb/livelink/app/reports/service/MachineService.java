@@ -12,5 +12,9 @@ public interface MachineService {
 	IntelliReport getIntelliReportV2(String vin, Date startDate, Date endDate);
 	
 	IntelliReport loadIntelliDigReport(final String vin, Date startDate, Date endDate);
+	
+	VisualizationReport getReportInstanceV3(String vin, Date startDate, Date endDate);
+	
+	IntelliReport getIntelliReportV3(String vin, Date startDate, Date endDate);
 
 }
