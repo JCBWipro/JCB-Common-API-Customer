@@ -12,6 +12,8 @@ import com.wipro.jcb.livelink.app.reports.report.CompactionDutyCycleData;
 import com.wipro.jcb.livelink.app.reports.report.CompactionVibrationOnOffData;
 import com.wipro.jcb.livelink.app.reports.report.CompactionWeeklyDutyCycleData;
 import com.wipro.jcb.livelink.app.reports.report.FuelConsumption;
+import com.wipro.jcb.livelink.app.reports.report.FuelConsumptionResponse;
+import com.wipro.jcb.livelink.app.reports.report.MachinePowerBands;
 
 @Component
 public interface MachineCompactionCoachDataRepository extends PagingAndSortingRepository<MachineCompactionCoachData, String> {
@@ -27,5 +29,14 @@ public interface MachineCompactionCoachDataRepository extends PagingAndSortingRe
 	
 	@Query("select new com.wipro.jcb.livelink.app.reports.report.CompactionVibrationOnOffData(m.day,m.vibrationOnHrs,m.vibrationOffHrs) from MachineCompactionCoachData m where ?1 = m.vinId and m.day between ?2 and ?3 order by m.day asc")
 	public List<CompactionVibrationOnOffData> findVibrationData(String vin,Date startDate, Date endDate);
+	
+	@Query("SELECT new com.wipro.jcb.livelink.app.reports.report.FuelConsumptionResponse(md.day,md.totalFuelUsedInLtrs) from MachineCompactionCoachData md where md.vin =?1 and md.day between ?2 and ?3 order by day")
+	public List<FuelConsumptionResponse> getFuelConsumptionData(String vin, Date startDate, Date endDate);
+
+	@Query("SELECT new com.wipro.jcb.livelink.app.reports.report.FuelConsumptionResponse(md.day,md.averageFuelConsumption) from MachineCompactionCoachData md where md.vin =?1 and md.day between ?2 and ?3 order by day")
+	public List<FuelConsumptionResponse> getAverageFuelConsumption(String vin, Date startDate, Date endDate);
+
+	@Query("SELECT new com.wipro.jcb.livelink.app.reports.report.MachinePowerBands(md.day,md.fuelUsedInLowPowerBandLtrs,md.fuelUsedInMediumPowerBandLtrs,md.fuelUsedInHighPowerBandLtrs,md.fuelUsedInIdlePowerBandLtrs) from MachineCompactionCoachData md where md.vin =?1 and md.day between ?2 and ?3 order by day")
+	public List<MachinePowerBands> getFuelPowerBand(String vin, Date startDate, Date endDate);
 	
 }

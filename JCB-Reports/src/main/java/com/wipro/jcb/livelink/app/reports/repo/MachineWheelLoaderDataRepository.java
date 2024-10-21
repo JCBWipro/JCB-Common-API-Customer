@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import com.wipro.jcb.livelink.app.reports.entity.MachineWheelLoaderData;
 import com.wipro.jcb.livelink.app.reports.report.FuelConsumption;
+import com.wipro.jcb.livelink.app.reports.report.GearUtilizationWLS;
 import com.wipro.jcb.livelink.app.reports.report.WeekelyBucketCount;
 import com.wipro.jcb.livelink.app.reports.report.WeekelyDutyCycle;
 
@@ -25,5 +26,8 @@ public interface MachineWheelLoaderDataRepository extends PagingAndSortingReposi
 
 	@Query("select new com.wipro.jcb.livelink.app.reports.report.WeekelyDutyCycle(m.day,Coalesce(m.cumulativeLoadedWeight,0)) from MachineWheelLoaderData m where ?1 = m.vin and m.day between ?2 and ?3 order by m.day asc")
 	public List<WeekelyDutyCycle> getDutyCycleData(String vin,Date startDate, Date endDate);
+	
+	@Query("select new com.wipro.jcb.livelink.app.reports.report.GearUtilizationWLS(md.day,md.gear1FwdUtilization,md.gear1BkwdUtilization,md.gear2FwdUtilization,md.gear2BkwdUtilization,md.gear3FwdUtilization,md.gear3BkwdUtilization,md.gear4FwdUtilization,md.gear4BkwdUtilization,md.totalFuelUsedInLtrs,md.averageFuelConsumption,md.fuelUsedInLPBLtrs,md.fuelUsedInMPBLtrs,md.fuelUsedInHPBLtrs,md.fuelLoss) from MachineWheelLoaderData md where md.vin =?1  and md.day between ?2 and ?3 order by day")
+	public List<GearUtilizationWLS> getGearUtilizationDataV3(String vin, Date startDate, Date endDate);
 	
 }

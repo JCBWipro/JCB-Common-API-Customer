@@ -11,6 +11,9 @@ import com.wipro.jcb.livelink.app.reports.entity.MachineExcavatorData;
 import com.wipro.jcb.livelink.app.reports.report.ExcavatorPowerModes;
 import com.wipro.jcb.livelink.app.reports.report.ExcavatorTravelAndSwingTime;
 import com.wipro.jcb.livelink.app.reports.report.FuelConsumption;
+import com.wipro.jcb.livelink.app.reports.report.FuelConsumptionResponse;
+import com.wipro.jcb.livelink.app.reports.report.HammerAbuseEventCount;
+import com.wipro.jcb.livelink.app.reports.report.HammerUsedHours;
 
 @Repository
 public interface MachineExcavatorRepo extends CrudRepository<MachineExcavatorData, String> {
@@ -23,5 +26,23 @@ public interface MachineExcavatorRepo extends CrudRepository<MachineExcavatorDat
 	
 	@Query("select new com.wipro.jcb.livelink.app.reports.report.ExcavatorTravelAndSwingTime(m.day,Coalesce(m.totalHrs,0),Coalesce(m.travelHrs,0),Coalesce(m.slewHrs,0)) from MachineExcavatorData m where ?1 = m.vin and m.day between ?2 and ?3 order by m.day asc")
 	public List<ExcavatorTravelAndSwingTime> getTravelAndSwingTime(String vin, Date startDate, Date endDate);
+	
+	@Query("select new com.wipro.jcb.livelink.app.reports.report.FuelConsumptionResponse(m.day,m.totalFuelUsedInLtrs) from MachineExcavatorData m where ?1 = m.vin and m.day between ?2 and ?3 order by m.day asc")
+	public List<FuelConsumptionResponse> getFuelConsumptionDataV3(String vin, Date startDate, Date endDate);
+
+	@Query("select new com.wipro.jcb.livelink.app.reports.report.ExcavatorPowerModes(m.day,m.periodLBandHrs,m.periodGBandHrs,m.periodHBandHrs,m.periodHPlusBandHrs) from MachineExcavatorData m where ?1 = m.vin and m.day between ?2 and ?3 order by m.day asc")
+	public List<ExcavatorPowerModes> getPowerModesV3(String vin, Date startDate, Date endDate);
+
+	@Query("select new com.wipro.jcb.livelink.app.reports.report.ExcavatorTravelAndSwingTime(m.day,m.totalHrs,m.travelHrs,m.slewHrs) from MachineExcavatorData m where ?1 = m.vin and m.day between ?2 and ?3 order by m.day asc")
+	public List<ExcavatorTravelAndSwingTime> getTravelAndSwingTimeV3(String vin, Date startDate, Date endDate);
+
+	@Query("select new com.wipro.jcb.livelink.app.reports.report.HammerUsedHours(m.day,m.hammerUsedTimeHrs) from MachineExcavatorData m where ?1 = m.vin and m.day between ?2 and ?3 order by m.day asc")
+	public List<HammerUsedHours> getHammerUserHours(String vin, Date startDate, Date endDate);
+
+	@Query("select new com.wipro.jcb.livelink.app.reports.report.HammerAbuseEventCount(m.day,m.hammerAbuseCount) from MachineExcavatorData m where ?1 = m.vin and m.day between ?2 and ?3 order by m.day asc")
+	public List<HammerAbuseEventCount> getHammerAbuseEventCount(String vin, Date startDate, Date endDate);
+	
+	@Query("select new com.wipro.jcb.livelink.app.reports.report.FuelConsumptionResponse(m.day,m.averageFuelConsumption) from MachineExcavatorData m where ?1 = m.vin and m.day between ?2 and ?3 order by m.day asc")
+	public List<FuelConsumptionResponse> getAverageConsumptionData(String vin, Date startDate, Date endDate);
 	
 }

@@ -225,5 +225,55 @@ public class MachineController {
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	/*
+	 * This End Point is to Get Advance Reports Data
+	 */
+	@CrossOrigin
+	@Operation(summary = "Get AdvanceReports", description = "AdvanceReports")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "AdvanceReports"),
+			@ApiResponse(responseCode = "401", description = "Auth Failed"),
+			@ApiResponse(responseCode = "500", description = "Request failed") })
+	@Transactional(readOnly = true)
+	@GetMapping("/getAdvanceReportsV3")
+	public ResponseEntity<?> getMachineAdvanceReportV3(@RequestHeader(MessagesConstantsList.LoggedInUserRole) String userDetails,
+			@RequestParam("vin") String vin) {
+		String userName =null;
+		try {
+			log.info("getMachineAdvanceReportV2: machine advance report request received for machine: " + vin);
+			UserDetails userResponse = ReportCommonUtils.getUserDetails(userDetails);
+			userName = userResponse.getUserName();
+			if (userName != null) {
+				Machine machine = machineResponseService.getMachineDetails(vin, userName);
+				if(machine!=null) {
+					final Date startDate = utilities.getDate(utilities.getStartDate(loadAdvanceReportDataForDays));
+					final Date endDate = utilities.getDate(utilities.getStartDate(1));
+					final SimpleDateFormat format = new SimpleDateFormat("dd MMM yy");
+					format.setTimeZone(TimeZone.getTimeZone(timezone));
+					
+					return new ResponseEntity<AdvanceReportsV2>(
+							new AdvanceReportsV2(vin, format.format(startDate) + " - " + format.format(endDate),
+									machineService.getReportInstanceV3(vin, startDate, endDate),
+									machineService.getIntelliReportV3(vin, startDate, endDate),
+									machineService.loadIntelliDigReport(vin, startDate, endDate)),
+							HttpStatus.OK);
+					
+				}else {
+					return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED, "Please select correct machine","Please select correct machine", null), HttpStatus.EXPECTATION_FAILED);
+				}
+				
+			} else {
+				log.info("getMachineAdvanceReportV2: No Vallid session present");
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+		} catch (final Exception e) {
+			log.error("getMachineAdvanceReportV2: Get Machine Advance Report data failed: " + e.getMessage());
+			log.info("Exception occured for AdvancedreportV3 API :"+userName+"-Param-"+vin+"Exception -"+e.getMessage());
+			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+					MessagesConstantsList.ADVANCE_REPORT_ERROR, MessagesConstantsList.APP_REQUEST_PROCESSING_FAILED, null),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 
 }
