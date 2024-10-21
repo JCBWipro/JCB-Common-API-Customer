@@ -67,5 +67,38 @@ public class AdvanceReportServiceImpl implements AdvanceReportService {
 			throw new ProcessCustomError("No such machine exist.", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	@Override
+	public VisualizationReportResponse getVisualizationReportV3(String vin, String startDate, String endDate)
+			throws ProcessCustomError {
+		final Machine machine = machineRepository.findByVin(vin);
+		if (machine != null) {
+			final SimpleDateFormat format = new SimpleDateFormat("dd MMM yy");
+			format.setTimeZone(TimeZone.getTimeZone(timezone));
+
+			Date startRangeDate = null;
+			Date endRangeDate = null;
+
+			Date standardDate = new Date();
+			standardDate.setDate(standardDate.getDate() - 91);
+
+			Date fromDate = utilities.getDate(startDate);
+			Date toDate = utilities.getDate(endDate);
+			log.info("Date Range " + standardDate + "-" + fromDate + "-" + toDate);
+			if (fromDate.before(standardDate) || toDate.before(standardDate)) {
+				startRangeDate = utilities.getDate(utilities.getStartDate(90));
+				endRangeDate = utilities.getDate(utilities.getStartDate(1));
+			} else {
+				startRangeDate = utilities.getDate(startDate);
+				endRangeDate = utilities.getDate(endDate);
+			}
+			log.info("Date Range " + standardDate + "-" + startDate + "-" + endDate);
+			return new VisualizationReportResponse(machine.getVin(),
+					format.format(startRangeDate) + " - " + format.format(endRangeDate),
+					machineService.getReportInstanceV3(machine.getVin(), startRangeDate, endRangeDate));
+		} else {
+			throw new ProcessCustomError("No such machine exist.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 
 }

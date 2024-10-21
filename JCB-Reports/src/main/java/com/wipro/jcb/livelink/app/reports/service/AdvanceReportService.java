@@ -11,6 +11,7 @@ import com.wipro.jcb.livelink.app.reports.report.VisualizationReportResponse;
 @Component
 public interface AdvanceReportService {
 	
-	public VisualizationReportResponse getVisualizationReportV2(String vin, String startDate, String endDate) throws ProcessCustomError;
+	VisualizationReportResponse getVisualizationReportV2(String vin, String startDate, String endDate) throws ProcessCustomError;
+	VisualizationReportResponse getVisualizationReportV3(String vin, String startDate, String endDate) throws ProcessCustomError;
 
 }
