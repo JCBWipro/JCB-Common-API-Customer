@@ -25,7 +25,7 @@ import java.util.Date;
 @DynamicUpdate
 @ToString
 @Table(name = "machine_service_history", indexes = {
-        @Index(name = "machine_service_history_vin_jobCardNumber", columnList = "vin,job_card_number", unique = false) })
+        @Index(name = "machine_service_history_vin_jobCardNumber", columnList = "vin,job_card_number") })
 public class MachineServiceHistory implements Serializable {
 
     @Serial

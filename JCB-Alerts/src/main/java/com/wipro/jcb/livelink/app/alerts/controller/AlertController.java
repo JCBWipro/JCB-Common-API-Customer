@@ -9,6 +9,7 @@ import com.wipro.jcb.livelink.app.alerts.exception.ApiError;
 import com.wipro.jcb.livelink.app.alerts.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.alerts.service.AlertInfoResponseService;
 
+import com.wipro.jcb.livelink.app.alerts.service.response.AlertObject;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,6 +26,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.HttpURLConnection;
+
+import static com.wipro.jcb.livelink.app.alerts.constants.AppServerConstants.loadHistoricalDataForDays;
 
 /**
  * Author: Rituraj Azad
@@ -110,4 +115,58 @@ public class AlertController {
                     .body(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to process request", "SERVER_ERROR", null));
         }
     }
+
+    @GetMapping(value = "/alertinfo")
+    @Operation(summary = "Alert info for a particular alertId")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Alert Info",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AlertObject.class))),
+            @ApiResponse(responseCode = "401", description = "Auth Failed",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))) })
+    public ResponseEntity<?> getAlertInfo(
+            @RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+            @RequestParam String id,
+            @RequestParam String vin,
+            @RequestParam(value = "from", defaultValue = "serverDecided") String from,
+            @RequestParam(value = "to", defaultValue = "serverDecided") String to) {
+
+        log.info("alertInfo:GET alertInfo data for id {}", id);
+
+        try {
+            if ("serverDecided".equals(from)) {
+                from = alertUtilities.getStartDate(loadHistoricalDataForDays);
+                log.debug("Start Date set to default: {}", from);
+            }
+            if ("serverDecided".equals(to)) {
+                to = alertUtilities.getEndDate(1);
+                log.debug("End Date set to default: {}", to);
+            }
+            UserDetails userResponse = AlertCommonUtils.getUserDetails(userDetails);
+            String userName = userResponse.getUserName();
+
+            if (userName != null) {
+                return new ResponseEntity<>(
+                        alertInfoResponseService.getAlertInfoObj(userName, id, vin, from, to), HttpStatus.OK);
+            } else {
+                log.warn("Unauthorized request: No valid Session present");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new ApiError(HttpStatus.UNAUTHORIZED, "No valid session present", "Session expired", null));
+            }
+
+        } catch (final ProcessCustomError e) {
+            log.error("No Alert or machine exist with given id {}", id, e);
+            return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+                    MessagesList.APP_REQUEST_PROCESSING_ALERT, MessagesList.APP_REQUEST_PROCESSING_ALERT, null),
+                    HttpStatus.EXPECTATION_FAILED);
+
+        } catch (final Exception e) {
+            log.error("Issue faced while getting alertInfo for id {} ", id, e);
+            return new ResponseEntity<>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+                    MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

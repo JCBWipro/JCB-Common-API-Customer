@@ -236,10 +236,13 @@ public class AlertInfoResponseServiceImpl implements AlertInfoResponseService {
             }
 
             if (machine != null) {
+                String dealerName = machine.getDealer() != null ? machine.getDealer().getName() : "-";
+                String dealerPhone = machine.getDealer() != null ? machine.getDealer().getPhonenumber() : "-";
+
                 log.debug("getAlertInfo: Returning alert info for alertId={}", alert.getId());
                 return new AlertInfoResponse(new AlertInfoData(alert.getEventDescription(),
                         "NA".equals(alert.getLocation()) ? "-" : alert.getLocation(), machine.getPlatform(),
-                        machine.getDealer().getName(), machine.getDealer().getPhonenumber(), alert.getEventType(), "-",
+                        dealerName, dealerPhone, alert.getEventType(), "-",
                         machine.getModel(), alert.getIsDtcAlert()), historyLine);
             } else {
                 log.warn("getAlertInfo: Machine not found for alertId={}", alert.getId());
@@ -265,6 +268,45 @@ public class AlertInfoResponseServiceImpl implements AlertInfoResponseService {
             }
         } catch (final Exception ex) {
             log.error("loadAlertDetailsFromList: Internal Server Error. Error: {}", ex.getMessage(), ex);
+            throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public AlertObject getAlertInfoObj(String userName, String id, String vin, String startDate, String endDate)
+            throws ProcessCustomError {
+        try {
+            final Alert alert = alertRepository.findById(id);
+            if (alert != null) {
+                // Uncomment and use this line if you need to verify the user has access to this machine
+                // final Machine machine = machineRepository.findByVinAndUserName(alert.getVin(), userName);
+                final Machine machine = alert.getMachine();
+
+                if (machine != null) {
+                    return new AlertObject(
+                            alert.getId(),
+                            alert.getVin(),
+                            alert.getEventName(),
+                            alert.getEventLevel(),
+                            alert.getEventGeneratedTime(),
+                            machine.getTag(),
+                            machine.getThumbnail(),
+                            alert.getReadFlag(),
+                            machine.getPlatform(),
+                            getAlertInfo(alert, startDate, endDate),
+                            alert.getIsOpen(),
+                            alert.getIsDtcAlert()
+                    );
+                } else {
+                    log.warn("getAlertInfoObj: Machine not found for alertId={}", id); // Add a log message
+                    throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_ALERT, HttpStatus.EXPECTATION_FAILED);
+                }
+            } else {
+                log.warn("getAlertInfoObj: Alert not found for id={}", id); // Add a log message
+                throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_ALERT, HttpStatus.EXPECTATION_FAILED);
+            }
+        } catch (final Exception ex) {
+            log.error("getAlertInfoObj: Internal Server Error for alertId={}. Error: {}", id, ex.getMessage(), ex);
             throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
