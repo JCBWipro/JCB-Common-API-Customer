@@ -3,6 +3,7 @@ package com.wipro.jcb.livelink.app.machines.service.impl;
 import com.wipro.jcb.livelink.app.machines.repo.AlertRepository;
 import com.wipro.jcb.livelink.app.machines.repo.MachineRepository;
 import com.wipro.jcb.livelink.app.machines.service.AlertService;
+import com.wipro.jcb.livelink.app.machines.service.response.Filter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,4 +41,30 @@ public class AlertServiceImpl implements AlertService {
         suggestions.addAll(machineRepository.getByUsersUserNameAndSuggestionSite(userName, word));
         return suggestions;
     }
+
+    @Override
+    public List<Filter> getFilters(String userName) {
+        log.debug("Fetching distinct models for user: {}", userName);
+        List<String> models = machineRepository.findDistinctModelForUsers(userName);
+        log.debug("Found {} distinct models for user: {}", models.size(), userName);
+
+        List<Filter> filters = new ArrayList<>();
+        for (String model : models) {
+            Filter f = new Filter(model);
+            filters.add(f);
+        }
+
+        log.debug("Fetching distinct platforms for user: {}", userName);
+        List<String> platforms = machineRepository.findDistinctPlatformForUsers(userName);
+        log.debug("Found {} distinct platforms for user: {}", platforms.size(), userName);
+
+        for (String platform : platforms) {
+            Filter f = new Filter(platform);
+            filters.add(f);
+        }
+
+        log.debug("Returning {} filters for user: {}", filters.size(), userName);
+        return filters;
+    }
+
 }

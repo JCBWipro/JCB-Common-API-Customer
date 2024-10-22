@@ -7,6 +7,7 @@ import com.wipro.jcb.livelink.app.machines.service.AlertService;
 import com.wipro.jcb.livelink.app.machines.service.MachineService;
 import com.wipro.jcb.livelink.app.machines.service.UserService;
 import com.wipro.jcb.livelink.app.machines.service.response.AddressResponse;
+import com.wipro.jcb.livelink.app.machines.service.response.Filter;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
@@ -170,8 +171,9 @@ public class Utilities {
             long start = System.currentTimeMillis();
 
             //final String url = "https://" + openstreetmapBasepath + "/reverse.php";
-            final String url = "https://" + openstreetmapBasepath + "/reverse.php";
+           // final String url = "https://" + openstreetmapBasepath + "/reverse.php";
             //final String url = "https://nominatim.openstreetmap.org/ui/reverse.html";
+            final String url = "https://nominatim.openstreetmap.org/ui/search.html";
             final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url)
                     .queryParam("format", "jsonv2") // Note: Using jsonv2 as per your request
                     .queryParam("lat", lat)
@@ -217,6 +219,18 @@ public class Utilities {
         }
         return new ArrayList<>();
     }
+
+    public List<Filter> getFilters(String userName, FilterSearchType type) {
+        if (FilterSearchType.ALERT.equals(type)) {
+            return alertService.getFilters(userName);
+        } else if (FilterSearchType.MACHINE.equals(type)) {
+            return machineService.getFilters(userName);
+        } else if (FilterSearchType.CUSTOMER.equals(type)) {
+            return userService.getFiltersCustomer(userName);
+        }
+        return new ArrayList<>();
+    }
+
 
 }
 

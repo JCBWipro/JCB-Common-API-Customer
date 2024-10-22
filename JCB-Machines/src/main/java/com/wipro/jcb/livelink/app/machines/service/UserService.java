@@ -1,6 +1,7 @@
 package com.wipro.jcb.livelink.app.machines.service;
 
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
+import com.wipro.jcb.livelink.app.machines.service.response.Filter;
 import com.wipro.jcb.livelink.app.machines.service.response.UserProfile;
 import org.springframework.stereotype.Component;
 
@@ -28,5 +29,7 @@ public interface UserService {
     Boolean getuserMapping(String userName);
 
     List<String> getSuggestions(String word, String userName);
+
+    List<Filter> getFiltersCustomer(String userName);
 
 }

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.wipro.jcb.livelink.app.machines.entity.Machine;
+import com.wipro.jcb.livelink.app.machines.entity.StakeHolder;
 import com.wipro.jcb.livelink.app.machines.service.response.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -110,6 +111,9 @@ public interface MachineRepository extends CrudRepository<Machine, String> {
 
     @Query("SELECT DISTINCT m.customer.phonenumber FROM Machine m join m.users u where ?1 = u.userName  AND lower(m.customer.phonenumber) LIKE lower(concat(?2,'%'))")
     public List<String> getByUserPhoneNumberAndSuggestionCustomerPhone(String userName, String search);
+
+    @Query("SELECT DISTINCT new com.wipro.jcb.livelink.app.machines.entity.StakeHolder(m.customer,m.dealer,count(m.vin) as counter) FROM Machine m join m.users u where ?1 = u.userName AND m.renewalFlag = true GROUP BY m.customer.id,m.dealer.id ORDER BY counter DESC")
+    public List<StakeHolder> getStakeHoldersByUsersUserNameWithoutPagination(String userName);
 
 
 }
