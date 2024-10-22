@@ -4,6 +4,7 @@ import com.wipro.jcb.livelink.app.alerts.dto.AlertResponse;
 import com.wipro.jcb.livelink.app.alerts.entity.Alert;
 import com.wipro.jcb.livelink.app.alerts.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.alerts.service.response.AlertInfoResponse;
+import com.wipro.jcb.livelink.app.alerts.service.response.AlertObject;
 import org.springframework.stereotype.Component;
 
 /**
@@ -19,4 +20,7 @@ public interface AlertInfoResponseService {
 
     AlertResponse getAlerts(String userName, String startDate, String endDate, int pageNumber, int pageSize,
                             String filter, String search, Boolean isVTwo) throws ProcessCustomError;
+
+    AlertObject getAlertInfoObj(String userName, String id, String vin, String startDate, String endDate)
+            throws ProcessCustomError;
 }

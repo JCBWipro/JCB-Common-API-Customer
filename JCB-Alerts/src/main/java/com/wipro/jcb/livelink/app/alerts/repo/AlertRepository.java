@@ -51,4 +51,6 @@ public interface AlertRepository extends CrudRepository<Alert, Long> {
 
     @Query("SELECT a  FROM Alert a join a.machine.users u where ?1 = u.userName AND a.isCustomerVisible = true AND a.isOpen=true AND a.eventType = ?2 order by a.isOpen DESC , a.eventGeneratedTime DESC")
     public List<Alert> findAlertByEventTypeOrderByEventGeneratedTimeDesc(String userName,EventType eventType, Pageable pageable);
+
+    Alert findById(String alertId);
 }
