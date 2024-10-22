@@ -747,4 +747,34 @@ public class MachineController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to process request"));
         }
     }
+
+    @GetMapping(value = "/filters", produces = {MediaType.APPLICATION_JSON_VALUE})
+    @Operation(summary = "Filters")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of Filters based on the type eg alerts of the machine owned by user", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseFilter.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "500", description = "Request failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
+    })
+    public ResponseEntity<?> filters(
+            @Parameter(description = "User details from the token", required = true) @RequestHeader("LoggedInUserRole") String userDetails,
+            @Parameter(description = "Filter search type") @RequestParam FilterSearchType type) {
+
+        try {
+            UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+            String userName = userResponse.getUserName();
+            if (userName == null) {
+                log.warn("filters: Username not found in user details.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiError(HttpStatus.UNAUTHORIZED, "Invalid user details"));
+            }
+
+            log.info("filters: GET Request for filter type {} user {}", type, userName);
+            ResponseFilter responseFilter = new ResponseFilter(utilities.getFilters(userName, type));
+            return ResponseEntity.ok(responseFilter);
+
+        } catch (final Exception e) {
+            log.error("filters: GET request for filter has been failed", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to process request", "SERVER_ERROR", null));
+        }
+    }
 }

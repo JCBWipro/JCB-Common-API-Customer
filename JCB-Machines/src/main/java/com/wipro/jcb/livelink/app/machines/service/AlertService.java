@@ -1,5 +1,7 @@
 package com.wipro.jcb.livelink.app.machines.service;
 
+import com.wipro.jcb.livelink.app.machines.service.response.Filter;
+
 import java.util.List;
 
 /**
@@ -10,4 +12,6 @@ import java.util.List;
 public interface AlertService {
 
     List<String> getSuggestions(String word, String userName);
+
+    List<Filter> getFilters(String userName);
 }

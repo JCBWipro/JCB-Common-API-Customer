@@ -3,11 +3,13 @@ package com.wipro.jcb.livelink.app.machines.service.impl;
 import com.wipro.jcb.livelink.app.machines.config.UsermappingThread;
 import com.wipro.jcb.livelink.app.machines.constants.MessagesList;
 import com.wipro.jcb.livelink.app.machines.constants.UserType;
+import com.wipro.jcb.livelink.app.machines.entity.StakeHolder;
 import com.wipro.jcb.livelink.app.machines.entity.User;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.machines.repo.MachineRepository;
 import com.wipro.jcb.livelink.app.machines.repo.UserRepository;
 import com.wipro.jcb.livelink.app.machines.service.UserService;
+import com.wipro.jcb.livelink.app.machines.service.response.Filter;
 import com.wipro.jcb.livelink.app.machines.service.response.UserProfile;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -162,6 +164,41 @@ public class UserServiceImpl implements UserService {
         suggestions.addAll(machineRepository.getByUsersUserNameAndSuggestionVin(userName, word));
         suggestions.addAll(machineRepository.getByUsersUserNameAndSuggestionSite(userName, word));
         return suggestions;
+    }
+
+    @Override
+    public List<Filter> getFiltersCustomer(String userName) {
+        log.debug("Fetching filters for customer: {}", userName);
+        final List<Filter> filters = new ArrayList<>();
+        final Set<String> countries = new HashSet<>();
+
+        log.debug("Retrieving stakeholders for user: {}", userName);
+        List<StakeHolder> stakeHolders = machineRepository.getStakeHoldersByUsersUserNameWithoutPagination(userName);
+        log.debug("Found {} stakeholders for user: {}", stakeHolders.size(), userName);
+
+        for (final StakeHolder stakeHolder : stakeHolders) {
+            String customerName = stakeHolder.getCustomer().getName();
+            log.debug("Processing stakeholder with customer name: {}", customerName);
+
+            User customerUser = userRepository.findByUserName(customerName);
+            if (customerUser != null) {
+                String country = customerUser.getCountry();
+                log.debug("Customer '{}' belongs to country: {}", customerName, country);
+                countries.add(country);
+            } else {
+                log.warn("Customer user not found for name: {}", customerName);
+            }
+        }
+
+        log.debug("Creating filters from {} distinct countries", countries.size());
+        for (final String country : countries) {
+            Filter filter = new Filter(country);
+            filters.add(filter);
+            log.trace("Added filter: {}", filter);
+        }
+
+        log.debug("Returning {} filters for customer: {}", filters.size(), userName);
+        return filters;
     }
 
 }
