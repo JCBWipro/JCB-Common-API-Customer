@@ -3,10 +3,17 @@ package com.wipro.jcb.livelink.app.machines.controller;
 import com.wipro.jcb.livelink.app.machines.commonUtils.AuthCommonUtils;
 import com.wipro.jcb.livelink.app.machines.commonUtils.Utilities;
 import com.wipro.jcb.livelink.app.machines.constants.MessagesList;
+import com.wipro.jcb.livelink.app.machines.dto.FeedbackRequest;
+import com.wipro.jcb.livelink.app.machines.dto.ResponseData;
 import com.wipro.jcb.livelink.app.machines.dto.ServiceCallJsonData;
 import com.wipro.jcb.livelink.app.machines.dto.UserDetails;
 import com.wipro.jcb.livelink.app.machines.entity.Machine;
+import com.wipro.jcb.livelink.app.machines.entity.User;
+import com.wipro.jcb.livelink.app.machines.entity.UsersFeedbackData;
 import com.wipro.jcb.livelink.app.machines.exception.*;
+import com.wipro.jcb.livelink.app.machines.repo.UserRepository;
+import com.wipro.jcb.livelink.app.machines.repo.UsersFeedbackDataRepo;
+import com.wipro.jcb.livelink.app.machines.service.EmailService;
 import com.wipro.jcb.livelink.app.machines.service.LoadHistoricalDataService;
 import com.wipro.jcb.livelink.app.machines.service.MachineResponseService;
 import com.wipro.jcb.livelink.app.machines.service.response.EngineFuelHistoryUtilizationDataV2;
@@ -51,6 +58,12 @@ public class EngineFuelController {
     MachineResponseService machineResponseService;
     @Autowired
     LoadHistoricalDataService loadHistoricalDataService;
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    UsersFeedbackDataRepo usersFeedbackDataRepo;
+    @Autowired
+    EmailService emailService;
 
 
     /*
@@ -236,6 +249,44 @@ public class EngineFuelController {
         }
 
     }
+
+    /**
+     * This method processes the feedback provided by the user, saves it to the database, and sends a feedback email.
+     */
+    @Operation(summary = "user Feedback information", description = "user Feedback information")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "user Feedback Information",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ResponseData.class))}),
+            @ApiResponse(responseCode = "401", description = "Auth Failed", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))}),
+            @ApiResponse(responseCode = "500", description = "Request failed", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))})})
+
+    @PostMapping(value = "/feedback", produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<?> userFeedback(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+                                          @RequestBody FeedbackRequest feedbackRequest) {
+        try {
+            UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+            String userName = userResponse.getUserName();
+            if (userName != null) {
+                final User user = userRepository.findByUserName(userName);
+                logger.info("feedback:POST Request from user {} email {} message {} ", userName, user.getEmail(),
+                        feedbackRequest.getUserFeedback());
+                usersFeedbackDataRepo.save(new UsersFeedbackData(userName, utilities.getStartDateTimeInDateFormat(0),
+                        feedbackRequest.getUserFeedback()));
+                emailService.sendFeedbackEmail(feedbackRequest.getUserFeedback(), userName);
+                return new ResponseEntity<>(
+                        new ResponseData("SUCCESS", "User feedback is processed successfully"), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+                        "No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+            }
+        } catch (final Exception e) {
+            logger.error("Processing of user Feedback is failed ", e);
+            return new ResponseEntity<>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+                    MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 
 }
