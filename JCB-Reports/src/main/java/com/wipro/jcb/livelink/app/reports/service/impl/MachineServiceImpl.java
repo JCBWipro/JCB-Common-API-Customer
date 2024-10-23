@@ -10,10 +10,12 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import com.wipro.jcb.livelink.app.reports.commonUtils.ReportUtilities;
+import com.wipro.jcb.livelink.app.reports.constants.MessagesConstantsList;
 import com.wipro.jcb.livelink.app.reports.entity.Machine;
 import com.wipro.jcb.livelink.app.reports.entity.MachineFeatureInfo;
 import com.wipro.jcb.livelink.app.reports.entity.MachineWheelLoaderData;
@@ -62,6 +64,8 @@ import com.wipro.jcb.livelink.app.reports.report.WeekelyDutyCycle;
 import com.wipro.jcb.livelink.app.reports.report.WheelLoaderGearUtilization;
 import com.wipro.jcb.livelink.app.reports.report.WheelLoaderIntelliLoadV2;
 import com.wipro.jcb.livelink.app.reports.report.WheelLoaderIntelliLoadV3;
+import com.wipro.jcb.livelink.app.reports.response.StandardMachineBaseResponse;
+import com.wipro.jcb.livelink.app.reports.response.StdMachineImagesResponse;
 import com.wipro.jcb.livelink.app.reports.service.MachineFeatureInfoService;
 import com.wipro.jcb.livelink.app.reports.service.MachineService;
 
@@ -73,6 +77,42 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 @PropertySource("application.properties")
 public class MachineServiceImpl implements MachineService {
+	
+	@Value("${livelink.premium.image.machine-utilization}")
+	private String machineUtilizationImg;
+
+	@Value("${livelink.premium.image.fuel-utilization}")
+	private String fuelUtilizationImg;
+
+	@Value("${livelink.premium.image.machine-location}")
+	private String machineLocationImg;
+
+	@Value("${livelink.premium.image.machine-operating-system}")
+	private String machineOSImg;
+
+	@Value("${livelink.premium.image.machine-utilization-ios}")
+	private String machineUtilizationImgPath;
+
+	@Value("${livelink.premium.image.fuel-utilization-ios}")
+	private String fuelUtilizationImgPath;
+
+	@Value("${livelink.premium.image.machine-location-ios}")
+	private String machineLocationImgPath;
+
+	@Value("${livelink.premium.image.machine-operating-system-ios}")
+	private String machineOSImgPath;
+	
+	@Value("${livelink.premium.image.machine-navigation}")
+	private String machineNavigationImg;
+	
+	@Value("${livelink.premium.image.machine-fencing}")
+	private String machineFencingImg;
+	
+	@Value("${livelink.premium.image.machine-navigation-ios}")
+	private String machineNavigationImgIos;
+	
+	@Value("${livelink.premium.image.machine-fencing-ios}")
+	private String machineFencingImgIos;
 	
 	@Autowired
     ReportUtilities utilities;
@@ -1476,6 +1516,59 @@ private VisualizationReport loadCompactorReportV3(String vin, Date startDate, Da
 		long elapsedTime = end - start;
 		log.info("INTELLICOMPACTOR API Duration :" + elapsedTime + "-" + vin);
 		return canCompactor;
+	}
+	
+	@Override
+	public StandardMachineBaseResponse getStandardMachineImages() {
+		StandardMachineBaseResponse standardMachineBaseResponse = new StandardMachineBaseResponse();
+		List<StdMachineImagesResponse> machineImageList = new ArrayList<StdMachineImagesResponse>();
+		String awsUrl = MessagesConstantsList.AWS_IMAGE_PREMIUM_IMAGES_URL;
+		
+		StdMachineImagesResponse imgResponseOne = new StdMachineImagesResponse();
+		imgResponseOne.setId(1);
+		imgResponseOne.setImageName("Machine Utilization");
+		imgResponseOne.setImageUrl(awsUrl+machineUtilizationImg);
+		imgResponseOne.setImagePath(awsUrl+machineUtilizationImgPath);
+
+		StdMachineImagesResponse imgResponseTwo = new StdMachineImagesResponse();
+		imgResponseTwo.setId(2);
+		imgResponseTwo.setImageName("Fuel Utilization");
+		imgResponseTwo.setImageUrl(awsUrl+fuelUtilizationImg);
+		imgResponseTwo.setImagePath(awsUrl+fuelUtilizationImgPath);
+
+		StdMachineImagesResponse imgResponseThree = new StdMachineImagesResponse();
+		imgResponseThree.setId(3);
+		imgResponseThree.setImageName("Machine Location");
+		imgResponseThree.setImageUrl(awsUrl+machineLocationImg);
+		imgResponseThree.setImagePath(awsUrl+machineLocationImgPath);
+
+		StdMachineImagesResponse imgResponseFour = new StdMachineImagesResponse();
+		imgResponseFour.setId(4);
+		imgResponseFour.setImageName("Machine Operating System");
+		imgResponseFour.setImageUrl(awsUrl+machineOSImg);
+		imgResponseFour.setImagePath(awsUrl+machineOSImgPath);
+		
+		StdMachineImagesResponse imgResponseFive = new StdMachineImagesResponse();
+		imgResponseFive.setId(5);
+		imgResponseFive.setImageName("Machine Navigation");
+		imgResponseFive.setImageUrl(awsUrl+machineNavigationImg);
+		imgResponseFive.setImagePath(awsUrl+machineNavigationImgIos);
+		
+		StdMachineImagesResponse imgResponseSix = new StdMachineImagesResponse();
+		imgResponseSix.setId(6);
+		imgResponseSix.setImageName("Machine Fencing");
+		imgResponseSix.setImageUrl(awsUrl+machineFencingImg);
+		imgResponseSix.setImagePath(awsUrl+machineFencingImgIos);
+
+		machineImageList.add(imgResponseOne);
+		machineImageList.add(imgResponseTwo);
+		machineImageList.add(imgResponseThree);
+		machineImageList.add(imgResponseFour);
+		machineImageList.add(imgResponseFive);
+		machineImageList.add(imgResponseSix);
+		standardMachineBaseResponse.setData(machineImageList);
+
+		return standardMachineBaseResponse;
 	}
 
 }

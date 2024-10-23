@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.wipro.jcb.livelink.app.reports.report.IntelliReport;
 import com.wipro.jcb.livelink.app.reports.report.VisualizationReport;
+import com.wipro.jcb.livelink.app.reports.response.StandardMachineBaseResponse;
 
 public interface MachineService {
 	
@@ -16,5 +17,7 @@ public interface MachineService {
 	VisualizationReport getReportInstanceV3(String vin, Date startDate, Date endDate);
 	
 	IntelliReport getIntelliReportV3(String vin, Date startDate, Date endDate);
+	
+	StandardMachineBaseResponse getStandardMachineImages();
 
 }
