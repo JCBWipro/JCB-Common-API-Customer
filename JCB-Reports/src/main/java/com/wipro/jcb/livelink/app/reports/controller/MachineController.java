@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wipro.jcb.livelink.app.reports.commonUtils.ReportCommonUtils;
 import com.wipro.jcb.livelink.app.reports.commonUtils.ReportUtilities;
 import com.wipro.jcb.livelink.app.reports.constants.MessagesConstantsList;
+import com.wipro.jcb.livelink.app.reports.dto.ResponseData;
 import com.wipro.jcb.livelink.app.reports.dto.UserDetails;
 import com.wipro.jcb.livelink.app.reports.entity.Machine;
 import com.wipro.jcb.livelink.app.reports.exception.ApiError;
@@ -30,6 +31,7 @@ import com.wipro.jcb.livelink.app.reports.report.AdvanceReportsV2;
 import com.wipro.jcb.livelink.app.reports.report.IntelliReportResponse;
 import com.wipro.jcb.livelink.app.reports.report.ReportResponseV2;
 import com.wipro.jcb.livelink.app.reports.report.VisualizationReportResponse;
+import com.wipro.jcb.livelink.app.reports.service.AdvanceLoadHistoricalDataService;
 import com.wipro.jcb.livelink.app.reports.service.AdvanceReportService;
 import com.wipro.jcb.livelink.app.reports.service.CustomerReportService;
 import com.wipro.jcb.livelink.app.reports.service.MachineResponseService;
@@ -68,6 +70,9 @@ public class MachineController {
 	
 	@Autowired
 	private AdvanceReportService advanceReportService;
+	
+	@Autowired
+	private AdvanceLoadHistoricalDataService advancedLoadHistoricalDataService;
 	
 	/*
 	 * This End Point is to Get Machine Reports Data
@@ -388,6 +393,46 @@ public class MachineController {
 			log.error("getMachineIntelliReportV3 Report data failed: " + e.getMessage());
 			return new ResponseEntity<ApiError>(
 					new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR, MessagesConstantsList.ADVANCE_REPORT_ERROR,
+							MessagesConstantsList.APP_REQUEST_PROCESSING_FAILED, null),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	/*
+	 * This End Point is for Join Premium
+	 */
+	@CrossOrigin
+	@Operation(summary = "Join Premium", description = "Join Premium")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Join Premium"),
+			@ApiResponse(responseCode = "401", description = "Auth Failed"),
+			@ApiResponse(responseCode = "500", description = "Request failed") })
+	@GetMapping("/joinpremium")
+	public ResponseEntity<?> joinpremium(@RequestHeader(MessagesConstantsList.LoggedInUserRole) String userDetails,
+			@RequestParam("vin") String vin) {
+		String userName = null;
+		try {
+			UserDetails userResponse = ReportCommonUtils.getUserDetails(userDetails);
+			userName = userResponse.getUserName();
+			log.info("Join Premium Method Started " + userName);
+			if (userName != null) {
+				String response = advancedLoadHistoricalDataService.joinpremium(userName, vin);
+				if (response.contains("SUCCESS-")) {
+					log.info("Join Premium Method Completed");
+					response = response.split("-")[1];
+					return new ResponseEntity<ResponseData>(new ResponseData("Success", response), HttpStatus.OK);
+				} else {
+					log.info("Join Premium Method Failed " + vin + " - " + response);
+					return new ResponseEntity<ResponseData>(new ResponseData("Failed", "Please try again later"), HttpStatus.EXPECTATION_FAILED);
+				}
+			} else {
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+		} catch (final Exception e) {
+			log.error("Issue faced while join premium");
+			return new ResponseEntity<ApiError>(
+					new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+							MessagesConstantsList.APP_REQUEST_PROCESSING_FAILED,
 							MessagesConstantsList.APP_REQUEST_PROCESSING_FAILED, null),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
