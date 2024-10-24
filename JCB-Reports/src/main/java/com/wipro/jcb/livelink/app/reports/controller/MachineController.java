@@ -31,6 +31,7 @@ import com.wipro.jcb.livelink.app.reports.report.AdvanceReportsV2;
 import com.wipro.jcb.livelink.app.reports.report.IntelliReportResponse;
 import com.wipro.jcb.livelink.app.reports.report.ReportResponseV2;
 import com.wipro.jcb.livelink.app.reports.report.VisualizationReportResponse;
+import com.wipro.jcb.livelink.app.reports.response.StandardMachineBaseResponse;
 import com.wipro.jcb.livelink.app.reports.service.AdvanceLoadHistoricalDataService;
 import com.wipro.jcb.livelink.app.reports.service.AdvanceReportService;
 import com.wipro.jcb.livelink.app.reports.service.CustomerReportService;
@@ -437,5 +438,26 @@ public class MachineController {
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	/*
+	 * This End Point is for Premium Machine Images
+	 */
+	@CrossOrigin
+	@Operation(summary = "Premium Machine Images", description = "Premium Machine Images")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Premium Machine Images"),
+			@ApiResponse(responseCode = "401", description = "Auth Failed"),
+			@ApiResponse(responseCode = "500", description = "Request failed") })
+	@Transactional(readOnly = true)
+	@GetMapping("/premiummachineimages")
+	public ResponseEntity<?> getStandardImages(@RequestHeader(MessagesConstantsList.LoggedInUserRole) String userDetails) {
+		try {
+			return new ResponseEntity<StandardMachineBaseResponse>(machineService.getStandardMachineImages(),HttpStatus.ACCEPTED);	
+		} catch (final Exception e) {
+			log.error("Issue faced while fetching images.");
+			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+					MessagesConstantsList.APP_REQUEST_PROCESSING_FAILED, MessagesConstantsList.APP_REQUEST_PROCESSING_FAILED, null),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}	
 
 }

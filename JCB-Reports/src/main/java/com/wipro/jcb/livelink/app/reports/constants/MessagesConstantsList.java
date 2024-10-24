@@ -41,5 +41,8 @@ public class MessagesConstantsList {
 	public static final String NO_FIRMWARE = "No Firmware";
 	public static final String LL2 = "LL2";
 	public static final String LL4 = "LL4";
+	
+	//AWS Machine Image URLs
+	public static final String AWS_IMAGE_PREMIUM_IMAGES_URL = "https://s3-ap-south-1.amazonaws.com/linkecoservice-store/llpluspremiumimages/";
 
 }
