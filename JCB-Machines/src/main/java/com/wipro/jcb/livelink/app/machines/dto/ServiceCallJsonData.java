@@ -37,5 +37,13 @@ public class ServiceCallJsonData {
 
     @JsonProperty("field_name")
     private String fieldName;
+    public ServiceCallJsonData(String label, String field, String type, Boolean required, String fieldName) {
+        super();
+        this.label = label;
+        this.field = field;
+        this.type = type;
+        this.required = required;
+        this.fieldName = fieldName;
+    }
 
 }

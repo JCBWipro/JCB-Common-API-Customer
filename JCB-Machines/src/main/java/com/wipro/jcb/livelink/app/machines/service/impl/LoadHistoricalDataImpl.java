@@ -26,9 +26,9 @@ public class LoadHistoricalDataImpl implements LoadHistoricalDataService {
     public String fetchServiceCallData() {
         String jsonCartList = "";
         try {
-            List<ServiceCallJsonData> ServiceCallDataList = serviceCallJsonRepository.getJsonData();
-            ServiceCallDataList.get(0).getLabel().replaceAll("/", "");
-            jsonCartList = ServiceCallDataList.get(0).getLabel();
+            List<ServiceCallJsonData> serviceCallDataList = serviceCallJsonRepository.getJsonData();
+            serviceCallDataList.get(0).getLabel().replaceAll("/", "");
+            jsonCartList = serviceCallDataList.get(0).getLabel();
         } catch (Exception e) {
             log.error("Error occurred in  fetchServiceCallData Service:{}", e.getMessage());
         }
