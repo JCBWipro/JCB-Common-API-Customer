@@ -4,6 +4,8 @@ import com.wipro.jcb.livelink.app.alerts.commonUtils.AlertUtilities;
 import com.wipro.jcb.livelink.app.alerts.constants.EventType;
 import com.wipro.jcb.livelink.app.alerts.constants.MessagesList;
 import com.wipro.jcb.livelink.app.alerts.dto.AlertResponse;
+import com.wipro.jcb.livelink.app.alerts.dto.ServiceAlert;
+import com.wipro.jcb.livelink.app.alerts.dto.ServiceAlertList;
 import com.wipro.jcb.livelink.app.alerts.entity.Alert;
 import com.wipro.jcb.livelink.app.alerts.entity.Machine;
 import com.wipro.jcb.livelink.app.alerts.entity.MachineServiceHistory;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -309,5 +312,108 @@ public class AlertInfoResponseServiceImpl implements AlertInfoResponseService {
             log.error("getAlertInfoObj: Internal Server Error for alertId={}. Error: {}", id, ex.getMessage(), ex);
             throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * Retrieves a list of service alerts for a specified user within a given date range, applying filters and pagination.r
+     */
+    @Override
+    public ServiceAlertList getServiceAlertsList(String userName, String startDate, String endDate, int pageNumber,
+                                                 int pageSize, String filter, String search, Boolean isVTwo) throws ProcessCustomError {
+        AlertCount alertCount = null;
+        if (pageNumber == 0) {
+            List<AlertCountByEventType> alertList;
+            if(!isVTwo) {
+                alertList = alertRepository.getAlertCountByEventType(userName, false, true);
+            } else {
+                alertList = alertRepository.getAlertCountByEventType(userName, true);
+            }
+            alertCount = new AlertCount();
+            for (AlertCountByEventType alertCountByEventType : alertList) {
+                switch (alertCountByEventType.getEventType()) {
+                    case Health:
+                        alertCount.setHealth(alertCountByEventType.getMachineCount().intValue());
+                        break;
+                    case Security:
+                        alertCount.setSecurity(alertCountByEventType.getMachineCount().intValue());
+                        break;
+                    case Landmark:
+                        alertCount.setLocation(alertCountByEventType.getMachineCount().intValue());
+                        break;
+                    case Service:
+                        alertCount.setService(alertCountByEventType.getMachineCount().intValue());
+                        break;
+                    case Utilization:
+                        alertCount.setUtilization(alertCountByEventType.getMachineCount().intValue());
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        try {
+            final List<ServiceAlert> serviceAlerts = new ArrayList<>();
+            if (!"optional".equals(filter)) {
+                // valid filter
+                final List<String> filterList = new ArrayList<>();
+                Collections.addAll(filterList, filter.split(","));
+                if ("optional".equals(search)) {
+                    final List<Alert> alerts;
+                    if(!isVTwo) {
+                        alerts = alertRepository.getAlertsUsingFilter(userName, EventType.Service, filterList, PageRequest.of(pageNumber, pageSize));
+                    } else {
+                        alerts = alertRepository.getAlertsUsingFilterVTwo(userName, EventType.Service, filterList, PageRequest.of(pageNumber, pageSize));
+                    }
+                    loadServiceAlertdetailsFromList(serviceAlerts, alerts, startDate, endDate);
+
+                } else {
+                    final List<Alert> alerts = alertRepository.getAlertsUsingFilterSearch(userName, EventType.Service,
+                            search, filterList, PageRequest.of(pageNumber, pageSize));
+                    loadServiceAlertdetailsFromList(serviceAlerts, alerts, startDate, endDate);
+                }
+            } else {
+                // Invalid Filter
+                if ("optional".equals(search)) {
+                    final List<Alert> alerts;
+                    if(!isVTwo) {
+                        alerts = alertRepository.findAlertByEventType(userName, EventType.Service,
+                                PageRequest.of(pageNumber, pageSize));
+                    } else {
+                        alerts = alertRepository.findAlertByEventTypeOrderByEventGeneratedTimeDesc(userName, EventType.Service,
+                                PageRequest.of(pageNumber, pageSize));
+                    }
+                    loadServiceAlertdetailsFromList(serviceAlerts, alerts, startDate, endDate);
+
+                } else {
+                    final List<Alert> alerts = alertRepository.getAlertsUsingSearch(userName,EventType.Service, search, PageRequest.of(pageNumber, pageSize));
+                    loadServiceAlertdetailsFromList(serviceAlerts, alerts, startDate, endDate);
+                }
+            }
+            return new ServiceAlertList(serviceAlerts, alertCount);
+        } catch (final ProcessCustomError ex) {
+            ex.printStackTrace();
+            throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    //load the service alert data from database to response object by mobile application
+    private void loadServiceAlertdetailsFromList(final List<ServiceAlert> serviceAlerts, final List<Alert> alerts,
+                                                 String startDate, String endDate) throws ProcessCustomError{
+        try {
+            for (final Alert alert : alerts) {
+                final Machine machine = alert.getMachine();
+                serviceAlerts.add(new ServiceAlert(alert.getId(), alert.getVin(), alert.getEventGeneratedTime(),
+                        alert.getEventName(), alert.getEventLevel(), alert.getEventDescription(),
+                        "NA".equals(alert.getLocation()) ? "-" : alert.getLocation(), machine.getThumbnail(),
+                        machine.getModel(), alert.getReadFlag(), getAlertInfo(alert, startDate, endDate),
+                        machine.getTag(), machine.getPlatform(), alert.getIsOpen(), alert.getIsDtcAlert()));
+            }
+        } catch (final Exception ex) {
+            ex.printStackTrace();
+            log.error("loadServiceAlertdetailsFromList : Internal Server Error{}", ex.getMessage());
+            throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 }

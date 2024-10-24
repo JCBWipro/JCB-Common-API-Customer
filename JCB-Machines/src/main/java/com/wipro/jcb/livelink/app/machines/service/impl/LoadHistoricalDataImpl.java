@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -15,7 +14,6 @@ import java.util.List;
  * Author: Jitendra Prasad
  * User: JI20319932
  * Date:10/10/2024
- * project: JCB-Common-API-Customer
  */
 @Slf4j
 @Service
@@ -23,15 +21,17 @@ public class LoadHistoricalDataImpl implements LoadHistoricalDataService {
     @Autowired
     ServiceCallJsonRepository serviceCallJsonRepository;
 
+    //Fetches service call data from the repository and processes it
     @Override
-    public List<ServiceCallJsonData> fetchServiceCallData() {
-        List<ServiceCallJsonData> serviceCallDataList = new ArrayList<>();
+    public String fetchServiceCallData() {
+        String jsonCartList = "";
         try {
-            serviceCallDataList = serviceCallJsonRepository.getJsonData();
+            List<ServiceCallJsonData> serviceCallDataList = serviceCallJsonRepository.getJsonData();
+            serviceCallDataList.get(0).getLabel().replaceAll("/", "");
+            jsonCartList = serviceCallDataList.get(0).getLabel();
         } catch (Exception e) {
-            log.error("Error occured in  fetchServiceCallData Service:{}", e.getMessage());
-            e.printStackTrace();
+            log.error("Error occurred in  fetchServiceCallData Service:{}", e.getMessage());
         }
-        return serviceCallDataList;
+        return jsonCartList;
     }
 }
