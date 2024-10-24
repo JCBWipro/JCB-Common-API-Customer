@@ -5,18 +5,17 @@ import com.wipro.jcb.livelink.app.machines.commonUtils.Utilities;
 import com.wipro.jcb.livelink.app.machines.constants.MessagesList;
 import com.wipro.jcb.livelink.app.machines.dto.FeedbackRequest;
 import com.wipro.jcb.livelink.app.machines.dto.ResponseData;
-import com.wipro.jcb.livelink.app.machines.dto.ServiceCallJsonData;
 import com.wipro.jcb.livelink.app.machines.dto.UserDetails;
 import com.wipro.jcb.livelink.app.machines.entity.Machine;
 import com.wipro.jcb.livelink.app.machines.entity.User;
 import com.wipro.jcb.livelink.app.machines.entity.UsersFeedbackData;
-import com.wipro.jcb.livelink.app.machines.exception.*;
+import com.wipro.jcb.livelink.app.machines.exception.ApiError;
+import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.machines.repo.UserRepository;
 import com.wipro.jcb.livelink.app.machines.repo.UsersFeedbackDataRepo;
 import com.wipro.jcb.livelink.app.machines.service.EmailService;
 import com.wipro.jcb.livelink.app.machines.service.LoadHistoricalDataService;
 import com.wipro.jcb.livelink.app.machines.service.MachineResponseService;
-import com.wipro.jcb.livelink.app.machines.service.response.EngineFuelHistoryUtilizationDataV2;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -36,9 +35,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.HttpURLConnection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Author: Jitendra Prasad
@@ -100,7 +96,7 @@ public class EngineFuelController {
                         if (utilities.getDate(endDate).before(new Date()) && utilities.getDate(startDate).before(new Date())) {
 
                             if (utilities.getDate(startDate).before(utilities.getDate(endDate)) || utilities.getDate(startDate).equals(utilities.getDate(endDate))) {
-                                return new ResponseEntity<EngineFuelHistoryUtilizationDataV2>(machineResponseService
+                                return new ResponseEntity<>(machineResponseService
                                         .getEngineFuelDetailData(vin, utilities.getDate(startDate), utilities.getDate(endDate), type),
                                         HttpStatus.OK);
                             } else {
@@ -122,7 +118,7 @@ public class EngineFuelController {
 
             } else {
                 logger.info("getEngineFuelDetailData: No valid session present");
-                return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+                return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED,
                         "No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
             }
         } catch (final ProcessCustomError e) {
@@ -147,21 +143,16 @@ public class EngineFuelController {
             @ApiResponse(responseCode = "500", description = "Request failed", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))})})
     @GetMapping("/servicecalljson")
     public ResponseEntity<?> getServiceCallJson(
-            @RequestHeader("LoggedInUserRole") String userDetails,
-            @RequestParam(value = "minusDays", defaultValue = "optional") Integer minusDays
+            @RequestHeader("LoggedInUserRole") String userDetails
     ) {
         UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
         String userName = userResponse.getUserName();
-        Map<String, Object> response = null;
         try {
             log.info("Calling getServiceCallJson API");
 
             if (userName != null) {
-                List<ServiceCallJsonData> request = loadHistoricalDataService.fetchServiceCallData();
-                response = new HashMap<>();
-                response.put("Days", minusDays);
-                response.put("servicecallrequest", request);
-                return new ResponseEntity<>(response, HttpStatus.OK);
+                String request=loadHistoricalDataService.fetchServiceCallData();
+                return ResponseEntity.ok(request);
             } else {
                 return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED, "No valid session present","Session expired", null), HttpStatus.EXPECTATION_FAILED);
 
@@ -208,7 +199,7 @@ public class EngineFuelController {
                         }
                         if(utilities.getDate(endDate).before(new Date()) && utilities.getDate(startDate).before(new Date())) {
                             if(utilities.getDate(startDate).before(utilities.getDate(endDate)) || utilities.getDate(startDate).equals(utilities.getDate(endDate))) {
-                                return new ResponseEntity<EngineFuelHistoryUtilizationDataV2>(machineResponseService
+                                return new ResponseEntity<>(machineResponseService
                                         .getMachineEngineFuelDataV3(vin, utilities.getDate(startDate), utilities.getDate(endDate)),
                                         HttpStatus.OK);
                             }else {
@@ -276,7 +267,7 @@ public class EngineFuelController {
                 return new ResponseEntity<>(
                         new ResponseData("SUCCESS", "User feedback is processed successfully"), HttpStatus.OK);
             } else {
-                return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+                return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED,
                         "No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
             }
         } catch (final Exception e) {

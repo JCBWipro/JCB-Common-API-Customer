@@ -1,9 +1,6 @@
 package com.wipro.jcb.livelink.app.machines.service;
 
-import com.wipro.jcb.livelink.app.machines.dto.ServiceCallJsonData;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 /**
  * Author: Jitendra Prasad
@@ -13,6 +10,6 @@ import java.util.List;
  */
 @Component
 public interface LoadHistoricalDataService {
-    List<ServiceCallJsonData> fetchServiceCallData();
+    String fetchServiceCallData();
 
 }

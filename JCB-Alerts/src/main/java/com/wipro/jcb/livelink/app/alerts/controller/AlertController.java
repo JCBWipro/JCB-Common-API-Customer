@@ -4,11 +4,11 @@ import com.wipro.jcb.livelink.app.alerts.commonUtils.AlertCommonUtils;
 import com.wipro.jcb.livelink.app.alerts.commonUtils.AlertUtilities;
 import com.wipro.jcb.livelink.app.alerts.constants.MessagesList;
 import com.wipro.jcb.livelink.app.alerts.dto.AlertResponse;
+import com.wipro.jcb.livelink.app.alerts.dto.ServiceAlertList;
 import com.wipro.jcb.livelink.app.alerts.dto.UserDetails;
 import com.wipro.jcb.livelink.app.alerts.exception.ApiError;
 import com.wipro.jcb.livelink.app.alerts.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.alerts.service.AlertInfoResponseService;
-
 import com.wipro.jcb.livelink.app.alerts.service.response.AlertObject;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,7 +18,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -52,6 +51,10 @@ public class AlertController {
 
     @Autowired
     AlertUtilities alertUtilities;
+
+    @Autowired
+    AlertInfoResponseService alertInfoResponeService;
+
 
     @GetMapping(value = "/alertsV2")
     @Operation(summary = "Get alerts information typed by alert type. Giving previous 7 days data by default.")
@@ -163,6 +166,52 @@ public class AlertController {
 
         } catch (final Exception e) {
             log.error("Issue faced while getting alertInfo for id {} ", id, e);
+            return new ResponseEntity<>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+                    MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Retrieves a list of service alerts for the machines of the current user.
+     */
+    @Operation(summary = "List all service alerts for machines of current user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of Service Alerts",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ServiceAlertList.class))),
+            @ApiResponse(responseCode = "401", description = "Auth Failed",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))) })
+    @GetMapping( value = "/servicealertsV2", produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<?> getServiceAlertsVTwo(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+                                                  @RequestParam(value = "from", defaultValue = "serverdecided") String from,
+                                                  @RequestParam(value = "to", defaultValue = "serverdecided") String to,
+                                                  @RequestParam("pageNumber") String pageNumber,
+                                                  @RequestParam(value = "pageSize", defaultValue = "${controller.customer.servicealerts.pageSize}") String pageSize,
+                                                  @Parameter(description ="3DX Super ecoXcellence,2DX Super ecoXcellence") @RequestParam(value = "filter", defaultValue = "optional") String filter,
+                                                  @RequestParam(value = "search", defaultValue = "optional") String search) {
+        try {
+            if ("serverdecided".equals(from)) {
+                from = alertUtilities.getStartDate(loadAlertDataForDays);
+            }
+            if ("serverdecided".equals(to)) {
+                to = alertUtilities.getEndDate(1);
+            }
+            UserDetails userResponse = AlertCommonUtils.getUserDetails(userDetails);
+            String userName = userResponse.getUserName();
+            if (userName != null) {
+                log.info("servicealerts: GET Request for user {}", userName);
+                return new ResponseEntity<>(alertInfoResponeService.getServiceAlertsList(userName, from,
+                        to, Integer.parseInt(pageNumber), Integer.parseInt(pageSize), filter, search, true),
+                        HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+                        "No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+            }
+        } catch (final Exception e) {
+            log.error("servicealerts: Failed GET all servicealerts for Customer");
+            e.getMessage();
             return new ResponseEntity<>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
                     MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
                     HttpStatus.INTERNAL_SERVER_ERROR);

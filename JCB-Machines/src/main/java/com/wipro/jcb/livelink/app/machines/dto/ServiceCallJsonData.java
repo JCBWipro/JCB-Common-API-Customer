@@ -1,23 +1,41 @@
 package com.wipro.jcb.livelink.app.machines.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
+
 import java.util.List;
 
-/**
+/*
  * Author: Jitendra Prasad
  * User: JI20319932
  * Date:10/10/2024
- * project: JCB-Common-API-Customer
  */
-public interface ServiceCallJsonData {
-    String getlabel();
 
-    String getfield();
+/**
+ * The ServiceCallJsonData class represents the structure of a JSON object used in service calls.
+ */
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+public class ServiceCallJsonData {
+    @JsonProperty("label")
+    private String label;
 
-    List<String> getvalue();
+    @JsonProperty("field")
+    private String field;
 
-    String gettype();
+    @JsonProperty("value")
+    private List<String> value;
 
-    Boolean getrequired();
+    @JsonProperty("type")
+    private String type;
 
-    String getfield_name();
+    @JsonProperty("required")
+    private Boolean required;
+
+    @JsonProperty("field_name")
+    private String fieldName;
+
 }
