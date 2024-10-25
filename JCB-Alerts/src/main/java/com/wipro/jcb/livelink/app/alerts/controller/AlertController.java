@@ -4,6 +4,7 @@ import com.wipro.jcb.livelink.app.alerts.commonUtils.AlertCommonUtils;
 import com.wipro.jcb.livelink.app.alerts.commonUtils.AlertUtilities;
 import com.wipro.jcb.livelink.app.alerts.constants.MessagesList;
 import com.wipro.jcb.livelink.app.alerts.dto.AlertResponse;
+import com.wipro.jcb.livelink.app.alerts.dto.ApiOK;
 import com.wipro.jcb.livelink.app.alerts.dto.ServiceAlertList;
 import com.wipro.jcb.livelink.app.alerts.dto.UserDetails;
 import com.wipro.jcb.livelink.app.alerts.exception.ApiError;
@@ -215,6 +216,43 @@ public class AlertController {
             return new ResponseEntity<>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
                     MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
                     HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @PutMapping(value = "/notify")
+    @Operation(summary = "Enable/Disable notification")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Enable/Disable notification status", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiOK.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "500", description = "Request failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
+    })
+    public ResponseEntity<?> notify(
+            @Parameter(description = "User details from the token", required = true) @RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+            @RequestBody Boolean enable) {
+
+        try {
+            UserDetails userResponse = AlertCommonUtils.getUserDetails(userDetails);
+            String userName = userResponse.getUserName();
+            if (userName == null) {
+                log.warn("notify: Username not found in user details.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiError(HttpStatus.UNAUTHORIZED, "Invalid user details"));
+            }
+
+            log.info("notify: PUT Request from user: {}", userName);
+            Boolean updatedStatus = alertUtilities.enableDisableNotification(userName, enable);
+
+            String res = updatedStatus ? "Notification has been enabled" : "Notification has been disabled";
+            log.info(res);
+            return ResponseEntity.ok(new ApiOK(res));
+
+        } catch (final ProcessCustomError e) {
+            log.error("Enable/Disable notification failed for user: {}", e.getMessage(), e);
+            return ResponseEntity.status(e.getStatus())
+                    .body(new ApiError(e.getStatus(), e.getMessage(), e.getErrorCode(), e.getDetails()));
+
+        } catch (final Exception e) {
+            log.error("Enable/Disable notification failed: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to process request", "SERVER_ERROR", null));
         }
     }
 
