@@ -44,7 +44,7 @@ public class AESEncryption {
     /**
      * Encrypts the given string using AES encryption.
      *
-     * @param strToEncrypt The string to encrypt.
+     * @param strToEncrypt The string to encrypt. this string represents location in unique ID form.
      * @param secret       The secret key to use for encryption.
      * @return The encrypted string encoded in Base64, or null if encryption fails.
      */
