@@ -1,23 +1,49 @@
 package com.wipro.jcb.livelink.app.machines.service.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.*;
 
-import java.util.List;
+import java.io.Serializable;
 
 /**
  * Author: Rituraj Azad
  * User: RI20474447
  * Date:27-09-2024
- * project: JCB-Common-API-Customer
  */
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class LiveLocationData {
+public class LiveLocationData implements Serializable {
 
-    private List<StandardData> responseData;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String link;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String vin;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Double latitude;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Double longitude;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String statusAsOnTime;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String status;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String message;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String expiryTime;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String address;
+
+    public LiveLocationData(String link, String vin) {
+
+        this.link = link;
+        this.vin= vin;
+    }
+
 }

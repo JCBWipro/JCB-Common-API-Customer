@@ -4,16 +4,14 @@ import com.wipro.jcb.livelink.app.machines.commonUtils.DateValue;
 import com.wipro.jcb.livelink.app.machines.commonUtils.DoubleValue;
 import com.wipro.jcb.livelink.app.machines.commonUtils.IntegerValue;
 import com.wipro.jcb.livelink.app.machines.commonUtils.Utilities;
+import com.wipro.jcb.livelink.app.machines.config.AESEncryption;
 import com.wipro.jcb.livelink.app.machines.constants.FuelLevelNAConstant;
 import com.wipro.jcb.livelink.app.machines.constants.MessagesList;
 import com.wipro.jcb.livelink.app.machines.dto.EngineHistoryDataListV2;
 import com.wipro.jcb.livelink.app.machines.dto.FuelHistoryDataListV2;
 import com.wipro.jcb.livelink.app.machines.dto.MachineDetailResponse;
 import com.wipro.jcb.livelink.app.machines.dto.MachineResponseV2;
-import com.wipro.jcb.livelink.app.machines.entity.Machine;
-import com.wipro.jcb.livelink.app.machines.entity.MachineEnginestatusHistory;
-import com.wipro.jcb.livelink.app.machines.entity.MachineFeedLocation;
-import com.wipro.jcb.livelink.app.machines.entity.MachineFeedParserData;
+import com.wipro.jcb.livelink.app.machines.entity.*;
 import com.wipro.jcb.livelink.app.machines.enums.ServiceStatus;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.machines.repo.*;
@@ -28,8 +26,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -43,7 +39,6 @@ import static com.wipro.jcb.livelink.app.machines.constants.AppServerConstants.*
  * Author: Rituraj Azad
  * User: RI20474447
  * Date:16-09-2024
- * project: JCB-Common-API-Customer
  */
 @Slf4j
 @Service
@@ -74,11 +69,20 @@ public class MachineResponseServiceImpl implements MachineResponseService {
     @Autowired
     MachineService machineService;
 
+    @Autowired
+    LiveLocationRepository liveLocationRepository;
+
     @Value("${livelinkserver.resttemplateurl}")
     String restTemplateUrl;
 
     @Value("${server.evn.baseurl}")
     String env;
+
+    @Value("${user.secret}")
+    String secret;
+
+    @Value("${machine.livelocationurl}")
+    String liveLocationUrl;
 
     private void loadMachineResponseListV2(final Machine machine, final List<MachineResponseV2> machineResponse,
                                            final String machineStartDateRange, final String machineEndDateRange,
@@ -1069,4 +1073,59 @@ public class MachineResponseServiceImpl implements MachineResponseService {
         return engineFuelHistoryUtilizationData;
     }
 
+    @Override
+    public LiveLocationData generateLiveLocationLink(String vin, String slot, String userName) throws ProcessCustomError {
+        log.info("generateLiveLocationLink: Generating live location link for VIN: {}, Slot: {}, User: {}", vin, slot, userName);
+
+        LiveLocationData locationDetails =null;
+        final long currentTime = utilities.getCurrentTime();
+
+        try {
+            String[] slotHours = slot.split("_");
+            int time;
+            if (slotHours.length > 1 && "days".equalsIgnoreCase(slotHours[1])) {
+                time = Integer.parseInt(slotHours[0]) * 24;
+            } else {
+                time = Integer.parseInt(slotHours[0]);
+            }
+
+            MachineLiveLocation newLocation = new MachineLiveLocation();
+            newLocation.setSlot(slot);
+            newLocation.setStatus(true);
+            newLocation.setUserId(userName);
+            newLocation.setVin(vin);
+
+            // Calculate expiry time using Calendar (not deprecated)
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.HOUR_OF_DAY, time);
+            newLocation.setExpiryTime(calendar.getTime());
+
+            newLocation.setHitCount(0);
+            newLocation.setUpdatedAt(new Date());
+            newLocation.setUniqueId(utilities.getUniqueID() + currentTime);
+            newLocation.setDay(utilities.getDate(utilities.getStartDate(0)));
+
+            String link = AESEncryption.encrypt(newLocation.getUniqueId(), secret);
+            log.debug("generateLiveLocationLink: Encrypted link: {}", link);
+
+            if (link != null) {
+                link = link.replaceAll("==", "");
+                log.debug("generateLiveLocationLink: Link after removing '==' : {}", link);
+                newLocation.setLink(link);
+            } else {
+                log.error("generateLiveLocationLink: Encryption failed, link is null.");
+                throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED, "Failed to generate link", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
+            liveLocationRepository.save(newLocation);
+            log.info("generateLiveLocationLink: Live location link generated: {}{}", liveLocationUrl, link);
+
+            locationDetails = new LiveLocationData(liveLocationUrl + link,vin);
+        } catch (Exception e) {
+            log.error("generateLiveLocationLink: Exception while generating link: {}", e.getMessage(), e);
+            throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED, "Failed to generate link", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return locationDetails;
+    }
 }

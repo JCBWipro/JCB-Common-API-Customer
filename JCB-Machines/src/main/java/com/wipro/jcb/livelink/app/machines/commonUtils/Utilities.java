@@ -231,6 +231,9 @@ public class Utilities {
         return new ArrayList<>();
     }
 
-
+    public String getUniqueID() {
+        final UUID idOne = UUID.randomUUID();
+        return idOne.toString();
+    }
 }
 
