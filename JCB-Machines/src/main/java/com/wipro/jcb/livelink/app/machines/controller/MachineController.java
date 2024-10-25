@@ -3,6 +3,7 @@ package com.wipro.jcb.livelink.app.machines.controller;
 import com.wipro.jcb.livelink.app.machines.commonUtils.AuthCommonUtils;
 import com.wipro.jcb.livelink.app.machines.commonUtils.Utilities;
 import com.wipro.jcb.livelink.app.machines.config.AppConfiguration;
+import com.wipro.jcb.livelink.app.machines.constants.ConstantConfig;
 import com.wipro.jcb.livelink.app.machines.constants.MessagesList;
 import com.wipro.jcb.livelink.app.machines.dto.ApiOK;
 import com.wipro.jcb.livelink.app.machines.dto.ResponseData;
@@ -775,6 +776,49 @@ public class MachineController {
             log.error("filters: GET request for filter has been failed", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to process request", "SERVER_ERROR", null));
+        }
+    }
+
+    @GetMapping(value = "/generatelink", produces = {MediaType.APPLICATION_JSON_VALUE})
+    @Operation(summary = "Generate live location link")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Live Location Link", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MachineListResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Auth Failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "500", description = "Request failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
+    })
+    @Transactional(timeout = ConstantConfig.REQUEST_TIMEOUT, readOnly = false)
+    public ResponseEntity<?> generateLiveLocationLink(@RequestHeader("LoggedInUserRole") String userDetails,
+                                                                     @RequestParam(value = "vin") String vin,
+                                                                     @RequestParam(value = "slot") String slot) {
+        try {
+            UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+            String userName = userResponse.getUserName();
+            if (userName != null) {
+                log.info("Generate link: GET request from user {}", userName);
+                if (!vin.isEmpty() && !slot.isEmpty()) {
+                    Machine machine = machineResponseService.getMachineDetails(vin, userName);
+                    if (machine != null) {
+                        LiveLocationData liveLocationData = machineResponseService.generateLiveLocationLink(vin, slot, userName);
+                        return new ResponseEntity<>(liveLocationData, HttpStatus.OK);
+                    } else {
+                        return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED, "Please select correct machine", "Please select correct machine", null), HttpStatus.EXPECTATION_FAILED);
+                    }
+                } else {
+                    return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED, "Please give vin and slot", "Please give vin and slot", null), HttpStatus.EXPECTATION_FAILED);
+                }
+
+            } else {
+                return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+                        "No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+            }
+        } catch (final ProcessCustomError e) {
+            log.error("Issue faced while generating live location {}", e.getMessage());
+            return new ResponseEntity<>(e.getApiMessages(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (final Exception e) {
+            log.error("Issue faced while generating the live location{}", e.getMessage());
+            return new ResponseEntity<>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+                    MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -2,10 +2,7 @@ package com.wipro.jcb.livelink.app.machines.service;
 
 import com.wipro.jcb.livelink.app.machines.entity.Machine;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
-import com.wipro.jcb.livelink.app.machines.service.response.EngineFuelHistoryUtilizationDataV2;
-import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponseV2;
-import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponseV3;
-import com.wipro.jcb.livelink.app.machines.service.response.MachineResponseV3;
+import com.wipro.jcb.livelink.app.machines.service.response.*;
 
 import java.util.Date;
 
@@ -13,7 +10,6 @@ import java.util.Date;
  * Author: Rituraj Azad
  * User: RI20474447
  * Date:14-09-2024
- * project: JCB-Common-API-Customer
  */
 public interface MachineResponseService {
 
@@ -74,4 +70,5 @@ public interface MachineResponseService {
     EngineFuelHistoryUtilizationDataV2 getMachineEngineFuelDataV3(String vin, Date startDate, Date endDate) throws ProcessCustomError;
 
 
+    LiveLocationData generateLiveLocationLink(String vin, String slot, String userName)throws ProcessCustomError;
 }
