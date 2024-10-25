@@ -1,12 +1,20 @@
 package com.wipro.jcb.livelink.app.alerts.commonUtils;
 
 import com.wipro.jcb.livelink.app.alerts.constants.AppServerConstants;
+import com.wipro.jcb.livelink.app.alerts.constants.MessagesList;
+import com.wipro.jcb.livelink.app.alerts.entity.UserNotificationDetail;
+import com.wipro.jcb.livelink.app.alerts.exception.ProcessCustomError;
+import com.wipro.jcb.livelink.app.alerts.repo.UserNotificationDetailRepo;
+import com.wipro.jcb.livelink.app.alerts.service.AppServerTokenService;
+import com.wipro.jcb.livelink.app.alerts.service.LivelinkUserTokenService;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -20,6 +28,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.wipro.jcb.livelink.app.alerts.constants.AppServerConstants.timezone;
 
@@ -27,7 +36,6 @@ import static com.wipro.jcb.livelink.app.alerts.constants.AppServerConstants.tim
  * Author: Rituraj Azad
  * User: RI20474447
  * Date:14-09-2024
- *
  */
 @Slf4j
 @Component
@@ -40,6 +48,15 @@ public class AlertUtilities {
     int connectTimeout;
     @Value("${livelinkserver.readTimeout}")
     int readTimeout;
+
+    @Autowired
+    LivelinkUserTokenService livelinkUserTokenService;
+
+    @Autowired
+    UserNotificationDetailRepo userNotificationDetailRepo;
+
+    @Autowired
+    AppServerTokenService appServerTokenService;
 
     private static RestTemplate restTemplate;
     private static HttpEntity<?> request;
@@ -143,6 +160,48 @@ public class AlertUtilities {
             return list;
         }
         return null;
+    }
+    public Boolean enableDisableNotification(String userName, Boolean enable) throws ProcessCustomError {
+        try {
+            if (appServerTokenService.getTokenByUsername(userName) != null) {
+                if (userName != null) {
+                    UserToken userToken = livelinkUserTokenService.getUserTokenByUsername(userName);
+                    ConcurrentHashMap<String, AppToken> accessTokenMap = userToken.getAccessToken();
+                    AppToken appToken = accessTokenMap.get(userName);
+
+                    if (appToken != null) {
+                        appToken.setEnable(enable);
+                        userToken.setAccessToken(accessTokenMap);
+                        livelinkUserTokenService.setUserTokenByUsername(userToken);
+
+                        String appFCMKey = appToken.getAppFCMKey();
+                        log.info(" app FCM Key value is: {}",appFCMKey);
+                        if (appFCMKey != null) {
+                            Optional<UserNotificationDetail> existingDetail = userNotificationDetailRepo.findById(appFCMKey);
+                            existingDetail.ifPresent(userNotificationDetail -> {
+                                userNotificationDetail.setEnableNotification(enable);
+                                userNotificationDetailRepo.save(userNotificationDetail);
+                            });
+                        } else {
+                            log.warn("enableDisableNotification: appFCMKey is null for token: {}", userName);
+                        }
+
+                        return enable;
+                    }
+                } else {
+                    log.warn("enableDisableNotification: AppToken not found for username: {}", userName);
+                    throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED, HttpStatus.EXPECTATION_FAILED);
+                }
+            } else {
+                log.warn("enableDisableNotification: Username not found for token: {}", userName);
+                throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED, HttpStatus.EXPECTATION_FAILED.value(),
+                        HttpStatus.EXPECTATION_FAILED.getReasonPhrase());
+            }
+        } catch (final Exception e) {
+            log.error("enableDisableNotification: Failed while processing for token: {}", userName, e);
+            throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return enable;
     }
 
 }

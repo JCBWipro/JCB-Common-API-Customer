@@ -43,6 +43,9 @@ public class ProcessCustomError extends Exception {
         this.status = status;
     }
 
+    public ProcessCustomError(String appRequestProcessingFailed, int value, String reasonPhrase) {
+    }
+
     public ApiError getApiMessages() {
         return apierror;
     }
