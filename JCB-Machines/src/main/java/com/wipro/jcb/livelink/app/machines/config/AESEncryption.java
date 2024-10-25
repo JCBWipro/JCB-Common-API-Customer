@@ -64,7 +64,7 @@ public class AESEncryption {
     /**
      * Decrypts the given Base64 encoded string using AES decryption.
      *
-     * @param strToDecrypt The Base64 encoded string to decrypt.
+     * @param strToDecrypt The Base64 encoded string to decrypt, this string after decryption represents location URL.
      * @param secret       The secret key to use for decryption.
      * @return The decrypted string, or null if decryption fails.
      */
