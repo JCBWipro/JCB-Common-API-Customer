@@ -16,6 +16,7 @@ import com.wipro.jcb.livelink.app.machines.repo.UsersFeedbackDataRepo;
 import com.wipro.jcb.livelink.app.machines.service.EmailService;
 import com.wipro.jcb.livelink.app.machines.service.LoadHistoricalDataService;
 import com.wipro.jcb.livelink.app.machines.service.MachineResponseService;
+import com.wipro.jcb.livelink.app.machines.service.MachineService;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,9 +33,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.HttpURLConnection;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Author: Jitendra Prasad
@@ -60,6 +63,8 @@ public class EngineFuelController {
     UsersFeedbackDataRepo usersFeedbackDataRepo;
     @Autowired
     EmailService emailService;
+    @Autowired
+    MachineService machineService;
 
 
     /*
@@ -272,6 +277,57 @@ public class EngineFuelController {
             }
         } catch (final Exception e) {
             logger.error("Processing of user Feedback is failed ", e);
+            return new ResponseEntity<>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+                    MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Store service call json
+    @Operation(summary = "Store Servicecall  Request Parameter for machines",description = "Store Servicecall  Request Parameter for machines")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Servicecall information is stored"),
+            @ApiResponse(responseCode = "401", description = "Auth Failed"),
+            @ApiResponse(responseCode = "500", description = "Request failed")
+    })
+
+    @PostMapping(value = "/addservicecallrequest", produces = {
+            MediaType.APPLICATION_JSON_VALUE }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE  })
+    public ResponseEntity<?> serviceCallRequest(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+                                                @RequestPart(value = "machineSerialNo", required = false) String  vin,@RequestPart(value = "customerName", required = false) String  customerName,@RequestPart(value = "contactName", required = false) String  contactName,
+                                                @RequestPart(value = "customerPhone", required = false) String  customerPhone,@RequestPart(value = "customerAlternativePhone", required = false) String  customerAlternativePhone,
+                                                @RequestPart(value = "machineHmr", required = false) String  machineHmr,@RequestPart(value = "serviceDealerName", required = false) String  serviceDealerName,@RequestPart(value = "model", required = false) String  model,@RequestPart(value = "machineLocation", required = false) String  machineLocation,@RequestPart(value = "warrantyStatus", required = false) String  warrantyStatus,@RequestPart(value = "contractStatus", required = false) String  contractStatus,
+                                                @RequestPart(value = "machineStatus", required = false) String  machineStatus,
+                                                @RequestPart(value = "concern", required = false) String  remarks,
+                                                @RequestPart(value = "image", required = false) List<MultipartFile> image
+    ) {
+        try {
+            UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+            String userName = userResponse.getUserName();
+            if (userName != null) {
+                log.info("Servicecall Request: POST Request for machine {} user {} ", vin, userName);
+                String message = machineService.storeServiceCallRequestFileUpload(vin,customerName,contactName,customerPhone,customerAlternativePhone,machineHmr,serviceDealerName,model,machineLocation,warrantyStatus,contractStatus,machineStatus,remarks,image,userName);
+                if(message.equals("SUCCESS")) {
+                    return new ResponseEntity<>(new
+                            ApiError(HttpStatus.OK, "Success",
+                            "Service call request created successfully", null), HttpStatus.OK);
+                }else {
+                    String[] reponses =null;
+                    log.info("Message :{}", message);
+                    if(message.contains("Failure :"))
+                    {
+                        reponses = message.split(":");
+                        message = reponses[1];
+                    }
+                    return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+                            "Failure", message, null), HttpStatus.EXPECTATION_FAILED);
+                }
+            } else {
+                return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+                        "No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+            }
+        } catch (final Exception e) {
+            log.error("Servicecall Request: Issue faced while strore sevrvice call request parameters for machine ", e);
             return new ResponseEntity<>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
                     MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
                     HttpStatus.INTERNAL_SERVER_ERROR);

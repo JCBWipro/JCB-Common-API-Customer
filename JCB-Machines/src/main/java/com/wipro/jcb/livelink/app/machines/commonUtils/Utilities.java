@@ -231,6 +231,12 @@ public class Utilities {
         return new ArrayList<>();
     }
 
+
+    /**
+     * generate a unique string
+     *
+     * @return String
+     */
     public String getUniqueID() {
         final UUID idOne = UUID.randomUUID();
         return idOne.toString();

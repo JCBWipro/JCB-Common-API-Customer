@@ -1,12 +1,16 @@
 package com.wipro.jcb.livelink.app.machines.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wipro.jcb.livelink.app.machines.commonUtils.Utilities;
-import com.wipro.jcb.livelink.app.machines.dto.MachineLocation;
-import com.wipro.jcb.livelink.app.machines.dto.MachineLocationDetail;
+/*import com.wipro.jcb.livelink.app.machines.config.S3Wrapper;*/
+import com.wipro.jcb.livelink.app.machines.dto.*;
 import com.wipro.jcb.livelink.app.machines.entity.*;
 import com.wipro.jcb.livelink.app.machines.enums.ServiceStatus;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.machines.repo.*;
+import com.wipro.jcb.livelink.app.machines.service.EmailService;
 import com.wipro.jcb.livelink.app.machines.service.MachineFeatureInfoService;
 import com.wipro.jcb.livelink.app.machines.service.MachineService;
 import com.wipro.jcb.livelink.app.machines.service.reports.*;
@@ -23,8 +27,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
 
 /**
  * Author: Rituraj Azad
@@ -124,7 +135,8 @@ public class MachineServiceImpl implements MachineService {
     MachineFeedParserDataRepo machineFeedParserDataRepo;
     @Autowired
     MachineFeedLocationRepo machineFeedLocationRepo;
-
+    @Autowired
+    private EmailService emailService;
 
     @Override
     public Machine machineByVin(String vin) {
@@ -149,6 +161,18 @@ public class MachineServiceImpl implements MachineService {
         suggestions.addAll(machineRepository.getByUsersUserNameAndSuggestionSite(userName, word));
         return suggestions;
     }
+
+    @Autowired
+    ServiceCallsJsonRepository serviceCallsJsonRepository;
+    @Autowired
+    ServiceCallRequestRepo serviceCallRequestRepo;
+   /* @Autowired
+    private S3Wrapper s3Wrapper;*/
+    /*@Value("${cloud.aws.endpoint}")
+     String imageUrl;*/
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucketName;
+
 
     @Override
     public List<Filter> getFilters(String userName) {
@@ -329,7 +353,298 @@ public class MachineServiceImpl implements MachineService {
 
     @Override
     public String storeServiceCallRequestFileUpload(String vin, String customerName, String customerPhone, String contactName, String customerAlternativePhone, String machineHmr, String serviceDealerName, String model, String machineLocation, String warrantyStatus, String contractStatus, String machineStatus, String remarks, List<MultipartFile> image, String userName) {
-        return "";
+        String response = "SUCCESS";
+        try {
+            log.info("Servicecall request machine: {}", vin);
+            ServiceCallRequest requestParam = new ServiceCallRequest();
+            List<ServiceCallJsonData> ServiceCallDataList = serviceCallsJsonRepository.getJsonData();
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+            List<ServiceCallData> Service = mapper.readValue(ServiceCallDataList.get(0).getLabel(),
+                    new TypeReference<>() {
+                    });
+            String validation = null;
+            List<String> jsonList = new ArrayList<String>();
+            for (int i = 0; i < Service.get(0).getServicecallrequest().size(); i++) {
+                if (Service.get(0).getServicecallrequest().get(i).getRequired() == true) {
+                    jsonList.add(Service.get(0).getServicecallrequest().get(i).getFieldName());
+
+                }
+            }
+            for (int d = 0; d < jsonList.size(); d++) {
+                // logger.info("Field "+jsonList.get(d));
+                if (jsonList.get(d).contains("customerName"))
+                    if (customerName == null)
+                        if (validation == null) {
+                            validation = "Customer Name field is empty";
+                        } else {
+                            validation = validation + ", Customer Name field is empty";
+                        }
+
+                if (jsonList.get(d).contains("contactName"))
+                    if (contactName == null)
+                        if (validation == null) {
+                            validation = "Contact Name field is empty";
+                        } else {
+                            validation = validation + ", Contact Name field is empty";
+                        }
+
+                if (jsonList.get(d).contains("customerPhone"))
+                    if (customerPhone == null)
+                        if (validation == null) {
+                            validation = "Customer Phone field is empty";
+                        } else {
+                            validation = validation + ", Customer Phone field is empty";
+                        }
+
+                if (jsonList.get(d).contains("customerAlternativePhone"))
+                    if (customerAlternativePhone == null)
+                        if (validation == null) {
+                            validation = "Alternative Contact Number field is empty";
+                        } else {
+                            validation = validation + ", Alternative Contact Number field is empty";
+                        }
+
+                if (jsonList.get(d).contains("machineSerialNo"))
+                    if (vin == null)
+                        if (validation == null) {
+                            validation = "Machine Serial No field is empty";
+                        } else {
+                            validation = validation + ", Machine Serial No field is empty";
+                        }
+
+                if (jsonList.get(d).contains("machineHmr"))
+                    if (machineHmr == null)
+                        if (validation == null) {
+                            validation = "Machine HMR field is empty";
+                        } else {
+                            validation = validation + ", Machine HMR field is empty";
+                        }
+
+                if (jsonList.get(d).contains("serviceDealerName"))
+                    if (serviceDealerName == null)
+                        if (validation == null) {
+                            validation = "Service Dealer Name field is empty";
+                        } else {
+                            validation = validation + ", Service Dealer Name field is empty";
+                        }
+
+                if (jsonList.get(d).contains("model"))
+                    if (model == null)
+                        if (validation == null) {
+                            validation = "Model field is empty";
+                        } else {
+                            validation = validation + ", Model field is empty";
+                        }
+
+                if (jsonList.get(d).contains("machineLocation"))
+                    if (machineLocation == null)
+                        if (validation == null) {
+                            validation = "Machine Location field is empty";
+                        } else {
+                            validation = validation + ", Machine Location field is empty";
+                        }
+
+                if (jsonList.get(d).contains("warrantyStatus"))
+                    if (warrantyStatus == null)
+                        if (validation == null) {
+                            validation = "Warranty Status field is empty";
+                        } else {
+                            validation = validation + ", Warranty Status field is empty";
+                        }
+
+                if (jsonList.get(d).contains("contractStatus"))
+                    if (contractStatus == null)
+                        if (validation == null) {
+                            validation = "Contract Status field is empty";
+                        } else {
+                            validation = validation + ", Contract Status field is empty";
+                        }
+
+                if (jsonList.get(d).contains("machineStatus"))
+                    if (machineStatus == null)
+                        if (validation == null) {
+                            validation = "Machine Status field is empty";
+                        } else {
+                            validation = validation + ", Machine Status field is empty";
+                        }
+
+                if (jsonList.get(d).contains("remarks"))
+                    if (remarks == null)
+                        if (validation == null) {
+                            validation = "Remarks field is empty";
+                        } else {
+                            validation = validation + ", Remarks field is empty";
+                        }
+                /*if (jsonList.get(d).contains("image")) {
+                    log.info("image {}-{}", image, image.size());
+                    if (image == null || image.size() == 0) {
+                        if (validation == null) {
+                            validation = "Image field is empty";
+                        } else {
+                            validation = validation + ", Image field is empty";
+                        }
+                    } else {
+                        for (int i = 0; i < image.size(); i++) {
+                            log.info("fileName {}", image.get(i).getOriginalFilename());
+                            log.info("fileType {}", image.get(i).getContentType());
+                            log.info("filesize {}", image.get(i).getSize());
+                            if (!image.get(i).getContentType().contains("jpeg")
+                                    && !image.get(i).getContentType().contains("png")
+                                    && image.get(i).getContentType().contains("jpg")) {
+
+                                if (validation == null) {
+                                    validation = "Uploading file type only allowed JPEG,JPG,PNG";
+                                } else {
+                                    validation = validation + ", Uploading File type only allowed JPEG,JPG,PNG";
+                                }
+                            }
+                            if (image.get(i).getSize() > 20971520) {
+                                if (validation == null) {
+                                    validation = "Uploaded file size greaterthan 10 MB";
+                                } else {
+                                    validation = validation + ", Uploaded file size greaterthan 10 MB";
+                                }
+
+                            } else {
+                                log.info("File size not exceeds 10 MB");
+                            }
+                        }
+                    }
+
+                }*/
+
+            }
+            log.info("validation :{}", validation);
+            if (validation == null) {
+                requestParam.setVin(vin);
+                requestParam.setCustomerName(customerName);
+                requestParam.setContactName(contactName);
+                requestParam.setCustomerPhone(customerPhone);
+                requestParam.setCustomerAlternativePhone(customerAlternativePhone);
+                requestParam.setMachineHmr(machineHmr);
+                requestParam.setServiceDealerName(serviceDealerName);
+                requestParam.setModel(model);
+                requestParam.setMachineLocation(machineLocation);
+                requestParam.setWarrantyStatus(warrantyStatus);
+                requestParam.setContractStatus(contractStatus);
+                requestParam.setMachineStatus(machineStatus);
+                requestParam.setRemarks(remarks);
+
+                List<InputStream> imageFile = new ArrayList<InputStream>();
+                List<String> FileName = new ArrayList<>();
+               // log.info("Size {}", image.size());
+                /*if (image != null) {
+                    try {
+                        String fileName = "";
+                        // logger.info("Image Size "+image.size());
+                        for (int i = 0; i < image.size(); i++) {
+                            FileName.add(image.get(i).getOriginalFilename());
+                            final InputStream is = image.get(i).getInputStream();
+                            final BufferedImage originalBufferedImage = ImageIO.read(is);
+                            final int thumbnailWidth = 150;
+                            int widthToScale, heightToScale;
+                            if (originalBufferedImage.getWidth() > originalBufferedImage.getHeight()) {
+                                heightToScale = (int) (1.1 * thumbnailWidth);
+                                widthToScale = (int) ((heightToScale * 1.0) / originalBufferedImage.getHeight()
+                                        * originalBufferedImage.getWidth());
+                            } else {
+                                widthToScale = (int) (1.1 * thumbnailWidth);
+                                heightToScale = (int) ((widthToScale * 1.0) / originalBufferedImage.getWidth()
+                                        * originalBufferedImage.getHeight());
+                            }
+                            final BufferedImage resizedImage = new BufferedImage(widthToScale, heightToScale,
+                                    originalBufferedImage.getType());
+                            final Graphics2D g = resizedImage.createGraphics();
+                            g.setComposite(AlphaComposite.Src);
+                            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                                    RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                            g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                            g.drawImage(originalBufferedImage, 0, 0, widthToScale, heightToScale, null);
+                            g.dispose();
+                            final int x = (resizedImage.getWidth() - thumbnailWidth) / 2;
+                            final int y = (resizedImage.getHeight() - thumbnailWidth) / 2;
+                            if (x < 0 || y < 0) {
+                                throw new IllegalArgumentException(
+                                        "Width of new thumbnail is bigger than original image");
+                            }
+                            final BufferedImage bi = resizedImage.getSubimage(x, y, thumbnailWidth, thumbnailWidth);
+                            InputStream compressIs = null;
+                            if (bi != null) {
+                                final ByteArrayOutputStream os = new ByteArrayOutputStream();
+                                ImageIO.write(bi, "jpg", os);
+                                compressIs = new ByteArrayInputStream(os.toByteArray());
+                            } else {
+                                compressIs = image.get(i).getInputStream();
+                            }
+                            final String fileKey = utilities.getUniqueID().replace("-", "");
+                         //   s3Wrapper.upload(image.get(i).getInputStream(), fileKey + ".jpg");
+                            log.info("Image file uploaded in S3 - {}", fileKey);
+                            imageFile.add(image.get(i).getInputStream());
+
+                            if (fileName.equals("")) {
+                                fileName = imageUrl + "/" + bucketName + "/" + fileKey + ".jpg";
+                            } else {
+                                fileName += "," + imageUrl + "/" + bucketName + "/" + fileKey + ".jpg";
+                            }
+                            log.info("Image file Name :{}", fileName);
+
+                        }
+                        requestParam.setImages(fileName);
+
+                    } catch (Exception e) {
+                        log.error("Exception occured at image upload in S3{}", e.getMessage());
+                    }
+
+                } else {
+                    log.info("image file is empty :" + image.size());
+                }*/
+
+              //  log.info("ImageURL {}", requestParam.getImages());
+                requestParam.setCreatedAt(new Date());
+                serviceCallRequestRepo.save(requestParam);
+                String concern = "";
+                if (requestParam.getRemarks() != null && !requestParam.getRemarks().isEmpty()) {
+                    log.info("Concern :{}", requestParam.getRemarks());
+                    try {
+
+                        List<ServiceCallConcern> participantJsonList = mapper.readValue(remarks,
+                                new TypeReference<List<ServiceCallConcern>>() {
+                                });
+
+                        int j = 1;
+                        for (int i = 0; i < participantJsonList.size(); i++) {
+                            if (concern == "") {
+                                concern = "Concern" + j + " : " + participantJsonList.get(i).getConcern();
+
+                            } else {
+                                concern += ",\n Concern" + j + " : " + participantJsonList.get(i).getConcern();
+
+                            }
+                            j++;
+                        }
+                        log.info("Remarks :{}", concern);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        log.info("Exception occured in Json to String {} - {}", e.getMessage(), remarks);
+                    }
+
+                }
+                emailService.sendServiceCallRequestEmail(requestParam, concern, imageFile, FileName, userName);
+                log.info("Service Call Request Mail Send..,");
+
+            } else {
+                response = "Failure :" + validation;
+            }
+
+        } catch (Exception e) {
+            log.error("Exception occured in service call request save :{}", e.getMessage());
+            e.printStackTrace();
+            response = "Failure";
+        }
+        return response;
     }
 
     @Override
