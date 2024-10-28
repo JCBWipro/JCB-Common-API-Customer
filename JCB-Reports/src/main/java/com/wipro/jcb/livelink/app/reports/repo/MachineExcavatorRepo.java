@@ -45,4 +45,7 @@ public interface MachineExcavatorRepo extends CrudRepository<MachineExcavatorDat
 	@Query("select new com.wipro.jcb.livelink.app.reports.report.FuelConsumptionResponse(m.day,m.averageFuelConsumption) from MachineExcavatorData m where ?1 = m.vin and m.day between ?2 and ?3 order by m.day asc")
 	public List<FuelConsumptionResponse> getAverageConsumptionData(String vin, Date startDate, Date endDate);
 	
+	@Query("select new com.wipro.jcb.livelink.app.reports.report.FuelConsumptionResponse(m.day,Coalesce(m.totalFuelUsedInLtrs,0)) from MachineExcavatorData m where ?1 = m.vin and m.day between ?2 and ?3 order by m.day asc")
+	public List<FuelConsumptionResponse> getFuelConsumptionData(String vin, Date startDate, Date endDate);
+	
 }

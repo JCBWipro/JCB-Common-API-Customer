@@ -175,6 +175,11 @@ public class ReportUtilities {
             return new AddressResponse(address);
         }
     }
+    
+    public String getDDMMYY(int daysBefore) {
+		final DateFormat parseFormat = new SimpleDateFormat(AppServerConstants.DateFormatForMachineUpdate);
+		return parseFormat.format(LocalDateTime.now(DateTimeZone.forID(timezone)).minusDays(daysBefore).toDate());
+	}
 
 }
 

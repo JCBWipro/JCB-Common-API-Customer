@@ -18,6 +18,8 @@ import com.wipro.jcb.livelink.app.reports.report.FuelConsumptionDuty;
 import com.wipro.jcb.livelink.app.reports.report.FuelConsumptionExcavation;
 import com.wipro.jcb.livelink.app.reports.report.GearTimeSpentBHL;
 import com.wipro.jcb.livelink.app.reports.report.MachineCompassBHL;
+import com.wipro.jcb.livelink.app.reports.response.MachineDutyCycle;
+import com.wipro.jcb.livelink.app.reports.response.MachineExcavationMode;
 
 @Component
 public interface MachineBHLDataRepo extends CrudRepository<MachineBHLData, String> {
@@ -78,4 +80,10 @@ public interface MachineBHLDataRepo extends CrudRepository<MachineBHLData, Strin
 
 	@Query("SELECT new com.wipro.jcb.livelink.app.reports.report.FuelConsumptionBHL(md.day,md.averageFuelConsumption) from MachineBHLData md where md.vin =?1 and md.day between ?2 and ?3 order by day")
 	public List<FuelConsumptionBHL> getAverageFuelConsumptionV3(String vin, Date startDate, Date endDate);
+	
+	@Query("SELECT new com.wipro.jcb.livelink.app.reports.response.MachineExcavationMode(coalesce(sum(m.economyModeHrs),0),coalesce(sum(m.powerModeHrs),0),coalesce(sum(m.activeModeHrs),0))  FROM MachineBHLData m where m.vin=:vin AND m.day >=:day AND m.day <=:day2")
+	public MachineExcavationMode getExcavationModes(String vin, Date day, Date day2);
+	
+	@Query("SELECT new com.wipro.jcb.livelink.app.reports.response.MachineDutyCycle(coalesce(sum(md.attachment),0),coalesce(sum(md.idling),0),coalesce(sum(md.excavation),0),coalesce(sum(md.loading),0),coalesce(sum(md.roading),0))  FROM MachineBHLData md where md.vin=:vin AND md.day >=:day AND md.day <=:day2")
+	public MachineDutyCycle getMachineDutyCycle(String vin, Date day, Date day2);
 }
