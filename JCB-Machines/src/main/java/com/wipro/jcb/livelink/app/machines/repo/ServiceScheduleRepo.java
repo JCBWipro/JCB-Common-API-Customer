@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
  * Author: Rituraj Azad
  * User: RI20474447
  * Date:18-09-2024
- * project: JCB-Common-API-Customer
  */
 @Repository
 public interface ServiceScheduleRepo  extends CrudRepository<ServiceSchedule, Integer> {

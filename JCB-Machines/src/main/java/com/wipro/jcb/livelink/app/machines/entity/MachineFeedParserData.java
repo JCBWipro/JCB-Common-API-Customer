@@ -6,9 +6,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicUpdate;
+import org.json.JSONObject;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.json.JSONObject;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -18,7 +18,6 @@ import java.util.Date;
  * Author: Rituraj Azad
  * User: RI20474447
  * Date:14-09-2024
- * project: JCB-Common-API-Customer
  */
 @Getter
 @Setter

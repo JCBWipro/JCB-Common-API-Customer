@@ -546,48 +546,84 @@ public class MachineServiceImpl implements MachineService {
 
     @Override
     public MachineServiceInfoV2 getMachineServiceInfoV2(String vin) throws ProcessCustomError {
+        log.debug("Entering getMachineServiceInfoV2 for VIN: {}", vin);
         try {
             final Machine machine = machineRepository.findByVin(vin);
+            if (machine == null) {
+                log.warn("Machine not found for VIN: {}", vin);
+                return new MachineServiceInfoV2();
+            }
+
             MachineFeedParserData machineFeedParserData = machineFeedParserDataRepo.findByVin(vin);
             MachineFeedLocation machineFeedLocation = machineFeedLocationRepo.findByVin(vin);
             ServiceSchedule serviceSchedule = serviceScheduleRepo.findById(vin);
-            if (machine != null) {
-                java.util.Date overDueDate = serviceSchedule != null ? serviceSchedule.getOverDueDate() : null;
-                if (overDueDate != null) {
-                    overDueDate = new DateTime(Long.valueOf(overDueDate.getTime()), DateTimeZone.forID(timezone))
-                            .plusDays(1).toDate();
-                }
 
-                final List<ServiceHistoryTimeline> historyline = new ArrayList<>();
-                List<MachineServiceHistory> historylinenew = machineServiceHistoryRepo.getHistoryDetails(machine.getVin());
+            java.util.Date overDueDate = serviceSchedule != null ? serviceSchedule.getOverDueDate() : null;
+            if (overDueDate != null) {
+                overDueDate = new DateTime(Long.valueOf(overDueDate.getTime()), DateTimeZone.forID(timezone))
+                        .plusDays(1).toDate();
+            }
 
-                for (final MachineServiceHistory tempObj : historylinenew) {
-                    historyline.add(new ServiceHistoryTimeline(tempObj.getServiceDoneAt(), tempObj.getJobCardNumber(),
-                            tempObj.getComments()));
-                }
-                assert serviceSchedule != null;
-                if (null != machineFeedParserData && null != machineFeedLocation
-                        && null != machineFeedParserData.getStatusAsOnTime()) {
-                    return new MachineServiceInfoV2(machineFeedParserData.getTotalMachineHours(), (serviceSchedule.getOverDueHours() != null && !serviceSchedule.getOverDueHours().equalsIgnoreCase("NA")) ? Double.parseDouble(serviceSchedule.getOverDueHours()) : null,
-                            overDueDate, (serviceSchedule.getDueHours() != null && !serviceSchedule.getDueHours().equalsIgnoreCase("NA")) ? Double.parseDouble(serviceSchedule.getDueHours()) : null, serviceSchedule.getDueDate(), !historylinenew.isEmpty() ? Double.parseDouble(historylinenew.get(0).getServiceDone()) : null,
-                            !historylinenew.isEmpty() ? historylinenew.get(0).getServiceDoneAt() : null, machine.getThumbnail(), machine.getVin(), machine.getModel(), machine.getPlatform(),
-                            machine.getTag(), machine.getImage(), historyline);
-                } else {
-                    return new MachineServiceInfoV2(serviceSchedule.getCurrentCmh() != null ? Double.parseDouble(serviceSchedule.getCurrentCmh()) : null, (serviceSchedule.getOverDueHours() != null && !serviceSchedule.getOverDueHours().equalsIgnoreCase("NA")) ? Double.parseDouble(serviceSchedule.getOverDueHours()) : null,
-                            overDueDate, (serviceSchedule.getDueHours() != null && !serviceSchedule.getDueHours().equalsIgnoreCase("NA")) ? Double.parseDouble(serviceSchedule.getDueHours()) : null, serviceSchedule.getDueDate(), !historylinenew.isEmpty() ? Double.parseDouble(historylinenew.get(0).getServiceDone()) : null,
-                            !historylinenew.isEmpty() ? historylinenew.get(0).getServiceDoneAt() : null, machine.getThumbnail(), machine.getVin(), machine.getModel(), machine.getPlatform(),
-                            machine.getTag(), machine.getImage(), historyline);
-                }
+            final List<ServiceHistoryTimeline> historyLine = new ArrayList<>();
+            List<MachineServiceHistory> historyLineNew = machineServiceHistoryRepo.getHistoryDetails(machine.getVin());
 
+            for (final MachineServiceHistory tempObj : historyLineNew) {
+                historyLine.add(new ServiceHistoryTimeline(tempObj.getServiceDoneAt(), tempObj.getJobCardNumber(),
+                        tempObj.getComments()));
+            }
+
+            if (machineFeedParserData != null && machineFeedLocation != null && machineFeedParserData.getStatusAsOnTime() != null) {
+                log.debug("Found machine feed data for VIN: {}", vin);
+                return new MachineServiceInfoV2(
+                        machineFeedParserData.getTotalMachineHours(),
+                        parseDoubleSafely(serviceSchedule != null ? serviceSchedule.getOverDueHours() : null),
+                        overDueDate,
+                        parseDoubleSafely(serviceSchedule != null ? serviceSchedule.getDueHours() : null),
+                        serviceSchedule != null ? serviceSchedule.getDueDate() : null,
+                        !historyLineNew.isEmpty() ? Double.parseDouble(historyLineNew.get(0).getServiceDone()) : null,
+                        !historyLineNew.isEmpty() ? historyLineNew.get(0).getServiceDoneAt() : null,
+                        machine.getThumbnail(),
+                        machine.getVin(),
+                        machine.getModel(),
+                        machine.getPlatform(),
+                        machine.getTag(),
+                        machine.getImage(),
+                        historyLine
+                );
             } else {
-                return new MachineServiceInfoV2();
+                log.debug("Machine feed data not found for VIN: {}, using machine data", vin);
+                return new MachineServiceInfoV2(
+                        serviceSchedule != null ? Double.parseDouble(serviceSchedule.getCurrentCmh()) : null,
+                        parseDoubleSafely(serviceSchedule != null ? serviceSchedule.getOverDueHours() : null),
+                        overDueDate,
+                        parseDoubleSafely(serviceSchedule != null ? serviceSchedule.getDueHours() : null),
+                        serviceSchedule != null ? serviceSchedule.getDueDate() : null,
+                        !historyLineNew.isEmpty() ? Double.parseDouble(historyLineNew.get(0).getServiceDone()) : null,
+                        !historyLineNew.isEmpty() ? historyLineNew.get(0).getServiceDoneAt() : null,
+                        machine.getThumbnail(),
+                        machine.getVin(),
+                        machine.getModel(),
+                        machine.getPlatform(),
+                        machine.getTag(),
+                        machine.getImage(),
+                        historyLine
+                );
             }
         } catch (final Exception ex) {
-            ex.printStackTrace();
-            log.error("MachineServiceInfo : Internal Server Error : " + vin + "-" + ex.getMessage());
-            throw new ProcessCustomError("Failed to process MachineServiceInfo Request",
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error("Error in getMachineServiceInfoV2 for VIN: {} - {}", vin, ex.getMessage(), ex);
+            throw new ProcessCustomError("Failed to process MachineServiceInfo Request", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private Double parseDoubleSafely(String value) {
+        if (value != null && !value.equalsIgnoreCase("NA")) {
+            try {
+                return Double.parseDouble(value);
+            } catch (NumberFormatException e) {
+                log.warn("Invalid number format: {}", value);
+            }
+        }
+        return null;
     }
 
     @Override
