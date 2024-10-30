@@ -6,6 +6,7 @@ import java.util.List;
 import com.wipro.jcb.livelink.app.machines.entity.Machine;
 import com.wipro.jcb.livelink.app.machines.entity.StakeHolder;
 import com.wipro.jcb.livelink.app.machines.service.response.*;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -115,5 +116,22 @@ public interface MachineRepository extends CrudRepository<Machine, String> {
     @Query("SELECT DISTINCT new com.wipro.jcb.livelink.app.machines.entity.StakeHolder(m.customer,m.dealer,count(m.vin) as counter) FROM Machine m join m.users u where ?1 = u.userName AND m.renewalFlag = true GROUP BY m.customer.id,m.dealer.id ORDER BY counter DESC")
     public List<StakeHolder> getStakeHoldersByUsersUserNameWithoutPagination(String userName);
 
+    /**
+     * This query selects customers associated with a given username and counts the number of machines (VINs)
+     */
+    @Query("SELECT new com.wipro.jcb.livelink.app.machines.entity.StakeHolder(m.customer,count(m.vin) as counter) FROM" +
+            " Machine m join m.users u where ?1 = u.userName AND m.renewalFlag = true GROUP BY m.customer.id ORDER BY counter DESC")
+    List<StakeHolder> getCustomersByUsersUserNameWithAllMachines(String userName, Pageable pageable);
 
+    /**
+     * Retrieves a list of StakeHolder objects representing customers and their machine counts for a specific user,
+     *  with an additional search filter applied to various fields
+     */
+    @Query("SELECT new com.wipro.jcb.livelink.app.machines.entity.StakeHolder(m.customer,count(m.vin) as counter) FROM" +
+            " Machine m join m.users u where ?1 = u.userName AND m.renewalFlag = true AND (lower(m.customer.name) LIKE " +
+            "lower(concat('%', ?2,'%')) OR lower(m.model) LIKE lower(concat('%', ?2,'%')) OR lower(m.customer.phonenumber) LIKE" +
+            " lower(concat('%', ?2,'%')) OR lower(m.location) LIKE lower(concat('%', ?2,'%')) OR lower(m.vin) LIKE" +
+            " lower(concat('%', ?2,'%')) OR lower(m.tag) LIKE lower(concat('%', ?2,'%'))) GROUP BY m.customer.id ORDER BY counter DESC")
+    List<StakeHolder> getCustomersByUsersUserNameWithAllMachinesWithSearch(String userName, String search,
+                                                                           PageRequest pageRequest);
 }
