@@ -1,11 +1,10 @@
 package com.wipro.jcb.livelink.app.machines.repo;
 
-import java.util.Date;
-import java.util.List;
-
 import com.wipro.jcb.livelink.app.machines.entity.Machine;
 import com.wipro.jcb.livelink.app.machines.entity.StakeHolder;
-import com.wipro.jcb.livelink.app.machines.service.response.*;
+import com.wipro.jcb.livelink.app.machines.service.response.RdMachineDetails;
+import com.wipro.jcb.livelink.app.machines.service.response.RdVinImeiResponse;
+import com.wipro.jcb.livelink.app.machines.service.response.UserResponse;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -15,6 +14,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
+import java.util.List;
+
 @Component
 public interface MachineRepository extends CrudRepository<Machine, String> {
     /**
@@ -23,7 +25,7 @@ public interface MachineRepository extends CrudRepository<Machine, String> {
      * @param vin is unique identity of machine for which data to be retrieved
      * @return Machine is an instance of Machine
      */
-    public Machine findByVin(String vin);
+    Machine findByVin(String vin);
 
     @Query(value = "SELECT m.*, mu.user_id  FROM machine m JOIN machin_user mu ON m.vin = mu.vin WHERE mu.user_id = ?2 AND m.vin = ?1", nativeQuery = true)
     Machine findByVinAndUserName(String vin, String userName);

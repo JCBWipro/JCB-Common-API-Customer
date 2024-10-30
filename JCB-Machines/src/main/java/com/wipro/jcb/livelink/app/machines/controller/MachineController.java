@@ -15,12 +15,11 @@ import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.machines.repo.MachineRepository;
 import com.wipro.jcb.livelink.app.machines.request.GeofenceSetRequest;
 import com.wipro.jcb.livelink.app.machines.request.TimefenceSetRequest;
-import com.wipro.jcb.livelink.app.machines.service.response.*;
 import com.wipro.jcb.livelink.app.machines.service.AdvanceReportService;
 import com.wipro.jcb.livelink.app.machines.service.MachineProfileService;
 import com.wipro.jcb.livelink.app.machines.service.MachineResponseService;
 import com.wipro.jcb.livelink.app.machines.service.MachineService;
-
+import com.wipro.jcb.livelink.app.machines.service.response.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -29,11 +28,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-
-import java.net.HttpURLConnection;
-import java.util.Date;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
@@ -42,6 +36,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.net.HttpURLConnection;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Author: Rituraj Azad
@@ -786,7 +784,7 @@ public class MachineController {
             @ApiResponse(responseCode = "401", description = "Auth Failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
             @ApiResponse(responseCode = "500", description = "Request failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
     })
-    @Transactional(timeout = ConstantConfig.REQUEST_TIMEOUT, readOnly = false)
+    @Transactional(timeout = ConstantConfig.REQUEST_TIMEOUT)
     public ResponseEntity<?> generateLiveLocationLink(@RequestHeader("LoggedInUserRole") String userDetails,
                                                                      @RequestParam(value = "vin") String vin,
                                                                      @RequestParam(value = "slot") String slot) {
@@ -819,6 +817,45 @@ public class MachineController {
             return new ResponseEntity<>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
                     MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
                     HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(value = "/machineserviceinfoV2", produces = {MediaType.APPLICATION_JSON_VALUE})
+    @Operation(summary = "Get machine service information V2", description = "Retrieves service information for a specific machine identified by its VIN.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Machine Service Information V2", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MachineServiceInfoV2.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
+    })
+    public ResponseEntity<?> getMachineServiceInfoV2(
+            @Parameter(description = "User details from the token", required = true) @RequestHeader("LoggedInUserRole") String userDetails,
+            @Parameter(description = "Vehicle Identification Number (VIN) of the machine", required = true) @RequestParam("vin") String vin) {
+
+        try {
+            UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+            String userName = userResponse.getUserName();
+            if (userName == null) {
+                log.warn("Session expired for user details :-  {}", userDetails);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Session expired");
+            }
+
+            log.info("machineServiceInfoV2: GET request from user {} for VIN {}", userName, vin);
+            MachineServiceInfoV2 response = machineService.getMachineServiceInfoV2(vin);
+            return ResponseEntity.ok(response);
+
+        } catch (final ProcessCustomError e) {
+            log.error("Issue faced while getting machine service info for VIN {}. ", vin, e);
+            return ResponseEntity.status(e.getStatus())
+                    .body(new ApiError(e.getStatus(), e.getMessage(), e.getErrorCode(), e.getDetails()));
+
+        } catch (final IllegalArgumentException e) {
+            log.warn("Invalid input parameters: VIN:: {} Error: {}", vin, e.getMessage());
+            return ResponseEntity.badRequest().body(new ApiError(HttpStatus.BAD_REQUEST, "Invalid input parameters", "INVALID_INPUT", null));
+
+        } catch (final Exception e) {
+            log.error("Unexpected error fetching machine service info for VIN {}.", vin, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to process request", "SERVER_ERROR", null));
         }
     }
 }
