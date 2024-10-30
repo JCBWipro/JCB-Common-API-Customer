@@ -29,12 +29,14 @@ import com.wipro.jcb.livelink.app.reports.exception.ApiError;
 import com.wipro.jcb.livelink.app.reports.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.reports.report.AdvanceReportsV2;
 import com.wipro.jcb.livelink.app.reports.report.IntelliReportResponse;
+import com.wipro.jcb.livelink.app.reports.report.PdfReport;
 import com.wipro.jcb.livelink.app.reports.report.ReportResponseV2;
 import com.wipro.jcb.livelink.app.reports.report.VisualizationReportResponse;
 import com.wipro.jcb.livelink.app.reports.response.StandardMachineBaseResponse;
 import com.wipro.jcb.livelink.app.reports.service.AdvanceLoadHistoricalDataService;
 import com.wipro.jcb.livelink.app.reports.service.AdvanceReportService;
 import com.wipro.jcb.livelink.app.reports.service.CustomerReportService;
+import com.wipro.jcb.livelink.app.reports.service.LoadDataOnDemandRequest;
 import com.wipro.jcb.livelink.app.reports.service.MachineResponseService;
 import com.wipro.jcb.livelink.app.reports.service.MachineService;
 
@@ -74,6 +76,9 @@ public class MachineController {
 	
 	@Autowired
 	private AdvanceLoadHistoricalDataService advancedLoadHistoricalDataService;
+	
+	@Autowired
+	private LoadDataOnDemandRequest loadDataOnDemandRequest;
 	
 	/*
 	 * This End Point is to Get Machine Reports Data
@@ -459,5 +464,48 @@ public class MachineController {
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}	
+	
+	/*
+	 * This End Point is for PDF Report
+	 */
+	@CrossOrigin
+	@Operation(summary = "PDF Report", description = "PDF Report")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "PDF Report"),
+			@ApiResponse(responseCode = "401", description = "Auth Failed"),
+			@ApiResponse(responseCode = "500", description = "Request failed") })
+	@GetMapping("/pdfreport")
+	public ResponseEntity<?> getCustomerPdfReportList(
+			@RequestHeader(MessagesConstantsList.LoggedInUserRole) String userDetails, @RequestParam("vin") String vin,
+			@RequestParam("type") String type, @RequestParam(value = "startdate", required = false) Date startdate,
+			@RequestParam(value = "enddate", required = false) Date enddate) {
+		String userName = null;
+		try {
+			log.info("Pdf report for vin " + vin);
+			UserDetails userResponse = ReportCommonUtils.getUserDetails(userDetails);
+			userName = userResponse.getUserName();
+			if (userName != null) {
+				if (type != null && type.equals("json")) {
+					return new ResponseEntity<PdfReport>(
+							new PdfReport(loadDataOnDemandRequest.getPdfReportData(vin, startdate, enddate)), HttpStatus.OK);
+				} else {
+					return new ResponseEntity<PdfReport>(
+							new PdfReport(loadDataOnDemandRequest.getPdfReport(vin, startdate, enddate)), HttpStatus.OK);
+				}
+			} else {
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+		} catch (final Exception e) {
+			e.printStackTrace();
+			log.error("Issue faced while getting listofdownmachines request " + e.getMessage());
+			log.info("Exception occured for PDF Report API :" + userName + "-" + vin + "Exception -" + e.getMessage());
+			return new ResponseEntity<ApiError>(
+					new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+							MessagesConstantsList.APP_REQUEST_PROCESSING_FAILED,
+							MessagesConstantsList.APP_REQUEST_PROCESSING_FAILED, null),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
 
 }
