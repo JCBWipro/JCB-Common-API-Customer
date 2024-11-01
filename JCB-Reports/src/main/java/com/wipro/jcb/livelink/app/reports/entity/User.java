@@ -17,6 +17,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
@@ -45,6 +47,7 @@ public class User implements Serializable {
 	@Schema(description = "Email Id of user", example = "lorey@mymail.com", required = true)
 	private String email;
 	@Schema(description = "Role/Type of user", example = "Customer", required = true)
+	@Enumerated(EnumType.STRING)
 	private UserType userType;
 	@Schema(description = "FirstName of user", example = "Lorey", required = true)
 	private String firstName;

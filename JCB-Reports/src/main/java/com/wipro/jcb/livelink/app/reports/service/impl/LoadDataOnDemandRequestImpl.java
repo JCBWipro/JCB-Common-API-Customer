@@ -388,7 +388,6 @@ public class LoadDataOnDemandRequestImpl implements LoadDataOnDemandRequest{
 				if(list!=null) {
 					log.info("Machine Feature List "+list.size()+"-"+list.get(0).getType());
 					for (MachineFeatureInfo machineFeatureInfo : list) {
-						machineFeatureInfo.setType("CANTELEHANDLER");
 						if(machineFeatureInfo.getType().equals("CANBHL") || machineFeatureInfo.getType().equals("HBBHL")){
 							log.info("Machine Type -CANBHL "+"-"+vin);
 							vinDetails.setPlatform("BHL");

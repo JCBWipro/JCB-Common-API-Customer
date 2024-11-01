@@ -43,6 +43,7 @@ public class User implements Serializable {
     @Schema(description = "Email Id of user", example = "lorey@mymail.com", required = true)
     private String email;
     @Schema(description = "Role/Type of user", example = "Customer", required = true)
+    @Enumerated(EnumType.STRING)
     private UserType userType;
     @Schema(description = "FirstName of user", example = "Lorey", required = true)
     private String firstName;
