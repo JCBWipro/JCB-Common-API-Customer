@@ -1,12 +1,27 @@
 package com.wipro.jcb.livelink.app.machines.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.wipro.jcb.livelink.app.machines.commonUtils.AuthCommonUtils;
 import com.wipro.jcb.livelink.app.machines.constants.MessagesList;
-import com.wipro.jcb.livelink.app.machines.dto.CustomerDistribution;
+import com.wipro.jcb.livelink.app.machines.dealer.response.CustomerDistribution;
 import com.wipro.jcb.livelink.app.machines.dto.UserDetails;
 import com.wipro.jcb.livelink.app.machines.exception.ApiError;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.machines.service.DealerCustomerResponseService;
+import com.wipro.jcb.livelink.app.machines.service.DealerDashboardResponseService;
+import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponse;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,12 +29,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 
 /*
@@ -36,10 +45,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @PropertySource("application.properties")
 @Tag(name = "Dealer", description = "Dealer Machine API")
-@RequestMapping(value = "/user/machines", produces = {MediaType.APPLICATION_JSON_VALUE})
+@RequestMapping(value = "/user/dealer", produces = {MediaType.APPLICATION_JSON_VALUE})
 public class DealerController {
+	
     @Autowired
     DealerCustomerResponseService dealerCustomerResponseService;
+    
+    @Autowired
+	private DealerDashboardResponseService dealerDashaboardResponseService;
 
     /**
      * Handles GET requests to retrieve all customers for a dealer.
@@ -72,4 +85,39 @@ public class DealerController {
             return new ResponseEntity<>(e.getApiMessages(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    /*
+     * API to Get Dealer Dashboard Distributor Details
+     */
+    @CrossOrigin
+    @Operation(summary = "Get Dealer Dashboard Distributor Details")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Dealer Dashboard Distributor Details",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = MachineListResponse.class))}),
+            @ApiResponse(responseCode = "401", description = "Auth Failed", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))}),
+            @ApiResponse(responseCode = "500", description = "Request failed", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))})})
+    @GetMapping("/dashboard/details")
+	public ResponseEntity<?> getDashboardDetails(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+			@RequestParam("pageNumber") String pageNumber,
+			@RequestParam(value = "pageSize", defaultValue = "${controller.dealer.home.pageSize}") String pageSize,
+			@RequestParam(value = "distributor", defaultValue = "optional") String distributor,
+			@RequestParam(value = "keyParam", defaultValue = "optional") String keyParam,
+			@RequestParam(value = "search", defaultValue = "optional") String search) {
+		try {
+			UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+            final String userName = userResponse.getUserName();
+			if (userName != null) {
+				log.info("dashboarddetails: GET Request for user"+userName);
+				return new ResponseEntity<CustomerDistribution>(
+						dealerDashaboardResponseService.getDealerDashboardDetails(userName, search, distributor,
+								keyParam, Integer.parseInt(pageNumber), Integer.parseInt(pageSize)), HttpStatus.OK);
+			} else {
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+		} catch (final ProcessCustomError e) {
+			log.error("Issue faced while getting data for dealer home page");
+			return new ResponseEntity<ApiError>(e.getApiMessages(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 }

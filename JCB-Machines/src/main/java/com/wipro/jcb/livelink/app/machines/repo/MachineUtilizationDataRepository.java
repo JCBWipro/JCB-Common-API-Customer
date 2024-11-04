@@ -1,10 +1,9 @@
 package com.wipro.jcb.livelink.app.machines.repo;
 
 
-import com.wipro.jcb.livelink.app.machines.entity.MachineUtilizationData;
-import com.wipro.jcb.livelink.app.machines.service.reports.MachineUtilization;
-import com.wipro.jcb.livelink.app.machines.entity.Machine;
-import jakarta.transaction.Transactional;
+import java.util.Date;
+import java.util.List;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,8 +12,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.List;
+import com.wipro.jcb.livelink.app.machines.entity.Machine;
+import com.wipro.jcb.livelink.app.machines.entity.MachineUtilizationData;
+import com.wipro.jcb.livelink.app.machines.service.reports.MachineUtilization;
+import com.wipro.jcb.livelink.app.machines.service.response.MachineWithCustomerId;
+import com.wipro.jcb.livelink.app.machines.service.response.MachineWithPlatform;
+
+import jakarta.transaction.Transactional;
 
 @Component
 public interface MachineUtilizationDataRepository extends CrudRepository<MachineUtilizationData, String> {
@@ -220,5 +224,25 @@ public interface MachineUtilizationDataRepository extends CrudRepository<Machine
 	
 	@Query("SELECT count(m) FROM MachineUtilizationData  m join m.machine.users u where m.workingHours > 0.5 and m.machine.renewalFlag = true and ?1 = u.userName and m.day=?2")
 	public long getCountByUserName(String userName,Date selectedDate);
+	
+	@Query("SELECT new com.wipro.jcb.livelink.app.machines.service.response.MachineWithCustomerId (count(m.vin) as counter,m.customer.id) FROM Machine m where m.vin In (SELECT mu.vin FROM MachineUtilizationData mu join mu.machine.users u where u.userName=:userName AND mu.day >=:start AND mu.day <=:end GROUP by mu.vin HAVING (sum(mu.workingHours) >=:startRange AND sum(mu.workingHours) <=:endRage ) ) AND m.customer.id is not null GROUP BY m.customer.id ORDER BY counter DESC")
+	public List<MachineWithCustomerId> getCustomersByMachineUsageForDuration(String userName, Date start, Date end,
+			Double startRange, Double endRage, Pageable page);
+	
+	@Query("SELECT new com.wipro.jcb.livelink.app.machines.service.response.MachineWithCustomerId (count(m.vin) as counter,m.customer.id) FROM Machine m join m.users u where u.userName=:userName AND m.vin NOT In (SELECT DISTINCT(mu.vin) FROM MachineUtilizationData mu join mu.machine.users u where u.userName=:userName AND mu.day >=:start AND mu.day <=:end ) AND m.customer.id is not null GROUP BY m.customer.id ORDER BY counter DESC")
+	public List<MachineWithCustomerId> getCustomersByUnusedMachineForDuration(String userName, Date start, Date end, Pageable page);
+
+	@Query("SELECT new com.wipro.jcb.livelink.app.machines.service.response.MachineWithCustomerId (count(m.vin) as counter,m.customer.id) FROM Machine m where  m.vin In (SELECT mu.vin FROM MachineUtilizationData mu join mu.machine.users u where u.userName=:userName AND mu.day >=:start AND mu.day <=:end AND mu.platform=:platform GROUP by mu.vin HAVING (sum(mu.workingHours) >=:startRange AND sum(mu.workingHours) <=:endRage) ) AND m.customer.id is not null GROUP BY m.customer.id ORDER BY counter DESC")
+	public List<MachineWithCustomerId> getCustomersByMachineUsageForDuration(String userName, Date start, Date end,
+			Double startRange, Double endRage, String platform, Pageable page);
+
+	@Query("SELECT new com.wipro.jcb.livelink.app.machines.service.response.MachineWithCustomerId (count(m.vin) as counter,m.customer.id) FROM Machine m join m.users u where u.userName=:userName AND m.vin NOT In (SELECT DISTINCT(mu.vin) FROM MachineUtilizationData mu join mu.machine.users u where u.userName=:userName AND mu.day >=:start AND mu.day <=:end ) AND m.platform=:platform AND m.customer.id is not null GROUP BY m.customer.id ORDER BY counter DESC")
+	public List<MachineWithCustomerId> getCustomersByUnusedMachineForDuration(String userName, Date start, Date end, String platform, Pageable page);
+	
+	@Query("SELECT new com.wipro.jcb.livelink.app.machines.service.response.MachineWithPlatform (count(m.vin) as counter,m.platform) FROM Machine m where m.renewalFlag = true AND m.vin In (SELECT mu.vin FROM MachineUtilizationData mu join mu.machine.users u where u.userName=:userName AND mu.day >=:start AND mu.day <=:end GROUP by mu.vin HAVING (sum(mu.workingHours) >=:startRange AND sum(mu.workingHours) <=:endRage ) ) AND m.customer.id is not null GROUP BY m.platform ORDER BY counter DESC")
+	public List<MachineWithPlatform> getplatformsByMachineUsageForDuration(String userName, Date start, Date end, Double startRange, Double endRage);
+	
+	@Query("SELECT new com.wipro.jcb.livelink.app.machines.service.response.MachineWithPlatform (count(m.vin) as counter,m.platform) FROM Machine m join m.users u where u.userName=:userName AND m.renewalFlag = true AND m.vin NOT In (SELECT mu.vin FROM MachineUtilizationData mu join mu.machine.users u where u.userName=:userName AND mu.day >=:start AND mu.day <=:end ) AND m.customer.id is not null GROUP BY m.platform ORDER BY counter DESC")
+	public List<MachineWithPlatform> getplatformsByUnusedMachineForDuration(String userName, Date start, Date end);
 	
 }

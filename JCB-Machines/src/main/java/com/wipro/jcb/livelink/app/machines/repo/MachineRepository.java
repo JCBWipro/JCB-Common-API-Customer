@@ -2,6 +2,8 @@ package com.wipro.jcb.livelink.app.machines.repo;
 
 import com.wipro.jcb.livelink.app.machines.entity.Machine;
 import com.wipro.jcb.livelink.app.machines.entity.StakeHolder;
+import com.wipro.jcb.livelink.app.machines.service.response.MachineWithCustomerId;
+import com.wipro.jcb.livelink.app.machines.service.response.MachineWithPlatform;
 import com.wipro.jcb.livelink.app.machines.service.response.RdMachineDetails;
 import com.wipro.jcb.livelink.app.machines.service.response.RdVinImeiResponse;
 import com.wipro.jcb.livelink.app.machines.service.response.UserResponse;
@@ -136,4 +138,57 @@ public interface MachineRepository extends CrudRepository<Machine, String> {
             " lower(concat('%', ?2,'%')) OR lower(m.tag) LIKE lower(concat('%', ?2,'%'))) GROUP BY m.customer.id ORDER BY counter DESC")
     List<StakeHolder> getCustomersByUsersUserNameWithAllMachinesWithSearch(String userName, String search,
                                                                            PageRequest pageRequest);
+    
+    @Query("SELECT count(m.vin) FROM Machine m join m.users u where u.userName=:userName AND lower(m.platform) = lower(:platform) AND m.customer.id is not null")
+	public Long countByUsersUserNamePlatform(String userName, String platform);
+    
+    @Query("SELECT count(m.vin) FROM Machine m join m.users u where u.userName=:userName AND m.renewalDate <:today AND m.renewalDate is not null AND m.customer.id is not null AND m.statusAsOnTime >:communicatingDate")
+	public Long getCountByRenewalOverDueWithCustomers(String userName, Date today,Date communicatingDate);
+    
+    @Query("SELECT count(m.vin) FROM Machine m join m.users u where u.userName=:userName AND m.renewalDate >:maxRenewalDate AND m.renewalDate is not null AND m.customer.id is not null AND m.statusAsOnTime >:communicatingDate")
+	public Long getCountByRenewalApproachingWithCustomers(String userName, Date maxRenewalDate,Date communicatingDate);
+    
+    @Query("SELECT count(m.vin) FROM Machine m join m.users u where u.userName=:userName  AND m.renewalDate between :today and :maxRenewalDate AND m.renewalDate is not null AND m.customer.id is not null AND m.statusAsOnTime >:communicatingDate")
+	public Long getCountByRenewalImmediateWithCustomers(String userName, Date today, Date maxRenewalDate,Date communicatingDate);
+    
+    @Query("SELECT count(m.vin) FROM Machine m join m.users u where u.userName=:userName  AND m.renewalDate = null AND m.customer.id is not null AND m.statusAsOnTime >:communicatingDate")
+	public Long getCountByRenewalNoDataWithCustomers(String userName,Date communicatingDate);
+    
+    @Query("SELECT new com.wipro.jcb.livelink.app.machines.service.response.MachineWithCustomerId(count(m.vin) as counter,m.customer.id) FROM Machine m join m.users u where u.userName=:userName AND m.renewalDate <:today AND m.renewalDate is not null AND m.customer.id is not null AND m.statusAsOnTime >:communicatingDate GROUP BY m.customer.id ORDER BY counter DESC")
+	public List<MachineWithCustomerId> getByAllCustomerForRenewalOverDue(String userName, Date today,Date communicatingDate, Pageable pageable);
+    
+    @Query("SELECT new com.wipro.jcb.livelink.app.machines.service.response.MachineWithCustomerId(count(m.vin) as counter,m.customer.id) FROM Machine m join m.users u where u.userName=:userName  AND m.renewalDate >:maxRenewalDate AND m.renewalDate is not null AND m.customer.id is not null AND m.statusAsOnTime >:communicatingDate GROUP BY m.customer.id ORDER BY counter DESC")
+	public List<MachineWithCustomerId> getByAllCustomerForRenewalApproaching(String userName, Date maxRenewalDate,Date communicatingDate, Pageable pageable);
+
+    @Query("SELECT new com.wipro.jcb.livelink.app.machines.service.response.MachineWithCustomerId(count(m.vin) as counter,m.customer.id) FROM Machine m join m.users u where u.userName=:userName AND m.renewalDate between :today and :maxRenewalDate AND m.renewalDate is not null AND m.customer.id is not null AND m.statusAsOnTime >:communicatingDate GROUP BY m.customer.id ORDER BY counter DESC")
+	public List<MachineWithCustomerId> getByAllCustomerForRenewalImmediate(String userName, Date today, Date maxRenewalDate, Date communicatingDate,Pageable pageable);
+    
+    @Query("SELECT new com.wipro.jcb.livelink.app.machines.service.response.MachineWithCustomerId(count(m.vin) as counter,m.customer.id) FROM Machine m join m.users u where u.userName=:userName  AND m.renewalDate = null AND m.customer.id is not null AND m.statusAsOnTime >:communicatingDate GROUP BY m.customer.id ORDER BY counter DESC")
+	public List<MachineWithCustomerId> getByAllCustomerForRenewalNoData(String userName,Date communicatingDate, Pageable pageable);
+    
+    @Query("SELECT new com.wipro.jcb.livelink.app.machines.service.response.MachineWithPlatform(count(m.vin) as counter,m.platform) FROM Machine m join m.users u where u.userName=:userName  AND m.renewalDate <:today AND m.renewalDate is not null AND m.customer.id is not null AND m.statusAsOnTime >:communicatingDate GROUP BY m.platform ORDER BY counter DESC")
+	public List<MachineWithPlatform> getByPlatformForRenewalOverDue(String userName, Date today, Date communicatingDate);
+    
+    @Query("SELECT new com.wipro.jcb.livelink.app.machines.service.response.MachineWithCustomerId(count(m.vin) as counter,m.customer.id) FROM Machine m join m.users u where u.userName=:userName  AND m.platform =:platform AND m.renewalDate <:today AND m.renewalDate is not null AND m.customer.id is not null AND m.statusAsOnTime >:communicatingDate GROUP BY m.customer.id ORDER BY counter DESC")
+	public List<MachineWithCustomerId> getByAllCustomerForRenewalOverDue(String userName, Date today, String platform,Date communicatingDate, Pageable pageable);
+    
+    @Query("SELECT new com.wipro.jcb.livelink.app.machines.service.response.MachineWithPlatform (count(m.vin) as counter,m.platform) FROM Machine m join m.users u where u.userName=:userName  AND m.renewalDate >:maxRenewalDate AND m.renewalDate is not null AND m.customer.id is not null AND m.statusAsOnTime >:communicatingDate GROUP BY m.platform ORDER BY counter DESC")
+	public List<MachineWithPlatform> getByPlatformForRenewalApproaching(String userName, Date maxRenewalDate,Date communicatingDate);
+    
+    @Query("SELECT new com.wipro.jcb.livelink.app.machines.service.response.MachineWithCustomerId (count(m.vin) as counter,m.customer.id) FROM Machine m join m.users u where u.userName=:userName AND m.platform =:platform AND m.renewalDate >:maxRenewalDate AND m.renewalDate is not null AND m.customer.id is not null AND m.statusAsOnTime >:communicatingDate GROUP BY m.customer.id ORDER BY counter DESC")
+	public List<MachineWithCustomerId> getByAllCustomerForRenewalApproaching(String userName, Date maxRenewalDate,
+			String platform,Date communicatingDate, Pageable pageable);
+    
+    @Query("SELECT new com.wipro.jcb.livelink.app.machines.service.response.MachineWithPlatform (count(m.vin) as counter,m.platform) FROM Machine m join m.users u where u.userName=:userName AND m.renewalDate between :today and :maxRenewalDate AND m.renewalDate is not null AND m.customer.id is not null AND m.statusAsOnTime >:communicatingDate GROUP BY m.platform ORDER BY counter DESC")
+	public List<MachineWithPlatform> getByPlatformForRenewalImmediate(String userName, Date today, Date maxRenewalDate,Date communicatingDate);
+    
+    @Query("SELECT new com.wipro.jcb.livelink.app.machines.service.response.MachineWithCustomerId (count(m.vin) as counter,m.customer.id) FROM Machine m join m.users u where u.userName=:userName  AND m.platform =:platform AND m.renewalDate between :today and :maxRenewalDate AND m.renewalDate is not null AND m.customer.id is not null AND m.statusAsOnTime >:communicatingDate GROUP BY m.customer.id ORDER BY counter DESC")
+	public List<MachineWithCustomerId> getByAllCustomerForRenewalImmediate(String userName, Date today,
+			Date maxRenewalDate, String platform,Date communicatingDate, Pageable pageable);
+    
+    @Query("SELECT new com.wipro.jcb.livelink.app.machines.service.response.MachineWithPlatform (count(m.vin) as counter,m.platform) FROM Machine m join m.users u where u.userName=:userName  AND m.renewalDate = null AND m.customer.id is not null AND m.statusAsOnTime >:communicatingDate GROUP BY m.platform ORDER BY counter DESC")
+	public List<MachineWithPlatform> getByPlatformForRenewalNoData(String userName,Date communicatingDate);
+    
+    @Query("SELECT new com.wipro.jcb.livelink.app.machines.service.response.MachineWithCustomerId (count(m.vin) as counter,m.customer.id) FROM Machine m join m.users u where u.userName=:userName  AND m.platform =:platform AND m.renewalDate = null AND m.customer.id is not null AND m.statusAsOnTime >:communicatingDate GROUP BY m.customer.id ORDER BY counter DESC")
+	public List<MachineWithCustomerId> getByAllCustomerForRenewalNoData(String userName, String platform, Date communicatingDate, Pageable pageable);
 }
