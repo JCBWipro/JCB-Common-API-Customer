@@ -32,12 +32,10 @@ import com.wipro.jcb.livelink.app.machines.enums.MachineUtilizationCategory;
 import com.wipro.jcb.livelink.app.machines.enums.ServiceCategory;
 import com.wipro.jcb.livelink.app.machines.enums.TransitMode;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
-import com.wipro.jcb.livelink.app.machines.repo.AlertRepository;
 import com.wipro.jcb.livelink.app.machines.repo.CustomerRepository;
 import com.wipro.jcb.livelink.app.machines.repo.DashboardDataRepository;
+import com.wipro.jcb.livelink.app.machines.repo.DealerRepository;
 import com.wipro.jcb.livelink.app.machines.repo.GenericeQueryRepo;
-import com.wipro.jcb.livelink.app.machines.repo.MachineRepository;
-import com.wipro.jcb.livelink.app.machines.repo.MachineUtilizationDataRepository;
 import com.wipro.jcb.livelink.app.machines.repo.UserRepository;
 import com.wipro.jcb.livelink.app.machines.repo.UtilizationLegendWiseCustomerMachineCountRepository;
 import com.wipro.jcb.livelink.app.machines.repo.UtilizationLegendWiseMachineCountRepository;
@@ -76,7 +74,7 @@ public class DealerDashboardResponseServiceImpl implements DealerDashboardRespon
 	private String adminUserName;
 	
 	@Autowired
-	private AlertRepository alertRepository;
+	private DealerRepository dealerRepo;
 	
 	@Autowired
 	private Utilities utilities;
@@ -86,9 +84,6 @@ public class DealerDashboardResponseServiceImpl implements DealerDashboardRespon
 	
 	@Autowired
 	private CustomerRepository custRepo;
-	
-	@Autowired
-	private MachineRepository machineRepo;
 	
 	@Autowired
 	private GenericeQueryRepo genericeQueryRepo;
@@ -107,9 +102,6 @@ public class DealerDashboardResponseServiceImpl implements DealerDashboardRespon
 	
 	@Autowired
 	private UtilizationPlatformWiseMachineCountRepository utilizationPlatformWiseMachineCountRepository;
-	
-	@Autowired
-	private MachineUtilizationDataRepository machineUtilizationRepo;
 	
 	SimpleDateFormat dateformat = new SimpleDateFormat("dd_MM_yyyy");
 	
@@ -142,7 +134,7 @@ public class DealerDashboardResponseServiceImpl implements DealerDashboardRespon
 				if ("ALL".equals(keyParam)) {
 					custDistribution.setMachineCount(machineCount);
 				} else {
-					custDistribution.setMachineCount(machineRepo.countByUsersUserNamePlatform(userName, keyParam));
+					custDistribution.setMachineCount(dealerRepo.countByUsersUserNamePlatform(userName, keyParam));
 				}
 
 				if (user.getUserType() == UserType.JCB) {
@@ -262,39 +254,39 @@ public class DealerDashboardResponseServiceImpl implements DealerDashboardRespon
 		case ALL:
 			
 			// RENEWAL_OVERDUE
-			machineCust = machineRepo.getByAllCustomerForRenewalOverDue(userName, today, communicatingDate,PageRequest.of(pageNumber, pageSize));
+			machineCust = dealerRepo.getByAllCustomerForRenewalOverDue(userName, today, communicatingDate,PageRequest.of(pageNumber, pageSize));
 			dist = new DistributionParams();
-			dist.setMachineCount(machineRepo.getCountByRenewalOverDueWithCustomers(userName, today, communicatingDate));
+			dist.setMachineCount(dealerRepo.getCountByRenewalOverDueWithCustomers(userName, today, communicatingDate));
 			dist.setCategory(LivelinkRenawal.RENEWAL_OVERDUE.getName());
 			distributions.add(loadCustomerInMachineWithCID(dist, machineCust));
 			
 			// RENEWAL_APPROACHING
-			machineCust = machineRepo.getByAllCustomerForRenewalApproaching(userName, maxRenewalDate, communicatingDate,PageRequest.of(pageNumber, pageSize));
+			machineCust = dealerRepo.getByAllCustomerForRenewalApproaching(userName, maxRenewalDate, communicatingDate,PageRequest.of(pageNumber, pageSize));
 			dist = new DistributionParams();
-			dist.setMachineCount(machineRepo.getCountByRenewalApproachingWithCustomers(userName, maxRenewalDate, communicatingDate));
+			dist.setMachineCount(dealerRepo.getCountByRenewalApproachingWithCustomers(userName, maxRenewalDate, communicatingDate));
 			dist.setCategory(LivelinkRenawal.RENEWAL_APPROACHING.getName());
 			distributions.add(loadCustomerInMachineWithCID(dist, machineCust));
 			
 			// RENEWAL_IMMEDIATE
-			machineCust = machineRepo.getByAllCustomerForRenewalImmediate(userName, today, maxRenewalDate,communicatingDate, PageRequest.of(pageNumber, pageSize));
+			machineCust = dealerRepo.getByAllCustomerForRenewalImmediate(userName, today, maxRenewalDate,communicatingDate, PageRequest.of(pageNumber, pageSize));
 			dist = new DistributionParams();
-			dist.setMachineCount(machineRepo.getCountByRenewalImmediateWithCustomers(userName, today, maxRenewalDate, communicatingDate));
+			dist.setMachineCount(dealerRepo.getCountByRenewalImmediateWithCustomers(userName, today, maxRenewalDate, communicatingDate));
 			dist.setCategory(LivelinkRenawal.RENEWAL_IMMEDIATE.getName());
 			distributions.add(loadCustomerInMachineWithCID(dist, machineCust));
 			
 			// RENEWAL_NO_DATA
-			machineCust = machineRepo.getByAllCustomerForRenewalNoData(userName, communicatingDate,PageRequest.of(pageNumber, pageSize));
+			machineCust = dealerRepo.getByAllCustomerForRenewalNoData(userName, communicatingDate,PageRequest.of(pageNumber, pageSize));
 			dist = new DistributionParams();
-			dist.setMachineCount(machineRepo.getCountByRenewalNoDataWithCustomers(userName, communicatingDate));
+			dist.setMachineCount(dealerRepo.getCountByRenewalNoDataWithCustomers(userName, communicatingDate));
 			dist.setCategory(LivelinkRenawal.RENEWAL_NO_DATA.getName());
 			distributions.add(loadCustomerInMachineWithCID(dist, machineCust));
 			break;
 			
 		case RENEWAL_OVERDUE:
-			final List<MachineWithPlatform> platformListRO = machineRepo.getByPlatformForRenewalOverDue(userName, today,
+			final List<MachineWithPlatform> platformListRO = dealerRepo.getByPlatformForRenewalOverDue(userName, today,
 					communicatingDate);
 			for (final MachineWithPlatform platform : platformListRO) {
-				machineCust = machineRepo.getByAllCustomerForRenewalOverDue(userName, today, platform.getPlatform(),
+				machineCust = dealerRepo.getByAllCustomerForRenewalOverDue(userName, today, platform.getPlatform(),
 						communicatingDate, PageRequest.of(pageNumber, pageSize));
 				dist = new DistributionParams();
 				dist.setMachineCount(platform.getMachineCount());
@@ -303,10 +295,10 @@ public class DealerDashboardResponseServiceImpl implements DealerDashboardRespon
 			}
 			break;
 		case RENEWAL_APPROACHING:
-			final List<MachineWithPlatform> platformListRA = machineRepo.getByPlatformForRenewalApproaching(userName,
+			final List<MachineWithPlatform> platformListRA = dealerRepo.getByPlatformForRenewalApproaching(userName,
 					maxRenewalDate, communicatingDate);
 			for (final MachineWithPlatform platform : platformListRA) {
-				machineCust = machineRepo.getByAllCustomerForRenewalApproaching(userName, maxRenewalDate,
+				machineCust = dealerRepo.getByAllCustomerForRenewalApproaching(userName, maxRenewalDate,
 						platform.getPlatform(), communicatingDate, PageRequest.of(pageNumber, pageSize));
 				dist = new DistributionParams();
 				dist.setMachineCount(platform.getMachineCount());
@@ -315,10 +307,10 @@ public class DealerDashboardResponseServiceImpl implements DealerDashboardRespon
 			}
 			break;
 		case RENEWAL_IMMEDIATE:
-			final List<MachineWithPlatform> platformListRI = machineRepo.getByPlatformForRenewalImmediate(userName,
+			final List<MachineWithPlatform> platformListRI = dealerRepo.getByPlatformForRenewalImmediate(userName,
 					today, maxRenewalDate, communicatingDate);
 			for (final MachineWithPlatform platform : platformListRI) {
-				machineCust = machineRepo.getByAllCustomerForRenewalImmediate(userName, today, maxRenewalDate,
+				machineCust = dealerRepo.getByAllCustomerForRenewalImmediate(userName, today, maxRenewalDate,
 						platform.getPlatform(), communicatingDate, PageRequest.of(pageNumber, pageSize));
 				dist = new DistributionParams();
 				dist.setMachineCount(platform.getMachineCount());
@@ -327,10 +319,10 @@ public class DealerDashboardResponseServiceImpl implements DealerDashboardRespon
 			}
 			break;
 		case RENEWAL_NO_DATA:
-			final List<MachineWithPlatform> platformListRN = machineRepo.getByPlatformForRenewalNoData(userName,
+			final List<MachineWithPlatform> platformListRN = dealerRepo.getByPlatformForRenewalNoData(userName,
 					communicatingDate);
 			for (final MachineWithPlatform platform : platformListRN) {
-				machineCust = machineRepo.getByAllCustomerForRenewalNoData(userName, platform.getPlatform(),
+				machineCust = dealerRepo.getByAllCustomerForRenewalNoData(userName, platform.getPlatform(),
 						communicatingDate, PageRequest.of(pageNumber, pageSize));
 				dist = new DistributionParams();
 				dist.setMachineCount(platform.getMachineCount());
@@ -348,12 +340,12 @@ public class DealerDashboardResponseServiceImpl implements DealerDashboardRespon
 		final Date communicatingDate = utilities.getDateTime(utilities.getEndDate(-60));
 		final LivelinkRenawal resultLivelinkRenawal = LivelinkRenawal.valueOf(keyParam);
 		return switch (resultLivelinkRenawal) {
-		case RENEWAL_OVERDUE -> machineRepo.getCountByRenewalOverDueWithCustomers(userName, today, communicatingDate);
+		case RENEWAL_OVERDUE -> dealerRepo.getCountByRenewalOverDueWithCustomers(userName, today, communicatingDate);
 		case RENEWAL_APPROACHING ->
-			machineRepo.getCountByRenewalApproachingWithCustomers(userName, maxRenewalDate, communicatingDate);
+		dealerRepo.getCountByRenewalApproachingWithCustomers(userName, maxRenewalDate, communicatingDate);
 		case RENEWAL_IMMEDIATE ->
-			machineRepo.getCountByRenewalImmediateWithCustomers(userName, today, maxRenewalDate, communicatingDate);
-		case RENEWAL_NO_DATA -> machineRepo.getCountByRenewalNoDataWithCustomers(userName, communicatingDate);
+		dealerRepo.getCountByRenewalImmediateWithCustomers(userName, today, maxRenewalDate, communicatingDate);
+		case RENEWAL_NO_DATA -> dealerRepo.getCountByRenewalNoDataWithCustomers(userName, communicatingDate);
 		default -> 0L;
 		};
 	}
@@ -523,9 +515,9 @@ public class DealerDashboardResponseServiceImpl implements DealerDashboardRespon
 		final EventLevel eventLevel = EventLevel.valueOf(keyParam);
         return switch (eventLevel) {
             case RED ->
-                    alertRepository.countMachinesByCriticalAlertsCustomer(userName, EventLevel.RED);
+            dealerRepo.countMachinesByCriticalAlertsCustomer(userName, EventLevel.RED);
             case YELLOW ->
-                    alertRepository.countMachinesByHighAlertsCustomer(userName, EventLevel.RED, EventLevel.YELLOW);
+            dealerRepo.countMachinesByHighAlertsCustomer(userName, EventLevel.RED, EventLevel.YELLOW);
             default -> 0L;
         };
 	}
@@ -537,18 +529,18 @@ public class DealerDashboardResponseServiceImpl implements DealerDashboardRespon
 		List<MachineWithPlatform> list = null;
 		DistributionParams dist = null;
 		if ("ALL".equals(alertLevel)) {
-			machineCust = alertRepository.getMachinesByCriticalAlertsCustomer(userName, EventLevel.RED, PageRequest.of(pageNumber, pageSize));
+			machineCust = dealerRepo.getMachinesByCriticalAlertsCustomer(userName, EventLevel.RED, PageRequest.of(pageNumber, pageSize));
 			dist = new DistributionParams();
-			dist.setMachineCount(alertRepository.countMachinesByCriticalAlertsCustomer(userName, EventLevel.RED));
+			dist.setMachineCount(dealerRepo.countMachinesByCriticalAlertsCustomer(userName, EventLevel.RED));
 			dist.setCategory(EventLevel.RED.toString());
 			distributions.add(loadCustomerInMachineWithCID(dist, machineCust));
-			machineCust = alertRepository.getMachinesByCriticalAlertsCustomer(userName, EventLevel.YELLOW, PageRequest.of(pageNumber, pageSize));
+			machineCust = dealerRepo.getMachinesByCriticalAlertsCustomer(userName, EventLevel.YELLOW, PageRequest.of(pageNumber, pageSize));
 			dist = new DistributionParams();
-			dist.setMachineCount(alertRepository.countMachinesByCriticalAlertsCustomer(userName, EventLevel.YELLOW));
+			dist.setMachineCount(dealerRepo.countMachinesByCriticalAlertsCustomer(userName, EventLevel.YELLOW));
 			dist.setCategory(EventLevel.YELLOW.toString());
 			distributions.add(loadCustomerInMachineWithCID(dist, machineCust));
 		} else {
-			list = alertRepository.getAlertCountGroupByPlatform(userName, EventLevel.valueOf(alertLevel));
+			list = dealerRepo.getAlertCountGroupByPlatform(userName, EventLevel.valueOf(alertLevel));
 			for (final MachineWithPlatform machineWithPlatform : list) {
 				dist = getEventLevelGroupByCustomer(userName, alertLevel, machineWithPlatform.getPlatform(), search, pageNumber, pageSize);
 				dist.setCategory(machineWithPlatform.getPlatform());
@@ -589,11 +581,11 @@ public class DealerDashboardResponseServiceImpl implements DealerDashboardRespon
 			String search, int pageNumber, int pageSize) {
 		final DistributionParams dist = new DistributionParams();
 		if ("eventLevel".equals(paramName)) {
-			final List<MachineWithCustomerId> machineWithCust = alertRepository.getByCountWithCustomers(userName,
+			final List<MachineWithCustomerId> machineWithCust = dealerRepo.getByCountWithCustomers(userName,
 					EventLevel.valueOf(tuple), PageRequest.of(pageNumber, pageSize));
 			loadCustomerInMachineWithCID(dist, machineWithCust);
 		} else {
-			final List<MachineWithCustomerId> machineWithCust = alertRepository.getByCountWithCustomers(userName,
+			final List<MachineWithCustomerId> machineWithCust = dealerRepo.getByCountWithCustomers(userName,
 					EventLevel.valueOf(tuple), paramName, PageRequest.of(pageNumber, pageSize));
 			loadCustomerInMachineWithCID(dist, machineWithCust);
 		}
@@ -855,10 +847,10 @@ public class DealerDashboardResponseServiceImpl implements DealerDashboardRespon
 				distributons.add(distNoData);
 			} else {
 				if (MachineUtilizationCategory.LESSER_USED.getName().equals(utilization)) {
-					platformList = machineUtilizationRepo.getplatformsByMachineUsageForDuration(userName, startDate,
+					platformList = dealerRepo.getplatformsByMachineUsageForDuration(userName, startDate,
 							endDate, Double.valueOf(0), Double.valueOf(lesserUsedMaxRange * days));
 					for (final MachineWithPlatform platform : platformList) {
-						machineCust = machineUtilizationRepo.getCustomersByMachineUsageForDuration(userName, startDate,
+						machineCust = dealerRepo.getCustomersByMachineUsageForDuration(userName, startDate,
 								endDate, Double.valueOf(0), Double.valueOf(lesserUsedMaxRange * days), platform.getPlatform(),
 								PageRequest.of(pageNumber, pageSize));
 						dist = new DistributionParams();
@@ -870,10 +862,10 @@ public class DealerDashboardResponseServiceImpl implements DealerDashboardRespon
 				}
 				if (MachineUtilizationCategory.HEAVILY_USED.getName().equals(utilization)) {
 					double heavilyUsedMin = (moderateUsedMaxRange * days) + 1D;
-					platformList = machineUtilizationRepo.getplatformsByMachineUsageForDuration(userName, startDate,
+					platformList = dealerRepo.getplatformsByMachineUsageForDuration(userName, startDate,
 							endDate, heavilyUsedMin, Double.valueOf(heavilyUsedMaxRange * days));
 					for (final MachineWithPlatform platform : platformList) {
-						machineCust = machineUtilizationRepo.getCustomersByMachineUsageForDuration(userName, startDate,
+						machineCust = dealerRepo.getCustomersByMachineUsageForDuration(userName, startDate,
 								endDate, heavilyUsedMin, Double.valueOf(heavilyUsedMaxRange * days), platform.getPlatform(),
 								PageRequest.of(pageNumber, pageSize));
 						dist = new DistributionParams();
@@ -885,10 +877,10 @@ public class DealerDashboardResponseServiceImpl implements DealerDashboardRespon
 				}
 				if (MachineUtilizationCategory.MODERATED_USED.getName().equals(utilization)) {
 					double moderateUsedMin = (lesserUsedMaxRange * days) + 1D;
-					platformList = machineUtilizationRepo.getplatformsByMachineUsageForDuration(userName, startDate,
+					platformList = dealerRepo.getplatformsByMachineUsageForDuration(userName, startDate,
 							endDate, moderateUsedMin, Double.valueOf(moderateUsedMaxRange * days));
 					for (final MachineWithPlatform platform : platformList) {
-						machineCust = machineUtilizationRepo.getCustomersByMachineUsageForDuration(userName, startDate,
+						machineCust = dealerRepo.getCustomersByMachineUsageForDuration(userName, startDate,
 								endDate, moderateUsedMin, Double.valueOf(moderateUsedMaxRange * days),
 								platform.getPlatform(), PageRequest.of(pageNumber, pageSize));
 						dist = new DistributionParams();
@@ -899,10 +891,10 @@ public class DealerDashboardResponseServiceImpl implements DealerDashboardRespon
 					}
 				}
 				if (MachineUtilizationCategory.NO_DATA_AVAILABLE.getName().equals(utilization)) {
-					platformList = machineUtilizationRepo.getplatformsByUnusedMachineForDuration(userName, startDate,
+					platformList = dealerRepo.getplatformsByUnusedMachineForDuration(userName, startDate,
 							endDate);
 					for (final MachineWithPlatform platform : platformList) {
-						machineCust = machineUtilizationRepo.getCustomersByUnusedMachineForDuration(userName, startDate,
+						machineCust = dealerRepo.getCustomersByUnusedMachineForDuration(userName, startDate,
 								endDate, platform.getPlatform(), PageRequest.of(pageNumber, pageSize));
 						dist = new DistributionParams();
 						dist.setMachineCount(platform.getMachineCount());
@@ -928,44 +920,44 @@ public class DealerDashboardResponseServiceImpl implements DealerDashboardRespon
 		List<MachineWithCustomerId> machineCust = null;
 		if ("ALL".equals(platform)) {
 			if (MachineUtilizationCategory.LESSER_USED.getName().equals(category.getName())) {
-				machineCust = machineUtilizationRepo.getCustomersByMachineUsageForDuration(userName, startDate, endDate,
+				machineCust = dealerRepo.getCustomersByMachineUsageForDuration(userName, startDate, endDate,
                         (double) 0, (double) (lesserUsedMaxRange * days), PageRequest.of(pageNumber, pageSize));
 			}
 			if (MachineUtilizationCategory.HEAVILY_USED.getName().equals(category.getName())) {
 				double heavilyUsedMin = (moderateUsedMaxRange * days) + 1D;
-				machineCust = machineUtilizationRepo.getCustomersByMachineUsageForDuration(userName, startDate, endDate,
+				machineCust = dealerRepo.getCustomersByMachineUsageForDuration(userName, startDate, endDate,
 						heavilyUsedMin, (double) (heavilyUsedMaxRange * days), PageRequest.of(pageNumber, pageSize));
 			}
 			if (MachineUtilizationCategory.MODERATED_USED.getName().equals(category.getName())) {
 				double modarateUsedMin = (lesserUsedMaxRange * days) + 1D;
-				machineCust = machineUtilizationRepo.getCustomersByMachineUsageForDuration(userName, startDate, endDate,
+				machineCust = dealerRepo.getCustomersByMachineUsageForDuration(userName, startDate, endDate,
 						modarateUsedMin, Double.valueOf(moderateUsedMaxRange * days),
 						PageRequest.of(pageNumber, pageSize));
 			}
 			if (MachineUtilizationCategory.NO_DATA_AVAILABLE.getName().equals(category.getName())) {
-				machineCust = machineUtilizationRepo.getCustomersByUnusedMachineForDuration(userName, startDate,
+				machineCust = dealerRepo.getCustomersByUnusedMachineForDuration(userName, startDate,
 						endDate, PageRequest.of(pageNumber, pageSize));
 			}
 		} else {
 			if (MachineUtilizationCategory.LESSER_USED.getName().equals(category.getName())) {
-				machineCust = machineUtilizationRepo.getCustomersByMachineUsageForDuration(userName, startDate, endDate,
+				machineCust = dealerRepo.getCustomersByMachineUsageForDuration(userName, startDate, endDate,
 						Double.valueOf(0), Double.valueOf(lesserUsedMaxRange * days), platform,
 						PageRequest.of(pageNumber, pageSize));
 			}
 			if (MachineUtilizationCategory.HEAVILY_USED.getName().equals(category.getName())) {
 				double heavilyUsedMin = (moderateUsedMaxRange * days) + 1D;
-				machineCust = machineUtilizationRepo.getCustomersByMachineUsageForDuration(userName, startDate, endDate,
+				machineCust = dealerRepo.getCustomersByMachineUsageForDuration(userName, startDate, endDate,
 						heavilyUsedMin, Double.valueOf(heavilyUsedMaxRange), platform,
 						PageRequest.of(pageNumber, pageSize));
 			}
 			if (MachineUtilizationCategory.MODERATED_USED.getName().equals(category.getName())) {
 				double modarateUsedMin = (lesserUsedMaxRange * days) + 1D;
-				machineCust = machineUtilizationRepo.getCustomersByMachineUsageForDuration(userName, startDate, endDate,
+				machineCust = dealerRepo.getCustomersByMachineUsageForDuration(userName, startDate, endDate,
 						modarateUsedMin, Double.valueOf(moderateUsedMaxRange), platform,
 						PageRequest.of(pageNumber, pageSize));
 			}
 			if (MachineUtilizationCategory.NO_DATA_AVAILABLE.getName().equals(category.getName())) {
-				machineCust = machineUtilizationRepo.getCustomersByUnusedMachineForDuration(userName, startDate,
+				machineCust = dealerRepo.getCustomersByUnusedMachineForDuration(userName, startDate,
 						endDate, platform, PageRequest.of(pageNumber, pageSize));
 			}
 		}
