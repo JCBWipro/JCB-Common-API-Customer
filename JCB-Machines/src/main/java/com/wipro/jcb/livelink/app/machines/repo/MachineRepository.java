@@ -1,8 +1,10 @@
 package com.wipro.jcb.livelink.app.machines.repo;
 
-import java.util.Date;
-import java.util.List;
-
+import com.wipro.jcb.livelink.app.machines.entity.Machine;
+import com.wipro.jcb.livelink.app.machines.entity.StakeHolder;
+import com.wipro.jcb.livelink.app.machines.service.response.RdMachineDetails;
+import com.wipro.jcb.livelink.app.machines.service.response.RdVinImeiResponse;
+import com.wipro.jcb.livelink.app.machines.service.response.UserResponse;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,11 +14,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.wipro.jcb.livelink.app.machines.entity.Machine;
-import com.wipro.jcb.livelink.app.machines.entity.StakeHolder;
-import com.wipro.jcb.livelink.app.machines.service.response.RdMachineDetails;
-import com.wipro.jcb.livelink.app.machines.service.response.RdVinImeiResponse;
-import com.wipro.jcb.livelink.app.machines.service.response.UserResponse;
+import java.util.Date;
+import java.util.List;
 
 @Component
 public interface MachineRepository extends CrudRepository<Machine, String> {
@@ -128,7 +127,7 @@ public interface MachineRepository extends CrudRepository<Machine, String> {
 
     /**
      * Retrieves a list of StakeHolder objects representing customers and their machine counts for a specific user,
-     *  with an additional search filter applied to various fields
+     * with an additional search filter applied to various fields
      */
     @Query("SELECT new com.wipro.jcb.livelink.app.machines.entity.StakeHolder(m.customer,count(m.vin) as counter) FROM" +
             " Machine m join m.users u where ?1 = u.userName AND m.renewalFlag = true AND (lower(m.customer.name) LIKE " +
@@ -137,5 +136,63 @@ public interface MachineRepository extends CrudRepository<Machine, String> {
             " lower(concat('%', ?2,'%')) OR lower(m.tag) LIKE lower(concat('%', ?2,'%'))) GROUP BY m.customer.id ORDER BY counter DESC")
     List<StakeHolder> getCustomersByUsersUserNameWithAllMachinesWithSearch(String userName, String search,
                                                                            PageRequest pageRequest);
-    
+
+    /**
+     * Counts the number of machines associated with a given username.
+     *
+     * @param userName The username for which to count machines.
+     * @return The number of machines associated with the username.
+     */
+    @Query("SELECT count(m.vin) FROM Machine m join m.users u where ?1 = u.userName ")
+    Long getCountByUsersUserName(String userName);
+
+    /**
+     * Counts the number of machines with overdue renewals for a given username.
+     * A renewal is considered overdue if the renewal date is before today and the machine's last status update time
+     * is after the specified communicating date.
+     *
+     * @param userName           The username for which to count machines.
+     * @param today              The current date.
+     * @param communicatingDate The date after which a machine is considered communicating.
+     * @return The number of machines with overdue renewals.
+     */
+    @Query("SELECT count(m.vin) FROM Machine m join m.users u where ?1 = u.userName  AND m.renewalDate < ?2 AND NOT m.renewalDate = null AND m.statusAsOnTime > ?3")
+    Long getCountByRenewalOverDue(String userName, Date today, Date communicatingDate);
+
+    /**
+     * Counts the number of machines with renewals approaching for a given username.
+     * A renewal is considered approaching if the renewal date is after the specified max renewal date and the machine's
+     * last status update time is after the specified communicating date.
+     *
+     * @param userName           The username for which to count machines.
+     * @param maxRenewalDate    The date after which a renewal is considered approaching.
+     * @param communicatingDate The date after which a machine is considered communicating.
+     * @return The number of machines with renewals approaching.
+     */
+    @Query("SELECT count(m.vin) FROM Machine m join m.users u where ?1 = u.userName  AND m.renewalDate > ?2 AND NOT m.renewalDate = null AND m.statusAsOnTime > ?3")
+    Long getCountByRenewalApproaching(String userName, Date maxRenewalDate, Date communicatingDate);
+
+    /**
+     * Counts the number of machines with no renewal data for a given username.
+     * A machine is considered to have no renewal data if its renewal date is null.
+     *
+     * @param userName The username for which to count machines.
+     * @return The number of machines with no renewal data.
+     */
+    @Query("SELECT count(m.vin) FROM Machine m join m.users u where ?1 = u.userName  AND m.renewalDate = null")
+    Long getCountByRenewalNoData(String userName);
+
+    /**
+     * Counts the number of machines with immediate renewals for a given username.
+     * A renewal is considered immediate if the renewal date is between today and the specified max renewal date and
+     * the machine's last status update time is after the specified communicating date.
+     *
+     * @param userName           The username for which to count machines.
+     * @param today              The current date.
+     * @param maxRenewalDate    The date after which a renewal is no longer considered immediate.
+     * @param communicatingDate The date after which a machine is considered communicating.
+     * @return The number of machines with immediate renewals.
+     */
+    @Query("SELECT count(m.vin) FROM Machine m join m.users u where ?1 = u.userName  AND m.renewalDate between ?2 and ?3 AND NOT m.renewalDate = null AND m.statusAsOnTime > ?4")
+    Long getCountByRenewalImmediate(String userName, Date today, Date maxRenewalDate, Date communicatingDate);
 }

@@ -107,13 +107,13 @@ public class UserProfileController {
                 log.info("Vin Mapping Duration :{}", elapsedTime);
                 return new ResponseEntity<UserProfile>(HttpStatus.OK);
             } else {
-                return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+                return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED,
                         "No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
             }
 
 
         } catch (final Exception e) {
-            log.error("userMapping:Error observed while retriving app config {}", e.getMessage());
+            log.error("userMapping:Error observed while retrieving app config {}", e.getMessage());
             return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR, e.getMessage(),
                     MessagesList.APP_REQUEST_PROCESSING_FAILED, null), HttpStatus.INTERNAL_SERVER_ERROR);
         }

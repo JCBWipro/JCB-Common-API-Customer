@@ -21,7 +21,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CategoryMachineCountList {
-    @ApiModelProperty(value = "Machine count on perticular given key", example = "30", required = true)
+    @ApiModelProperty(value = "Machine count on particular given key", example = "30", required = true)
     private Long machineCount = 0L;
     @ApiModelProperty(value = "Object", example = "All count list with category", required = true)
     private List<MachineCountWIthCategory> keys = new LinkedList<>();
