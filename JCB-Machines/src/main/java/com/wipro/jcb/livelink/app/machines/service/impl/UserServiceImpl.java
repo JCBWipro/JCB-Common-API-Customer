@@ -1,6 +1,6 @@
 package com.wipro.jcb.livelink.app.machines.service.impl;
 
-import com.wipro.jcb.livelink.app.machines.config.UsermappingThread;
+import com.wipro.jcb.livelink.app.machines.config.UserMappingThread;
 import com.wipro.jcb.livelink.app.machines.constants.MessagesList;
 import com.wipro.jcb.livelink.app.machines.constants.UserType;
 import com.wipro.jcb.livelink.app.machines.entity.StakeHolder;
@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
 
                 }
                 if (user != null) {
-                    UsermappingThread thread = new UsermappingThread(restTemplateUrl, env, userName);
+                    UserMappingThread thread = new UserMappingThread(restTemplateUrl, env, userName);
                     Thread runner = new Thread(thread);
                     runner.start();
                     log.info("After Thread Calling ");

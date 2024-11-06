@@ -1,23 +1,5 @@
 package com.wipro.jcb.livelink.app.reports.service.impl;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
 import com.wipro.jcb.livelink.app.reports.commonUtils.ReportUtilities;
 import com.wipro.jcb.livelink.app.reports.constants.FuelLevelNAConfig;
 import com.wipro.jcb.livelink.app.reports.constants.MessagesConstantsList;
@@ -32,8 +14,17 @@ import com.wipro.jcb.livelink.app.reports.report.AggregatedMachinePerformance;
 import com.wipro.jcb.livelink.app.reports.report.AggregatedMachineUtilization;
 import com.wipro.jcb.livelink.app.reports.report.ReportResponseV2;
 import com.wipro.jcb.livelink.app.reports.service.CustomerReportService;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -101,7 +92,7 @@ public class CustomerReportServiceImpl implements CustomerReportService {
 			standardDate.setDate(standardDate.getDate() - 91);
 
 			Machine machine = machineRepository.findByVin(filter);
-			reportResponse.setTotalMachineCount(new Long(1));
+			reportResponse.setTotalMachineCount(1L);
 			reportResponse.setTotalMachineHours(machine.getTotalMachineHours());
 
 			if (machine.getPremiumFlag() != null && machine.getPremiumFlag().equalsIgnoreCase("Premium")) {

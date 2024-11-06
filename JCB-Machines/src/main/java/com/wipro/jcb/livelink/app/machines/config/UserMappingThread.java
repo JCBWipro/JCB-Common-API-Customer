@@ -1,7 +1,10 @@
 package com.wipro.jcb.livelink.app.machines.config;
 
 import com.wipro.jcb.livelink.app.machines.commonUtils.Utilities;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -13,7 +16,6 @@ import org.springframework.web.util.UriComponentsBuilder;
  * Author: Jitendra Prasad
  * User: JI20319932
  * Date:9/30/2024
- * project: JCB-Common-API-Customer
  */
 @Slf4j
 @Setter
@@ -21,7 +23,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @PropertySource("application.properties")
-public class UsermappingThread implements Runnable {
+public class UserMappingThread implements Runnable {
     @Autowired
     Utilities utilities;
 
@@ -31,7 +33,7 @@ public class UsermappingThread implements Runnable {
 
     private String userName;
 
-    public UsermappingThread(String restTemplateUrl, String env, String userName) {
+    public UserMappingThread(String restTemplateUrl, String env, String userName) {
         super();
         this.restTemplateUrl = restTemplateUrl;
         this.env = env;

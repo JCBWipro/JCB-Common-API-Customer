@@ -1,7 +1,10 @@
 package com.wipro.jcb.livelink.app.machines.dto;
 
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /*
  * Author: Jitendra Prasad
@@ -14,7 +17,6 @@ import lombok.*;
  */
 @Setter
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
 @ToString
 public class DealerDashboard {
@@ -32,10 +34,23 @@ public class DealerDashboard {
     private CategoryMachineCountList machineLocator;
     @ApiModelProperty(value = "All machines connectivity with platform count and total machine count", example = "", required = true)
     private CategoryMachineCountList connectivity;
+    @Getter
     @ApiModelProperty(value = "All machines connectivity with platform count and total machine count", example = "", required = true)
     private TopCustomerRecords topCustomers;
     @ApiModelProperty(value = "All machines warranty status with warranty and total machine count", example = "", required = true)
     private CategoryMachineCountList warranty;
     @ApiModelProperty(value = "All machines renewalStatus with renewalStatus and total machine count", example = "", required = true)
     private CategoryMachineCountList renewalStatus;
+
+    public DealerDashboard() {
+        this.topCustomers = new TopCustomerRecords();
+        this.platformDist = new CategoryMachineCountList();
+        this.alerts = new CategoryMachineCountList();
+        this.utilization = new CategoryMachineCountList();
+        this.serviceStatus = new CategoryMachineCountList();
+        this.machineLocator = new CategoryMachineCountList();
+        this.connectivity = new CategoryMachineCountList();
+        this.warranty = new CategoryMachineCountList();
+        this.renewalStatus = new CategoryMachineCountList();
+    }
 }
