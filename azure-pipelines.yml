@@ -6,7 +6,7 @@
 trigger:
   - Team-NextGen
   - main
-  - Mobile_Code_Update
+  - Team-NextGen-Testing
 
 pool:
   vmImage: windows-latest
