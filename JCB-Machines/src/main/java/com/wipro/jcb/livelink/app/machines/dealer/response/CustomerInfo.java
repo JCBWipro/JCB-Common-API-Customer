@@ -24,5 +24,30 @@ public class CustomerInfo {
 	private String country;
 	@Schema(description = "Number of machines having service overdue alert in the specifed date range", example = "48", required = true)
 	private Long machineCount;
+	@Schema(description = "Customer userName", example = "name", required = true)
+	private String displayName;
+
+	public CustomerInfo(String customerName, String thumbnail, String customerId, Long machineCount, String phoneNumber,
+			String address, String country) {
+		super();
+		this.thumbnail = thumbnail;
+		this.customerName = customerName;
+		this.phoneNumber = phoneNumber;
+		this.address = address;
+		this.country = country;
+		this.machineCount = machineCount;
+		this.customerId = customerId;
+	}
+
+	public CustomerInfo(String customerId, String thumbnail, String customerName, String phoneNumber, String address,
+			String country, Long machineCount) {
+		this.customerId = customerId;
+		this.thumbnail = thumbnail;
+		this.customerName = customerName;
+		this.phoneNumber = phoneNumber;
+		this.address = address;
+		this.country = country;
+		this.machineCount = machineCount;
+	}
 
 }

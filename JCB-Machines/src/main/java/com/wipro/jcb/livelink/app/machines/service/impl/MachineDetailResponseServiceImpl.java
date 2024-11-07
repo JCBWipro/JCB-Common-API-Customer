@@ -236,15 +236,15 @@ public class MachineDetailResponseServiceImpl implements MachineDetailResponseSe
                         engineValue,
                         connectivityTime.before(machine.getStatusAsOnTime()),
                         (connectivityTime.before(machine.getStatusAsOnTime())) ? "Off" : "On",
-                        machine.getCoolantTemperatureAlertStatus(),
-                        (machine.getCoolantTemperatureAlertStatus())  ? "Fault" : " No Fault",
-                        machine.getBatteryConnectedStatus(),
+                		machine.getCoolantTemperatureAlertStatus()!=null ? machine.getCoolantTemperatureAlertStatus() : false,
+                        (machine.getCoolantTemperatureAlertStatus()!=null) ? "Fault" : " No Fault",
+                        machine.getBatteryConnectedStatus()!=null ? machine.getBatteryConnectedStatus() : false,
                         machine.getBatteryVoltage() != null ? machine.getBatteryVoltage().toString() : "NA", // Null check for battery voltage
-                        machine.getEngineOilPressureAlertStatus(),
-                        (machine.getEngineOilPressureAlertStatus()) ? "Fault" : "No Fault",
-                        machine.getAirFilterAlertStatus(),
-                        (machine.getAirFilterAlertStatus()) ? "Fault" : "No Fault",
-                        machine.getFuelLevelStatus(),
+                        machine.getEngineOilPressureAlertStatus()!=null ? machine.getEngineOilPressureAlertStatus() : false,
+                        (machine.getEngineOilPressureAlertStatus()!=null) ? machine.getEngineOilPressureAlertStatus().toString() : "No Fault",
+                        machine.getAirFilterAlertStatus()!=null ? machine.getCoolantTemperatureAlertStatus() : false,
+                        (machine.getAirFilterAlertStatus()!=null) ? machine.getAirFilterAlertStatus().toString() : "No Fault",
+                        machine.getFuelLevelStatus()!=null ? machine.getFuelLevelStatus() : false,
                         updatedMachineFuelConsumptionData.get(0).getFuelConsumed() != null ?
                                 updatedMachineFuelConsumptionData.get(0).getFuelConsumed().toString() : "NA", // Null check for fuel consumed
                         machine.getStatusAsOnTime() != null ? machine.getStatusAsOnTime() : new Date(), // Null check for statusAsOnTime
@@ -258,15 +258,15 @@ public class MachineDetailResponseServiceImpl implements MachineDetailResponseSe
                         engineValue,
                         connectivityTime.before(machine.getStatusAsOnTime()),
                         (connectivityTime.before(machine.getStatusAsOnTime())) ? "On" : "Off",
-                        machine.getCoolantTemperatureAlertStatus(),
-                        (machine.getCoolantTemperatureAlertStatus()) ? "Fault" : "No Fault",
-                        machine.getBatteryConnectedStatus(),
+                		machine.getCoolantTemperatureAlertStatus() !=null ? machine.getCoolantTemperatureAlertStatus() : false,
+                        (machine.getCoolantTemperatureAlertStatus()!=null) ? "Fault" : "No Fault",
+                        machine.getBatteryConnectedStatus()!=null ? machine.getBatteryConnectedStatus() : false,
                         machine.getBatteryVoltage() != null ? machine.getBatteryVoltage().toString() : "NA", // Null check for battery voltage
-                        machine.getEngineOilPressureAlertStatus(),
-                        (machine.getEngineOilPressureAlertStatus()) ? "Fault" : "No Fault",
-                        machine.getAirFilterAlertStatus(),
-                        (machine.getAirFilterAlertStatus()) ? "Fault" : "No Fault",
-                        machine.getFuelLevelStatus(),
+                        machine.getEngineOilPressureAlertStatus()!=null ? machine.getEngineOilPressureAlertStatus() : false,
+                        (machine.getEngineOilPressureAlertStatus()!=null) ? "Fault" : "No Fault",
+                        machine.getAirFilterAlertStatus()!=null ? machine.getAirFilterAlertStatus() : false,
+                        (machine.getAirFilterAlertStatus()!=null) ? "Fault" : "No Fault",
+                        machine.getFuelLevelStatus()!=null ? machine.getFuelLevelStatus() : false,
                         fuelDataExcluded ? "-" : "NA",
                         machine.getStatusAsOnTime() != null ? machine.getStatusAsOnTime() : new Date(), // Null check for statusAsOnTime
                         lastCommunicationTime != null ? lastCommunicationTime : new Date(), // Null check for lastCommunicationTime
