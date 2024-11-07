@@ -458,7 +458,7 @@ public class DealerCustomerMachinesResponseServiceImpl implements DealerCustomer
 					final List<String> allVin = dealerRepo.getByUsersUserNameAndCustomerName(userName, customerId);
 					if ("LESSER_USED".equals(tabSeparator)) {
 						final List<String> vinList = machineUtilizationRepo.findByMachineUsageForDuration(allVin,
-								startDate, endDate, new Double(0), new Double(lesserUsedMaxRange * days));
+								startDate, endDate, (double)(0), (double)(lesserUsedMaxRange * days));
 						count = Long.valueOf(vinList.size());
 						if (vinList != null && vinList.size() > 0) {
 							for (final Machine machine : dealerRepo.getByUsersUserNameAndVinList(vinList,
@@ -470,7 +470,7 @@ public class DealerCustomerMachinesResponseServiceImpl implements DealerCustomer
 					if ("HEAVILY_USED".equals(tabSeparator)) {
 						double heavilyUsedMin = (moderateUsedMaxRange * days) + 1D;
 						final List<String> vinList = machineUtilizationRepo.findByMachineUsageForDuration(allVin,
-								startDate, endDate, heavilyUsedMin, new Double(heavilyUsedMaxRange * days));
+								startDate, endDate, heavilyUsedMin, (double)(heavilyUsedMaxRange * days));
 						count = Long.valueOf(vinList.size());
 						if (vinList != null && vinList.size() > 0) {
 							for (final Machine machine : dealerRepo.getByUsersUserNameAndVinList(vinList,
@@ -482,7 +482,7 @@ public class DealerCustomerMachinesResponseServiceImpl implements DealerCustomer
 					if ("MODERATED_USED".equals(tabSeparator)) {
 						double moderateUsedMin = (lesserUsedMaxRange * days) + 1D;
 						final List<String> vinList = machineUtilizationRepo.findByMachineUsageForDuration(allVin,
-								startDate, endDate, moderateUsedMin, new Double(moderateUsedMaxRange * days));
+								startDate, endDate, moderateUsedMin, (double)(moderateUsedMaxRange * days));
 						count = Long.valueOf(vinList.size());
 						if (vinList != null && vinList.size() > 0) {
 							for (final Machine machine : dealerRepo.getByUsersUserNameAndVinList(vinList,
@@ -507,7 +507,7 @@ public class DealerCustomerMachinesResponseServiceImpl implements DealerCustomer
 					final List<String> allVin = dealerRepo.getByUsersUserNameAndCustomerName(userName, customerId);
 					if ("LESSER_USED".equals(keyParam)) {
 						final List<String> vinList = machineUtilizationRepo.findByMachineUsageForDuration(allVin,
-								startDate, endDate, new Double(0), new Double(lesserUsedMaxRange * days), tabSeparator);
+								startDate, endDate, (double)(0), (double)(lesserUsedMaxRange * days), tabSeparator);
 						count = Long.valueOf(vinList.size());
 						if (vinList != null && vinList.size() > 0) {
 							for (final Machine machine : dealerRepo.getByUsersUserNameAndVinList(vinList,
@@ -519,7 +519,7 @@ public class DealerCustomerMachinesResponseServiceImpl implements DealerCustomer
 					if ("HEAVILY_USED".equals(keyParam)) {
 						double heavilyUsedMin = (moderateUsedMaxRange * days) + 1D;
 						final List<String> vinList = machineUtilizationRepo.findByMachineUsageForDuration(allVin,
-								startDate, endDate, heavilyUsedMin, new Double(heavilyUsedMaxRange * days),
+								startDate, endDate, heavilyUsedMin, (double)(heavilyUsedMaxRange * days),
 								tabSeparator);
 						count = Long.valueOf(vinList.size());
 						if (vinList != null && vinList.size() > 0) {
@@ -532,7 +532,7 @@ public class DealerCustomerMachinesResponseServiceImpl implements DealerCustomer
 					if ("MODERATED_USED".equals(keyParam)) {
 						double moderateUsedMin = (lesserUsedMaxRange * days) + 1D;
 						final List<String> vinList = machineUtilizationRepo.findByMachineUsageForDuration(allVin,
-								startDate, endDate, moderateUsedMin, new Double(moderateUsedMaxRange * days),
+								startDate, endDate, moderateUsedMin, (double)(moderateUsedMaxRange * days),
 								tabSeparator);
 						count = Long.valueOf(vinList.size());
 						if (vinList != null && vinList.size() > 0) {
@@ -562,7 +562,7 @@ public class DealerCustomerMachinesResponseServiceImpl implements DealerCustomer
 				Machine machine = null;
 				if ("LESSER_USED".equals(keyParam)) {
 					final List<String> machineVinList = machineUtilizationRepo.findMachineByUtilizationUsageForDuration(
-							userName, startDate, endDate, new Double(0), new Double(lesserUsedMaxRange * days),
+							userName, startDate, endDate, (double)(0), (double)(lesserUsedMaxRange * days),
 							PageRequest.of(pageNumber, pageSize));
 					count = Long.valueOf(machineVinList.size());
 					if (machineVinList != null && machineVinList.size() > 0) {
@@ -575,7 +575,7 @@ public class DealerCustomerMachinesResponseServiceImpl implements DealerCustomer
 				} else if ("HEAVILY_USED".equals(keyParam)) {
 					double heavilyUsedMin = (moderateUsedMaxRange * days) + 1D;
 					final List<String> machineVinList = machineUtilizationRepo.findMachineByUtilizationUsageForDuration(
-							userName, startDate, endDate, heavilyUsedMin, new Double(heavilyUsedMaxRange * days),
+							userName, startDate, endDate, heavilyUsedMin, (double)(heavilyUsedMaxRange * days),
 							PageRequest.of(pageNumber, pageSize));
 					count = Long.valueOf(machineVinList.size());
 					if (machineVinList != null && machineVinList.size() > 0) {
@@ -588,7 +588,7 @@ public class DealerCustomerMachinesResponseServiceImpl implements DealerCustomer
 				} else if ("MODERATED_USED".equals(keyParam)) {
 					double moderateUsedMin = (lesserUsedMaxRange * days) + 1D;
 					final List<String> machineVinList = machineUtilizationRepo.findMachineByUtilizationUsageForDuration(
-							userName, startDate, endDate, moderateUsedMin, new Double(moderateUsedMaxRange * days),
+							userName, startDate, endDate, moderateUsedMin, (double)(moderateUsedMaxRange * days),
 							PageRequest.of(pageNumber, pageSize));
 					count = Long.valueOf(machineVinList.size());
 					if (machineVinList != null && machineVinList.size() > 0) {

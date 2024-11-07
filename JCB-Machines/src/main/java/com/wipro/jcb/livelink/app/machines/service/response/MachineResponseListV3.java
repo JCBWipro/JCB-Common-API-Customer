@@ -40,7 +40,7 @@ public class MachineResponseListV3 {
 	@JsonFormat(pattern = AppServerConstants.DateTimeFormat, timezone = AppServerConstants.timezone)
 	private Date statusAsOnTime;
 	@ApiModelProperty(value="Server Timezone", example = "UTC", required = true)
-	private String serverTimezone = AppServerConstants.timezone;
+	private final String serverTimezone = AppServerConstants.timezone;
 	@ApiModelProperty(value = "Total machine hours", example = "280Hrs", required = true)
 	private String machineHours;
 	@ApiModelProperty(value = "Fuel percentage", example = "55%", required = true)
