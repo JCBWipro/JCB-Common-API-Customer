@@ -27,7 +27,10 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.wipro.jcb.livelink.app.alerts.constants.AppServerConstants.timezone;
@@ -202,6 +205,12 @@ public class AlertUtilities {
             throw new ProcessCustomError(MessagesList.APP_REQUEST_PROCESSING_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return enable;
+    }
+
+    public Date getPreviousDay(Date day) {
+        LocalDate date = LocalDate.parse( new SimpleDateFormat("yyyy-MM-dd").format(day) );
+        return date.minusDays(1).toDate();
+
     }
 
 }
