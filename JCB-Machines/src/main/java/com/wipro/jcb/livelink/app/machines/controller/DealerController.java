@@ -4,13 +4,17 @@ import com.wipro.jcb.livelink.app.machines.commonUtils.AuthCommonUtils;
 import com.wipro.jcb.livelink.app.machines.constants.ConstantConfig;
 import com.wipro.jcb.livelink.app.machines.constants.MessagesList;
 import com.wipro.jcb.livelink.app.machines.dealer.response.CustomerDistribution;
+import com.wipro.jcb.livelink.app.machines.dealer.response.CustomerMachinesV3;
 import com.wipro.jcb.livelink.app.machines.dto.DealerDashboard;
 import com.wipro.jcb.livelink.app.machines.dto.UserDetails;
 import com.wipro.jcb.livelink.app.machines.exception.ApiError;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
+import com.wipro.jcb.livelink.app.machines.service.DealerCustomerMachinesResponseService;
 import com.wipro.jcb.livelink.app.machines.service.DealerCustomerResponseService;
 import com.wipro.jcb.livelink.app.machines.service.DealerDashboardResponseService;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponse;
+
+import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -49,6 +53,9 @@ public class DealerController {
     
     @Autowired
     DealerDashboardResponseService dealerDashboardResponseService;
+    
+    @Autowired
+    DealerCustomerMachinesResponseService dealerCustomerMachinesResponseService;
 
     /**
      * Handles GET requests to retrieve all customers for a dealer.
@@ -157,4 +164,47 @@ public class DealerController {
                     .body(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to process request", "SERVER_ERROR", null));
         }
     }
+    
+    /*
+	 * API to Get Dealer dashboard All Machines
+	 */
+	@CrossOrigin
+	@Operation(summary = "Dealer dashboard All Machines")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Dealer dashboard All Machines", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = MachineListResponse.class)) }),
+			@ApiResponse(responseCode = "401", description = "Auth Failed", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)) }),
+			@ApiResponse(responseCode = "500", description = "Request failed", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)) }) })
+	@Transactional(timeout = ConstantConfig.REQUEST_TIMEOUT, readOnly = true)
+	@GetMapping("/dashboard/customer/machinesV3")
+	public ResponseEntity<?> getCustomerMachinesVThreee(
+			@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+			@RequestParam("customerId") String customerId, @RequestParam("pageNumber") String pageNumber,
+			@RequestParam("distributer") String distributer, @RequestParam("keyParam") String keyParam,
+			@RequestParam("tabSeparator") String tabSeparator,
+			@RequestParam(value = "pageSize", defaultValue = "${controller.dealer.serviceoverdue.pageSize}") String pageSize,
+			@ApiParam(value = "3DX Super ecoXcellence") @RequestParam(value = "filter", defaultValue = "optional") String filter,
+			@RequestParam(value = "search", defaultValue = "optional") String search,
+			@RequestParam(value = "skipReports", required = false) Boolean skipReports) {
+		try {
+			UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+			final String userName = userResponse.getUserName();
+			if (userName != null) {
+				log.info("dashboardcustomersmachines: GET  request for user" + userName);
+				return new ResponseEntity<CustomerMachinesV3>(
+						dealerCustomerMachinesResponseService.getMachinesWithCustomerV3(userName, distributer, keyParam,
+								tabSeparator, customerId, filter, search, skipReports, Integer.parseInt(pageNumber),
+								Integer.parseInt(pageSize)),
+						HttpStatus.OK);
+			} else {
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+		} catch (final ProcessCustomError e) {
+			log.error("Issue faced while getting data for dealer machines");
+			return new ResponseEntity<ApiError>(e.getApiMessages(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 }
