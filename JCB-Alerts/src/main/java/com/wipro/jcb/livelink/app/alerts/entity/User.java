@@ -7,7 +7,10 @@ import com.wipro.jcb.livelink.app.alerts.constants.UserType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -42,6 +45,7 @@ public class User implements Serializable {
     @Schema(description = "Email Id of user", example = "lorey@mymail.com", required = true)
     private String email;
     @Schema(description = "Role/Type of user", example = "Customer", required = true)
+    @Enumerated(EnumType.STRING)
     private UserType userType;
     @Schema(description = "FirstName of user", example = "Lorey", required = true)
     private String firstName;

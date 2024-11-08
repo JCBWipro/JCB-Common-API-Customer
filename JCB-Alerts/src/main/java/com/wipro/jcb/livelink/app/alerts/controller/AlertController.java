@@ -3,12 +3,10 @@ package com.wipro.jcb.livelink.app.alerts.controller;
 import com.wipro.jcb.livelink.app.alerts.commonUtils.AlertCommonUtils;
 import com.wipro.jcb.livelink.app.alerts.commonUtils.AlertUtilities;
 import com.wipro.jcb.livelink.app.alerts.constants.MessagesList;
-import com.wipro.jcb.livelink.app.alerts.dto.AlertResponse;
-import com.wipro.jcb.livelink.app.alerts.dto.ApiOK;
-import com.wipro.jcb.livelink.app.alerts.dto.ServiceAlertList;
-import com.wipro.jcb.livelink.app.alerts.dto.UserDetails;
+import com.wipro.jcb.livelink.app.alerts.dto.*;
 import com.wipro.jcb.livelink.app.alerts.exception.ApiError;
 import com.wipro.jcb.livelink.app.alerts.exception.ProcessCustomError;
+import com.wipro.jcb.livelink.app.alerts.service.AdvanceReportService;
 import com.wipro.jcb.livelink.app.alerts.service.AlertInfoResponseService;
 import com.wipro.jcb.livelink.app.alerts.service.response.AlertObject;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,9 +23,11 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.HttpURLConnection;
+import java.util.Date;
 
 import static com.wipro.jcb.livelink.app.alerts.constants.AppServerConstants.loadHistoricalDataForDays;
 
@@ -47,6 +47,9 @@ public class AlertController {
     @Value("${livelinkserver.loadAlertsDataForDays}")
     int loadAlertDataForDays;
 
+    @Value("${livelinkserver.loadAdvanceReportDataForDays}")
+    int loadAdvanceReportDataForDays;
+
     @Autowired
     AlertInfoResponseService alertInfoResponseService;
 
@@ -54,7 +57,7 @@ public class AlertController {
     AlertUtilities alertUtilities;
 
     @Autowired
-    AlertInfoResponseService alertInfoResponeService;
+    AdvanceReportService advanceReportService;
 
 
     @GetMapping(value = "/alertsV2")
@@ -203,7 +206,7 @@ public class AlertController {
             String userName = userResponse.getUserName();
             if (userName != null) {
                 log.info("servicealerts: GET Request for user {}", userName);
-                return new ResponseEntity<>(alertInfoResponeService.getServiceAlertsList(userName, from,
+                return new ResponseEntity<>(alertInfoResponseService.getServiceAlertsList(userName, from,
                         to, Integer.parseInt(pageNumber), Integer.parseInt(pageSize), filter, search, true),
                         HttpStatus.OK);
             } else {
@@ -251,6 +254,43 @@ public class AlertController {
 
         } catch (final Exception e) {
             log.error("Enable/Disable notification failed: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to process request", "SERVER_ERROR", null));
+        }
+    }
+
+    @GetMapping(value = "/getNotificationList", produces = {MediaType.APPLICATION_JSON_VALUE})
+    @Operation(summary = "Get Notification Report Data")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Notification Report",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = NotificationListResponseDto.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "500", description = "Request failed",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
+    })
+    @Transactional(readOnly = true)
+    public ResponseEntity<?> getNotificationList(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+                                                 @RequestParam("pageNumber") String pageNumber,
+                                                 @RequestParam(value = "pageSize", defaultValue = "${controller.customer.machines.pageSize}") String pageSize) {
+
+        try {
+            UserDetails userResponse = AlertCommonUtils.getUserDetails(userDetails);
+            String userName = userResponse.getUserName();
+
+            if (userName == null) {
+                log.warn("notify: Username not found in user details..");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Session expired");
+            }
+
+            final Date startDate = alertUtilities.getDate(alertUtilities.getStartDate(loadAdvanceReportDataForDays));
+            final Date endDate = alertUtilities.getDate(alertUtilities.getStartDate(0));
+
+            NotificationListResponseDto response = advanceReportService.getNotificationListByGroupingDate(userName, startDate, endDate, pageNumber, pageSize);
+            return ResponseEntity.ok(response);
+
+        } catch (final Exception e) {
+            log.error("Unexpected error fetching Notification Report data.", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to process request", "SERVER_ERROR", null));
         }
