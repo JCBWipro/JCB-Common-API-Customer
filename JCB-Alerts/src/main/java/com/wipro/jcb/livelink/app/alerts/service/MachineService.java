@@ -1,6 +1,7 @@
 package com.wipro.jcb.livelink.app.alerts.service;
 
 import com.wipro.jcb.livelink.app.alerts.dto.NotificationListResponseDto;
+import com.wipro.jcb.livelink.app.alerts.dto.NotificationRemovedResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -15,4 +16,7 @@ public interface MachineService {
 
     NotificationListResponseDto getNotificationListByGroupingDate(String userName, Date startDate, Date endDate, String pageNumber, String pageSize);
 
+    NotificationRemovedResponse readAllNotification(String userName);
+
+    NotificationRemovedResponse readNotification(int id , String userName);
 }
