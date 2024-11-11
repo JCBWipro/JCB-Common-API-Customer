@@ -14,10 +14,17 @@ import java.util.List;
  * User: RI20474447
  * Date:07-11-2024
  */
+
+/**
+ * NotificationDetailsRepo interface for accessing NotificationDetails data from Db
+ */
 @Repository
 public interface NotificationDetailsRepo extends CrudRepository<NotificationDetails, Integer> {
 
     @Query("SELECT new com.wipro.jcb.livelink.app.alerts.dto.NotificationDetailResponse(nd.id, nd.day, nd.type, nd.userId, nd.vin, nd.alertId, nd.alertTitle, nd.alertDesc, nd.alertTime, nd.createdAt, nd.updatedAt, nd.deletedAt) from NotificationDetails nd where nd.userId =?1 order by day desc, nd.createdAt desc")
     List<NotificationDetailResponse> getNotificationByUser(String userName, Pageable pageable);
 
+    //count of unread notification for specific user
+    @Query("SELECT count(*) FROM NotificationDetails nd where nd.userId =?1 and nd.flag = false")
+    Integer getUnReadNotificationCount(String userName);
 }

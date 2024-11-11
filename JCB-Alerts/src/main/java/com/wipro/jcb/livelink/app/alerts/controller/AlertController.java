@@ -296,4 +296,35 @@ public class AlertController {
         }
     }
 
+    //UnRead Notification Count
+    @Operation(summary = "Notificaion Count Data")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Notificaion Count Report", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiOK.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "500", description = "Request failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
+    })
+    @GetMapping(value = "/notificationcount", produces = {
+            MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<?> notificationCount(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails) {
+        String userName=null;
+        try {
+            UserDetails userResponse = AlertCommonUtils.getUserDetails(userDetails);
+            userName = userResponse.getUserName();
+            log.info("Unread notification count for the user: {}", userName);
+            if (userName == null) {
+                log.info("Remove notification : No Valid session present");
+                return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+                        "No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+            }
+            return new ResponseEntity<>(advanceReportService.unReadNotificationCount(userName), HttpStatus.OK);
+
+        } catch (final Exception e) {
+            log.error("Failed to Unread notification count : {}", e.getMessage());
+            log.info("Exception occurred for Notification count API :{}Exception -{}", userName, e.getMessage());
+            return new ResponseEntity<>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+                    MessagesList.ADVANCE_REPORT_ERROR, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
