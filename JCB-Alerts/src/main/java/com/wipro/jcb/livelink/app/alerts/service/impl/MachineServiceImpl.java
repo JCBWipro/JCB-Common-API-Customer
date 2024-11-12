@@ -10,11 +10,13 @@ import com.wipro.jcb.livelink.app.alerts.repo.NotificationDetailsRepo;
 import com.wipro.jcb.livelink.app.alerts.service.MachineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -28,6 +30,21 @@ import java.util.*;
 @Transactional
 @PropertySource("application.properties")
 public class MachineServiceImpl implements MachineService {
+
+    @Value("${notification.read.success}")
+    String notificationReadSuccessMessage;
+
+    @Value("${notification.noread.found}")
+    String noUnreadNotificationsMessage;
+
+    @Value("${notification.read.single.success}")
+    String notificationReadSingleSuccessMessage;
+
+    @Value("${notification.already.read}")
+    String notificationAlreadyReadMessage;
+
+    @Value("${notification.id.notfound}")
+    String notificationIdNotFoundMessage;
 
     @Autowired
     NotificationDetailsRepo notificationDetailsRepo;
@@ -114,11 +131,10 @@ public class MachineServiceImpl implements MachineService {
 
             if (unreadCount > 0) {
                 notificationDetailsRepo.readNotificationByUser(userName);
-                String message = "All notifications marked as read successfully";
-                response.setMessage(message);
+                response.setMessage(notificationReadSuccessMessage);
                 log.debug("Successfully marked {} notifications as read for user: {}", unreadCount, userName);
             } else {
-                String message = "No unread notifications found for userID : " + userName;
+                String message = MessageFormat.format(noUnreadNotificationsMessage, userName);
                 response.setMessage(message);
                 log.info(message);
             }
@@ -143,16 +159,16 @@ public class MachineServiceImpl implements MachineService {
                 // Check if the notification is already read (assuming 'flag' indicates read status)
                 if (!existingNotification.get().getFlag()) {
                     notificationDetailsRepo.readNotificationById(id);
-                    String message = "Notification(s) read successfully for the user: " + userName + " and alertID: " + id;
+                    String message = MessageFormat.format(notificationReadSingleSuccessMessage, userName, id);
                     response.setMessage(message);
                     log.debug(message);
                 } else {
-                    String message = "No unread notification found for the alertID : " + id;
+                    String message = MessageFormat.format(notificationAlreadyReadMessage, id);
                     response.setMessage(message);
                     log.info(message);
                 }
             } else {
-                String message = "ID not present in DB for the userID: " + userName;
+                String message = MessageFormat.format(notificationIdNotFoundMessage, userName);
                 response.setMessage(message);
                 log.warn(message);
             }
