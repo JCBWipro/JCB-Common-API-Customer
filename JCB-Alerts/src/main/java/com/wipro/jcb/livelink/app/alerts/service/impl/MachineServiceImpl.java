@@ -28,7 +28,7 @@ import java.util.*;
 @Slf4j
 @Service
 @Transactional
-@PropertySource("application.properties")
+@PropertySource({"application.properties", "notification_messages.properties"})
 public class MachineServiceImpl implements MachineService {
 
     @Value("${notification.read.success}")
