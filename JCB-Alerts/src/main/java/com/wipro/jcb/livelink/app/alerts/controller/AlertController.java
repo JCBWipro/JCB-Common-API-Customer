@@ -131,7 +131,7 @@ public class AlertController {
             @ApiResponse(responseCode = "401", description = "Auth Failed",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))) })
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))})
     public ResponseEntity<?> getAlertInfo(
             @RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
             @RequestParam String id,
@@ -186,14 +186,14 @@ public class AlertController {
             @ApiResponse(responseCode = "401", description = "Auth Failed",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))) })
-    @GetMapping( value = "/servicealertsV2", produces = { MediaType.APPLICATION_JSON_VALUE })
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))})
+    @GetMapping(value = "/servicealertsV2", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getServiceAlertsVTwo(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
                                                   @RequestParam(value = "from", defaultValue = "serverdecided") String from,
                                                   @RequestParam(value = "to", defaultValue = "serverdecided") String to,
                                                   @RequestParam("pageNumber") String pageNumber,
                                                   @RequestParam(value = "pageSize", defaultValue = "${controller.customer.servicealerts.pageSize}") String pageSize,
-                                                  @Parameter(description ="3DX Super ecoXcellence,2DX Super ecoXcellence") @RequestParam(value = "filter", defaultValue = "optional") String filter,
+                                                  @Parameter(description = "3DX Super ecoXcellence,2DX Super ecoXcellence") @RequestParam(value = "filter", defaultValue = "optional") String filter,
                                                   @RequestParam(value = "search", defaultValue = "optional") String search) {
         try {
             if ("serverdecided".equals(from)) {
@@ -221,6 +221,7 @@ public class AlertController {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @PutMapping(value = "/notify")
     @Operation(summary = "Enable/Disable notification")
     @ApiResponses(value = {
@@ -297,16 +298,16 @@ public class AlertController {
     }
 
     //UnRead Notification Count
-    @Operation(summary = "Notificaion Count Data")
+    @Operation(summary = "Notification Count Data")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Notificaion Count Report", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiOK.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
             @ApiResponse(responseCode = "500", description = "Request failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
     })
     @GetMapping(value = "/notificationcount", produces = {
-            MediaType.APPLICATION_JSON_VALUE })
+            MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> notificationCount(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails) {
-        String userName=null;
+        String userName = null;
         try {
             UserDetails userResponse = AlertCommonUtils.getUserDetails(userDetails);
             userName = userResponse.getUserName();
@@ -327,4 +328,49 @@ public class AlertController {
         }
     }
 
+    @GetMapping(value = "/readnotification", produces = {MediaType.APPLICATION_JSON_VALUE})
+    @Operation(summary = "Remove Notification Report Data")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Notification Removed",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = NotificationRemovedResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "500", description = "Request failed",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))})
+    public ResponseEntity<?> removeNotification(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+                                                @RequestParam(name = "alertId", defaultValue = "-1") int alertId,
+                                                @RequestParam(name = "notificationType") String type) {
+        try {
+            log.debug("Received request to remove notification. User details: {}, alertId: {}, type: {}",
+                    userDetails, alertId, type);
+
+            UserDetails userResponse = AlertCommonUtils.getUserDetails(userDetails);
+            String userName = userResponse.getUserName();
+
+            if (userName == null) {
+                log.warn("removeNotification: Username not found in user details: {}", userDetails);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new ApiError(HttpStatus.UNAUTHORIZED, "Invalid user details"));
+            }
+
+            NotificationRemovedResponse response;
+            if (type.equals("ALL")) {
+                log.info("Removing all notifications for user: {}", userName);
+                response = advanceReportService.readAllNotification(userName);
+                log.debug("Response after removing all notifications: {}", response.getMessage());
+            } else {
+                log.info("Removing notification with ID {} for user: {}", alertId, userName);
+                response = advanceReportService.readNotification(alertId, userName);
+                log.debug("Response after removing notification with ID {}: {}", alertId, response.getMessage());
+            }
+
+            return ResponseEntity.ok(response);
+
+        } catch (final Exception e) {
+            log.error("Failed to remove notification. User details: {}, notificationId: {}, type: {}",
+                    userDetails, alertId, type, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to process request", "SERVER_ERROR", null));
+        }
+    }
 }

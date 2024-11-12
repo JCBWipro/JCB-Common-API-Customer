@@ -1,6 +1,7 @@
 package com.wipro.jcb.livelink.app.alerts.service.impl;
 
 import com.wipro.jcb.livelink.app.alerts.dto.NotificationListResponseDto;
+import com.wipro.jcb.livelink.app.alerts.dto.NotificationRemovedResponse;
 import com.wipro.jcb.livelink.app.alerts.repo.NotificationDetailsRepo;
 import com.wipro.jcb.livelink.app.alerts.service.AdvanceReportService;
 import com.wipro.jcb.livelink.app.alerts.service.MachineService;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
-/**
+/*
  * Author: Rituraj Azad
  * User: RI20474447
  * Date:07-11-2024
@@ -51,5 +52,15 @@ public class AdvanceReportServiceImpl implements AdvanceReportService {
             log.info("Exception occurred for Notification count API :{}Exception -{}", userName, e.getMessage());
         }
         return response;
+    }
+
+    @Override
+    public NotificationRemovedResponse readNotification(int id, String userName) {
+        return machineService.readNotification(id, userName);
+    }
+
+    @Override
+    public NotificationRemovedResponse readAllNotification(String userName) {
+        return machineService.readAllNotification(userName);
     }
 }

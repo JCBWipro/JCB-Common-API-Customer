@@ -4,6 +4,8 @@ import com.wipro.jcb.livelink.app.alerts.commonUtils.AlertUtilities;
 import com.wipro.jcb.livelink.app.alerts.dto.NotificationDetailResponse;
 import com.wipro.jcb.livelink.app.alerts.dto.NotificationList;
 import com.wipro.jcb.livelink.app.alerts.dto.NotificationListResponseDto;
+import com.wipro.jcb.livelink.app.alerts.dto.NotificationRemovedResponse;
+import com.wipro.jcb.livelink.app.alerts.entity.NotificationDetails;
 import com.wipro.jcb.livelink.app.alerts.repo.NotificationDetailsRepo;
 import com.wipro.jcb.livelink.app.alerts.service.MachineService;
 import lombok.extern.slf4j.Slf4j;
@@ -100,5 +102,64 @@ public class MachineServiceImpl implements MachineService {
             log.error("Exception occurred while fetching notification list for user: {}", userName, e);
             throw new RuntimeException("Failed to fetch notification list", e);
         }
+    }
+
+    @Override
+    public NotificationRemovedResponse readAllNotification(String userName) {
+        NotificationRemovedResponse response = new NotificationRemovedResponse();
+        try {
+            log.info("Checking for all notifications as read for user: {}", userName);
+            // Get the count of unread notifications before marking them as read
+            int unreadCount = notificationDetailsRepo.getUnReadNotificationCount(userName);
+
+            if (unreadCount > 0) {
+                notificationDetailsRepo.readNotificationByUser(userName);
+                String message = "All notifications marked as read successfully";
+                response.setMessage(message);
+                log.debug("Successfully marked {} notifications as read for user: {}", unreadCount, userName);
+            } else {
+                String message = "No unread notifications found for userID : " + userName;
+                response.setMessage(message);
+                log.info(message);
+            }
+
+        } catch (Exception e) {
+            log.error("Error marking all notifications as read for user: {}", userName, e);
+            response.setMessage("Failed to mark notifications as read");
+        }
+        return response;
+    }
+
+
+    @Override
+    public NotificationRemovedResponse readNotification(int id, String userName) {
+        NotificationRemovedResponse response = new NotificationRemovedResponse();
+        try {
+            log.info("Read notification details for the user {} and notification ID: {}", userName, id);
+
+            // Check if the notification exists for the user
+            Optional<NotificationDetails> existingNotification = notificationDetailsRepo.findById(id);
+            if (existingNotification.isPresent() && existingNotification.get().getUserId().equals(userName)) {
+                // Check if the notification is already read (assuming 'flag' indicates read status)
+                if (!existingNotification.get().getFlag()) {
+                    notificationDetailsRepo.readNotificationById(id);
+                    String message = "Notification(s) read successfully for the user: " + userName + " and alertID: " + id;
+                    response.setMessage(message);
+                    log.debug(message);
+                } else {
+                    String message = "No unread notification found for the alertID : " + id;
+                    response.setMessage(message);
+                    log.info(message);
+                }
+            } else {
+                String message = "ID not present in DB for the userID: " + userName;
+                response.setMessage(message);
+                log.warn(message);
+            }
+        } catch (Exception e) {
+            log.error("Error reading notification: {}", e.getMessage(), e);
+            response.setMessage("Failed to process notification read request");
+        }
+        return response;
     }
 }
