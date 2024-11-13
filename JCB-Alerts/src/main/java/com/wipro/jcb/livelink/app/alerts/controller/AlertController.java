@@ -328,6 +328,41 @@ public class AlertController {
         }
     }
 
+    // Delete Notification
+    @Operation(summary = "Delete Notification Report Data")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Delete Notification Report", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiOK.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "500", description = "Request failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
+    })
+    @DeleteMapping(value = "/deletenotification", produces = {MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<?> deleteNotification(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+                                                @RequestParam(name="id", defaultValue = "-1") int notificationId ,
+                                                @RequestParam(name = "notificationType") String type) {
+        try {
+            UserDetails userResponse = AlertCommonUtils.getUserDetails(userDetails);
+            String userName = userResponse.getUserName();
+            Integer id = notificationId;
+            log.info("Requested Delete notification for the User:{} , Notification Id : {}", userName,id);
+            if (userName == null) {
+                log.info("Delete notification : No Valid session present");
+                return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+                        "No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+            }
+            if(type.equals("ALL")) {
+                return new ResponseEntity<>(advanceReportService.deleteAllNotification(userName), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(advanceReportService.deleteNotification(id, userName), HttpStatus.OK);
+            }
+
+        } catch (final Exception e) {
+            log.error("Failed to Delete notification : {}", e.getMessage());
+            return new ResponseEntity<>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+                    MessagesList.ADVANCE_REPORT_ERROR, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping(value = "/readnotification", produces = {MediaType.APPLICATION_JSON_VALUE})
     @Operation(summary = "Remove Notification Report Data")
     @ApiResponses(value = {

@@ -35,4 +35,19 @@ public interface AdvanceReportService {
      * @return A NotificationRemovedResponse indicating success or failure.
      */
     NotificationRemovedResponse readNotification(int id, String userName);
+
+    /**
+     * Delete all notification for the specified user .
+     * @param userName The username of the user whose notifications are to be deleted .
+     * @return A response indicating the result of the delete operation .
+     */
+    NotificationRemovedResponse deleteAllNotification(String userName);
+
+    /**
+     * Deletes a specific notification for the specified user by notification ID
+     * @param id the ID of the notification to be deleted
+     * @param userName The username of the user whose notification is to be deleted .
+     * @return A response indicating the result of the delete operation .
+     */
+    NotificationRemovedResponse deleteNotification(Integer id, String userName);
 }

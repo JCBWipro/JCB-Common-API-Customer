@@ -46,6 +46,25 @@ public class MachineServiceImpl implements MachineService {
     @Value("${notification.id.notfound}")
     String notificationIdNotFoundMessage;
 
+    @Value("${notification.delete.success}")
+    String notificationDeleteSuccessMessage;
+
+    @Value("${notification.notfound}")
+    String notificationNotFound;
+
+    @Value("${notification.delete.successid}")
+    String notificationDeleteSuccessIdMessage;
+
+    @Value("${notification.delete.faileduser}")
+    String notificationDeleteFailedUser;
+
+    @Value("${notification.delete.failed}")
+    String notificationDeleteFailed;
+
+
+
+
+
     @Autowired
     NotificationDetailsRepo notificationDetailsRepo;
 
@@ -175,6 +194,60 @@ public class MachineServiceImpl implements MachineService {
         } catch (Exception e) {
             log.error("Error reading notification: {}", e.getMessage(), e);
             response.setMessage("Failed to process notification read request");
+        }
+        return response;
+    }
+
+   //Delete AllAlertNotification for given User
+   @Override
+   public NotificationRemovedResponse deleteAllAlertNotification(String userName) {
+       NotificationRemovedResponse response = new NotificationRemovedResponse();
+       try {
+           log.info("Attempting to delete all notifications for user: {}", userName);
+
+           // Find notifications for the user
+           List<NotificationDetails> userNotifications = notificationDetailsRepo.findByUserId(userName);
+
+           if (!userNotifications.isEmpty()) {
+               // Delete notifications if found
+               notificationDetailsRepo.deleteAll(userNotifications);
+               String message = MessageFormat.format(notificationDeleteSuccessMessage,userName);
+               response.setMessage(message);
+               log.debug(message);
+           } else {
+               // Handle the case where no notifications are found for the user
+               String message = MessageFormat.format(notificationNotFound,userName);
+               response.setMessage(message);
+               log.info(message);
+           }
+
+       } catch (Exception e) {
+           log.error("Error deleting notifications for user: {}", userName, e);
+           String message=MessageFormat.format(notificationDeleteFailedUser,userName);
+           response.setMessage(message);
+       }
+       return response;
+   }
+
+    //Delete AlertNotification for given User
+    @Override
+    public NotificationRemovedResponse deleteNotification(Integer id, String userName) {
+        NotificationRemovedResponse response = new NotificationRemovedResponse();
+        try {
+            Optional<NotificationDetails> existingNotification = notificationDetailsRepo.findById(id);
+            if (existingNotification.isPresent() && existingNotification.get().getUserId().equals(userName)) {
+                log.info("Delete notification details for the user {}", userName);
+                notificationDetailsRepo.deleteById(id);
+                String message = MessageFormat.format(notificationDeleteSuccessIdMessage,id);
+                response.setMessage(message);
+            }else {
+                log.warn("ID not present in DB for the userID");
+                String message = MessageFormat.format(notificationIdNotFoundMessage, userName);
+                response.setMessage(message);
+            }
+        } catch (Exception e) {
+            log.error("Error deleting notification: {}", e.getMessage(), e);
+            response.setMessage(notificationDeleteFailed);
         }
         return response;
     }

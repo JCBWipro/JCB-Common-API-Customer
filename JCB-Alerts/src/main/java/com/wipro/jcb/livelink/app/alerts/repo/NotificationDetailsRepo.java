@@ -44,4 +44,11 @@ public interface NotificationDetailsRepo extends CrudRepository<NotificationDeta
     @Modifying
     @Query("UPDATE NotificationDetails nd set nd.flag = true where nd.id =?1")
     void readNotificationById(int id);
+
+    /**
+     * Retrieves a list of notification details associated with the specified user
+     * @param userName The username of the user whose notifications are to be retrieved
+     */
+    List<NotificationDetails> findByUserId(String userName);
+
 }

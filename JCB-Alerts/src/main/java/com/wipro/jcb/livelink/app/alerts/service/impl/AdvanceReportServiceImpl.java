@@ -63,4 +63,14 @@ public class AdvanceReportServiceImpl implements AdvanceReportService {
     public NotificationRemovedResponse readAllNotification(String userName) {
         return machineService.readAllNotification(userName);
     }
+
+    @Override
+    public NotificationRemovedResponse deleteAllNotification(String userName) {
+        return machineService.deleteAllAlertNotification(userName);
+    }
+
+    @Override
+    public NotificationRemovedResponse deleteNotification(Integer id, String userName) {
+        return machineService.deleteNotification(id, userName);
+    }
 }
