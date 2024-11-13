@@ -5,7 +5,6 @@ phases:
     commands:
       - echo "Installing Maven and JDK"
       - yum update -y
-      - yum install -y maven 
      
   pre_build:
     commands:
