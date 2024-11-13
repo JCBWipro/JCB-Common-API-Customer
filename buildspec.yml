@@ -20,7 +20,9 @@ phases:
       - echo $JAVA_HOME  # Verify JAVA_HOME is set
       - echo $PATH      # Verify PATH is updated
       - export MAVEN_OPTS="-Xmx3072m" 
-      - mvn clean package -Dmaven.test.failure.ignore=true 
+      - mvn clean package -Dmaven.test.failure.ignore=true
+      - echo "Listing all files after build"
+      - ls -R
       - echo "Copying JAR files to the artifact directory"
       - mkdir -p build_artifacts
       - find ./JCB-Common-API-Customer -name "*.jar" -exec cp {} build_artifacts/ \;
