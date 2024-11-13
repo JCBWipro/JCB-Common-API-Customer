@@ -4,8 +4,8 @@ phases:
   install:
     commands:
       - echo "Installing Maven and JDK"
-      - apt-get update -y
-      - apt-get install -y maven openjdk-17-jdk # Installs OpenJDK 17
+      - yum update -y
+      - yum install -y maven openjdk-17-jdk # Installs OpenJDK 17
       - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
   pre_build:
     commands:
