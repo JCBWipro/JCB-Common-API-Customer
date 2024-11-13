@@ -5,13 +5,9 @@ phases:
     commands:
       - echo "Installing Maven and JDK"
       - yum update -y
-      - yum install -y java-17-amazon-corretto
-      - yum install -y maven
+      - yum install -y maven java-17-amazon-corretto
       - export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
       - export PATH=$JAVA_HOME/bin:$PATH
-      - echo "JAVA_HOME is set to $JAVA_HOME"
-      - echo "PATH is set to $PATH"
-      - java -version
   pre_build:
     commands:
       - echo "Setting environment variables for the database"
@@ -20,7 +16,7 @@ phases:
       - export springDatasourcePassword='root@123#' 
       - echo "Starting pre-build stage"
   build:
-    commands: # Combined commands into a single list
+    commands: 
       - echo "Running Maven clean and package"
       - mvn clean package -Dmaven.test.failure.ignore=true -Xmx3072m
       - echo "Copying JAR files to the artifact directory"
