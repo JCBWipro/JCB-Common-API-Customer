@@ -25,7 +25,12 @@ phases:
       - find . -name "*.jar"
       - echo "Copying JAR files to the artifact directory"
       - mkdir -p build_artifacts
-      - find ./JCB-Common-API-Customer -name "*.jar" -exec cp {} build_artifacts/ \;
+      - cp ./JCB-API-Gateway/target/JCB-API-Gateway-0.0.1-SNAPSHOT.jar build_artifacts/
+      - cp ./JCB-Authentication/target/JCB-Authentication-0.0.1-SNAPSHOT.jar build_artifacts/
+      - cp ./JCB-Machines/target/JCB-Machines-0.0.1-SNAPSHOT.jar build_artifacts/
+      - cp ./JCB-Mobile-Authentication/target/JCB-Mobile-Authentication-0.0.1-SNAPSHOT.jar build_artifacts/
+      - cp ./JCB-Service-Registry/target/JCB-Service-Registry-0.0.1-SNAPSHOT.jar build_artifacts/
+      - cp ./JCB-User/target/JCB-User-0.0.1-SNAPSHOT.jar build_artifacts/
 artifacts:
   files:
     - build_artifacts/**/*.jar
