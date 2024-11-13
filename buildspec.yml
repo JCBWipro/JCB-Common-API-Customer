@@ -4,14 +4,15 @@ phases:
   install:
     commands:
       - echo "Installing Maven and JDK"
-      - yum update -y
-     
+      - apt-get update -y
+      - apt-get install -y maven openjdk-17-jdk # Installs OpenJDK 17
+      - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
   pre_build:
     commands:
       - echo "Setting environment variables for the database"
       - export springDatasourceUrl='jdbc:mysql://10.210.196.240:3306/microservices_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true'
       - export springDatasourceUserName='root'
-      - export springDatasourcePassword='root@123#'
+      - export springDatasourcePas='root@123#'
       - echo "Starting pre-build stage"
   build:
     commands:
@@ -29,9 +30,7 @@ phases:
       - cp ./JCB-Common-API-Customer/JCB-Reports/target/JCB-Reports-*.jar build_artifacts/
       - cp ./JCB-Common-API-Customer/JCB-User/target/JCB-User-*.jar build_artifacts/
       - cp ./JCB-Common-API-Customer/JCB-Service-Registry/target/JCB-Service-Registry-*.jar build_artifacts/
- 
 artifacts:
   files:
     - build_artifacts/**/*.jar
   discard-paths: yes
-  
