@@ -55,6 +55,14 @@ public class MachineServiceImpl implements MachineService {
     @Value("${notification.delete.successid}")
     String notificationDeleteSuccessIdMessage;
 
+    @Value("${notification.delete.faileduser}")
+    String notificationDeleteFailedUser;
+
+    @Value("${notification.delete.failed}")
+    String notificationDeleteFailed;
+
+
+
 
 
     @Autowired
@@ -215,7 +223,8 @@ public class MachineServiceImpl implements MachineService {
 
        } catch (Exception e) {
            log.error("Error deleting notifications for user: {}", userName, e);
-           response.setMessage("Failed to delete notifications for user: " + userName);
+           String message=MessageFormat.format(notificationDeleteFailedUser,userName);
+           response.setMessage(message);
        }
        return response;
    }
@@ -238,7 +247,7 @@ public class MachineServiceImpl implements MachineService {
             }
         } catch (Exception e) {
             log.error("Error deleting notification: {}", e.getMessage(), e);
-            response.setMessage("Failed to process notification delete request");
+            response.setMessage(notificationDeleteFailed);
         }
         return response;
     }
