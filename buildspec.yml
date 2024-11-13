@@ -6,7 +6,8 @@ phases:
       - echo "Installing Maven and JDK"
       - yum update -y
       - yum install -y maven java-17-amazon-corretto
-      - export JAVA_HOME=/usr/lib/jvm/java-17-amazon-correto
+      - export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
+      -export PATH
   pre_build:
     commands:
       - echo "Setting environment variables for the database"
