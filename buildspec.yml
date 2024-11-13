@@ -22,7 +22,7 @@ phases:
       - export MAVEN_OPTS="-Xmx3072m" 
       - mvn clean package -Dmaven.test.failure.ignore=true
       - echo "Listing all files after build"
-      - ls -R
+      - find . -name "*.jar"
       - echo "Copying JAR files to the artifact directory"
       - mkdir -p build_artifacts
       - find ./JCB-Common-API-Customer -name "*.jar" -exec cp {} build_artifacts/ \;
