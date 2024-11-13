@@ -18,7 +18,9 @@ phases:
   build:
     commands: 
       - echo "Running Maven clean and package"
-      - mvn clean package -Dmaven.test.failure.ignore=true -Xmx3072m
+      - echo $JAVA_HOME
+      - echo $PATH
+      - mvn clean package -Dmaven.test.failure.ignore=true -Xmx3072m 
       - echo "Copying JAR files to the artifact directory"
       - mkdir -p build_artifacts
       - cp ./JCB-Common-API-Customer/JCB-Alerts/target/JCB-Alerts-*.jar build_artifacts/
