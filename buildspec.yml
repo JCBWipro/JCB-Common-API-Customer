@@ -23,14 +23,7 @@ phases:
       - mvn clean package -Dmaven.test.failure.ignore=true 
       - echo "Copying JAR files to the artifact directory"
       - mkdir -p build_artifacts
-      - cp ./JCB-Common-API-Customer/JCB-Alerts/target/JCB-Alerts-*.jar build_artifacts/
-      - cp ./JCB-Common-API-Customer/JCB-API-Gateway/target/JCB-API-Gateway-*.jar build_artifacts/
-      - cp ./JCB-Common-API-Customer/JCB-Authentication/target/JCB-Authentication-*.jar build_artifacts/
-      - cp ./JCB-Common-API-Customer/JCB-Machines/target/JCB-Machines-*.jar build_artifacts/
-      - cp ./JCB-Common-API-Customer/JCB-Mobile-Authentication/target/JCB-Mobile-Authentication-*.jar build_artifacts/
-      - cp ./JCB-Common-API-Customer/JCB-Reports/target/JCB-Reports-*.jar build_artifacts/
-      - cp ./JCB-Common-API-Customer/JCB-User/target/JCB-User-*.jar build_artifacts/
-      - cp ./JCB-Common-API-Customer/JCB-Service-Registry/target/JCB-Service-Registry-*.jar build_artifacts/
+      - find ./JCB-Common-API-Customer -name "*.jar" -exec cp {} build_artifacts/ \;
 artifacts:
   files:
     - build_artifacts/**/*.jar
