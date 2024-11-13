@@ -19,4 +19,8 @@ public interface MachineService {
     NotificationRemovedResponse readAllNotification(String userName);
 
     NotificationRemovedResponse readNotification(int id , String userName);
+
+    NotificationRemovedResponse deleteAllAlertNotification(String userName);
+
+    NotificationRemovedResponse deleteNotification(Integer id, String userName);
 }
