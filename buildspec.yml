@@ -5,10 +5,13 @@ phases:
     commands:
       - echo "Installing Maven and JDK"
       - yum update -y
-      - yum install -y maven java-17-amazon-corretto
+      - amazon-linux-extras enable corretto17
+      - yum install -y java-17-amazon-corretto
+      - yum install -y maven
       - export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
       - export PATH=$JAVA_HOME/bin:$PATH
       - echo "JAVA_HOME is set to $JAVA_HOME"
+      - echo "PATH is set to $PATH"
       - java -version
   pre_build:
     commands:
