@@ -1,0 +1,35 @@
+version: 0.2
+ 
+phases:
+  install:
+    commands:
+      - echo "Installing Maven and JDK"
+      - apt-get update -y
+      - apt-get install -y maven openjdk-17-jdk
+      - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+  pre_build:
+    commands:
+      - echo "Setting environment variables for the database"
+      - export springDatasourceUrl='jdbc:mysql://10.210.196.240:3306/microservices_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true'
+      - export springDatasourceUserName='root'
+      - export springDatasourcePassword='root@123#' 
+      - echo "Starting pre-build stage"
+  build:
+    commands: # Combined commands into a single list
+      - echo "Running Maven clean and package"
+      - mvn clean package -Dmaven.test.failure.ignore=true -Xmx3072m
+      - echo "Copying JAR files to the artifact directory"
+      - mkdir -p build_artifacts
+      - cp ./JCB-Common-API-Customer/JCB-Alerts/target/JCB-Alerts-*.jar build_artifacts/
+      - cp ./JCB-Common-API-Customer/JCB-API-Gateway/target/JCB-API-Gateway-*.jar build_artifacts/
+      - cp ./JCB-Common-API-Customer/JCB-Authentication/target/JCB-Authentication-*.jar build_artifacts/
+      - cp ./JCB-Common-API-Customer/JCB-Machines/target/JCB-Machines-*.jar build_artifacts/
+      - cp ./JCB-Common-API-Customer/JCB-Mobile-Authentication/target/JCB-Mobile-Authentication-*.jar build_artifacts/
+      - cp ./JCB-Common-API-Customer/JCB-Reports/target/JCB-Reports-*.jar build_artifacts/
+      - cp ./JCB-Common-API-Customer/JCB-User/target/JCB-User-*.jar build_artifacts/
+      - cp ./JCB-Common-API-Customer/JCB-Service-Registry/target/JCB-Service-Registry-*.jar build_artifacts/
+ 
+artifacts:
+  files:
+    - build_artifacts/**/*.jar
+  discard-paths: yes
