@@ -36,4 +36,3 @@ artifacts:
   files:
     - build_artifacts/**/*.jar
   discard-paths: yes
-has context menu
