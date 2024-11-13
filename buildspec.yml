@@ -5,9 +5,8 @@ phases:
     commands:
       - echo "Installing Maven and JDK"
       - yum update -y
-      - yum install -y maven java-17-amazon-corretto
-      - export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
-      - export PATH=$JAVA_HOME/bin:$PATH
+      - yum install -y maven 
+     
   pre_build:
     commands:
       - echo "Setting environment variables for the database"
@@ -20,7 +19,7 @@ phases:
       - echo "Running Maven clean and package"
       - echo $JAVA_HOME  # Verify JAVA_HOME is set
       - echo $PATH      # Verify PATH is updated
-      - mvn clean package -Dmaven.test.failure.ignore=true -Xmx3072m -Djava.home=$JAVA_HOME # Use $JAVA_HOME here
+      - mvn clean package -Dmaven.test.failure.ignore=true -Xmx3072m
       - echo "Copying JAR files to the artifact directory"
       - mkdir -p build_artifacts
       - cp ./JCB-Common-API-Customer/JCB-Alerts/target/JCB-Alerts-*.jar build_artifacts/
@@ -36,3 +35,4 @@ artifacts:
   files:
     - build_artifacts/**/*.jar
   discard-paths: yes
+  
