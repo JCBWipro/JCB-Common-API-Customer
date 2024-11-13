@@ -21,8 +21,6 @@ phases:
       - echo "Starting pre-build stage"
   build:
     commands: # Combined commands into a single list
-      - export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
-      - export PATH=$JAVA_HOME/bin:$PATH
       - echo "Running Maven clean and package"
       - mvn clean package -Dmaven.test.failure.ignore=true -Xmx3072m
       - echo "Copying JAR files to the artifact directory"
