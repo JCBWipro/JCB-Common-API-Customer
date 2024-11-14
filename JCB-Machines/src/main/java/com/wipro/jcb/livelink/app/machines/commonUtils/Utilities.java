@@ -1,13 +1,20 @@
 package com.wipro.jcb.livelink.app.machines.commonUtils;
 
+import com.wipro.jcb.livelink.app.machines.cache.impl.LivelinkUserTokenServiceImpl;
 import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
+import com.wipro.jcb.livelink.app.machines.dto.LoginRequest;
+import com.wipro.jcb.livelink.app.machines.entity.User;
 import com.wipro.jcb.livelink.app.machines.enums.FilterSearchType;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.machines.service.AlertService;
 import com.wipro.jcb.livelink.app.machines.service.MachineService;
 import com.wipro.jcb.livelink.app.machines.service.UserService;
+import com.wipro.jcb.livelink.app.machines.service.impl.AppServerTokenServiceImpl;
+import com.wipro.jcb.livelink.app.machines.service.impl.UserRequests;
 import com.wipro.jcb.livelink.app.machines.service.response.AddressResponse;
 import com.wipro.jcb.livelink.app.machines.service.response.Filter;
+import com.wipro.jcb.livelink.app.machines.service.response.LoginResponseLL;
+
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
@@ -27,6 +34,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.text.DateFormat;
@@ -34,6 +42,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.wipro.jcb.livelink.app.machines.constants.AppServerConstants.timezone;
 
@@ -51,16 +60,40 @@ public class Utilities {
 
     @Value("${livelinkserver.connectTimeout}")
     int connectTimeout;
+    
     @Value("${livelinkserver.readTimeout}")
     int readTimeout;
+    
+    @Value("${user.tokenRenewTime}")
+	private Long tokenRenewTime;
+
+    @Value("${user.secret}")
+	private String secret;
+
+    @Value("${userUri}")
+    public String userUri;
 
     @Autowired
     AlertService alertService;
+    
     @Autowired
     @Lazy
     MachineService machineService;
+    
     @Autowired
     UserService userService;
+    
+    @Autowired
+	LivelinkUserTokenServiceImpl livelinkUserTokenService;
+
+    @Autowired
+   	AppServerTokenServiceImpl appServerTokenService;
+
+    @Autowired
+    UserRequests userRequests;
+
+    @Autowired
+    private WebClient.Builder webClientBuilder;
 
     private static RestTemplate restTemplate;
     private static HttpEntity<?> request;
@@ -235,5 +268,91 @@ public class Utilities {
         final UUID idOne = UUID.randomUUID();
         return idOne.toString();
     }
+    
+    public String updateLivelinkServerToken(User user, Boolean isForcefullUpdate) throws Exception {
+		try {
+			final Long now = LocalDate.now(DateTimeZone.forID(timezone)).toDate().getTime();
+			final UserToken userToken = livelinkUserTokenService.getUserTokenByUsername(user.getUserName());
+			if (userToken != null) {
+				synchronized (userToken) {
+					long issueDate;
+					long expiryDate;
+					if (isForcefullUpdate || userToken.getExpiresAt() != 0) {
+						if (userToken.getExpiresAt() < now + tokenRenewTime) {
+							log.info("Login api Calling for " + user.getUserName() + " ");
+							ResponseEntity<String> response = webClientBuilder.build().get()
+									.uri(userUri + "/api/user/getPwdByUserName/"+user.getUserName())
+					        		.retrieve().toEntity(String.class).block();
+							String decryptedPassword = response.getBody();
+							final LoginRequest requestEntity = new LoginRequest(user.getUserName(),
+									String.valueOf(user.getUserType()),
+									decryptedPassword,
+									"", "", false, false, null);
+							final LoginResponseLL responseLL = userRequests.userlogin(requestEntity);
+							String someDate = responseLL.getTokenIssuedDate();
+							if (someDate != null) {
+								if (!"NA".equals(someDate)) {
+									final Date date = getDateTime(someDate);
+									issueDate = date.getTime();
+								} else {
+									issueDate = Long.valueOf(0);
+								}
+							} else {
+								issueDate = Long.valueOf(0);
+							}
+							someDate = responseLL.getTokenExpiryDate();
+							if (someDate != null) {
+								if (!"NA".equals(someDate)) {
+									final Date date = getDateTime(someDate);
+									expiryDate = date.getTime();
+								} else {
+									expiryDate = Long.valueOf(0);
+								}
+							} else {
+								expiryDate = Long.valueOf(0);
+							}
+							userToken.setExpiresAt(expiryDate);
+							userToken.setIssuedAt(issueDate);
+							userToken.setLivelinkToken(responseLL.getTokenID());
+							livelinkUserTokenService.setUserTokenByUsername(userToken);
+							return responseLL.getTokenID();
+						}
+					}
+				}
+			}
+		} catch (final ProcessCustomError exception) {
+
+			log.info("Token remove for the user :"+user.getUserName());
+			removeAllSessionForUser(user.getUserName());
+			exception.printStackTrace();
+			log.error("userlogin failed with " + exception.getMessage());
+			throw exception;
+
+		} catch (final Exception e) {
+			e.printStackTrace();
+			log.error("userlogin failed with " + e.getMessage());
+			throw e;
+		}
+		return null;
+	}
+    
+    public void removeAllSessionForUser(String userName) {
+		try {
+			final UserToken userToken = livelinkUserTokenService.getUserTokenByUsername(userName);
+			if (userToken != null) {
+				synchronized (userToken) {
+					final ConcurrentHashMap<String, AppToken> appTokens = userToken.getAccessToken();
+					for (final String token : appTokens.keySet()) {
+						appServerTokenService.removeUsernameByToken(token);
+					}
+				}
+			}
+			livelinkUserTokenService.removeUserTokenByUsername(userName);
+			log.info("Redis token removed for the user "+userName);
+		} catch (final Exception ex) {
+			ex.printStackTrace();
+			log.error("Failed to remove all session for user " + ex.getMessage());
+		}
+	}
 }
 

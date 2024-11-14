@@ -23,6 +23,7 @@ public class UserCommonUtils {
 		map.put(11, "MA Manager");
 		map.put(12, "Super Admin");
 		map.put(13, "Government Admin");
+		map.put(14, "JCB");
 		return map.get(roleId);
 	}
 	

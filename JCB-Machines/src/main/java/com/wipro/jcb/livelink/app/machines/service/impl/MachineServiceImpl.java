@@ -1,20 +1,27 @@
 package com.wipro.jcb.livelink.app.machines.service.impl;
 
+import com.wipro.jcb.livelink.app.machines.cache.impl.LivelinkUserTokenServiceImpl;
 import com.wipro.jcb.livelink.app.machines.commonUtils.Utilities;
+import com.wipro.jcb.livelink.app.machines.constants.AppServerConstants;
+import com.wipro.jcb.livelink.app.machines.constants.MessagesList;
 import com.wipro.jcb.livelink.app.machines.dto.MachineLocation;
 import com.wipro.jcb.livelink.app.machines.dto.MachineLocationDetail;
 import com.wipro.jcb.livelink.app.machines.entity.*;
 import com.wipro.jcb.livelink.app.machines.enums.ServiceStatus;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.machines.repo.*;
+import com.wipro.jcb.livelink.app.machines.request.GeofenceRequest;
 import com.wipro.jcb.livelink.app.machines.service.MachineFeatureInfoService;
 import com.wipro.jcb.livelink.app.machines.service.MachineService;
 import com.wipro.jcb.livelink.app.machines.service.reports.*;
 import com.wipro.jcb.livelink.app.machines.service.response.*;
+
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -25,6 +32,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
 
 /**
  * Author: Rituraj Azad
@@ -74,6 +85,15 @@ public class MachineServiceImpl implements MachineService {
 
     @Autowired
     MachineTelehandlerDataRepository machineTelehandlerDataRepository;
+    
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    MachineGeofenceRepository machineGeofenceRepository;
+
+    @Autowired
+	LivelinkUserTokenServiceImpl livelinkUserTokenServiceImpl;
 
     @Value("${machine.approachingservicedays}")
     int machineApproachingServiceDays;
@@ -122,8 +142,15 @@ public class MachineServiceImpl implements MachineService {
 
     @Autowired
     MachineFeedParserDataRepo machineFeedParserDataRepo;
+    
     @Autowired
     MachineFeedLocationRepo machineFeedLocationRepo;
+    
+    @Value("${livelinkserver.connectTimeout}")
+    int connectTimeout;
+
+    @Value("${livelinkserver.readTimeout}")
+    int readTimeout;
 
 
     @Override
@@ -834,5 +861,151 @@ public class MachineServiceImpl implements MachineService {
         }
         return utilizationResponse;
     }
+    
+    @Override
+	public String setGeoFenceParam(GeofenceRequest gfSetRequest, String userName, String machineType,
+			String livelinkTokenId) throws Exception {
+		String geofenceResponse = "SUCCESS";
+		String livelinkToken = "37aa1b15_20240522150705";
+		try {
+			final Client client = Client.create();
+			client.setConnectTimeout(connectTimeout);
+			client.setReadTimeout(readTimeout);
+			final String setGeofence = AppServerConstants.livelinkAppServerBaseUrl
+					+ "/v05/WorkManagement/geoFenceService/SetLandmarkDetails";
+
+			JSONObject object = new JSONObject();
+			object.put("LoginID", userName);
+			object.put("Landmark_Name", gfSetRequest.getLandmarkName().toString());
+			String radiusValue[] = gfSetRequest.getRadius().toString().split("\\.");
+			String radius = null;
+			if (radiusValue[1].length() > 1) {
+				radius = radiusValue[0] + "." + radiusValue[1].charAt(0);
+			} else {
+				radius = gfSetRequest.getRadius().toString();
+			}
+			if (gfSetRequest.getAddress() != null && !gfSetRequest.getAddress().isEmpty()) {
+				String address = gfSetRequest.getAddress().replace("+", "");
+				object.put("Address", address);
+				log.info("Address From App - " + gfSetRequest.getVin() + "-" + address);
+			} else {
+				AddressResponse address = utilities.getLocationDetails(String.valueOf(gfSetRequest.getLatitude()),
+						String.valueOf(gfSetRequest.getLongitude()));
+				object.put("Address", address.getLocation());
+				log.info("Address From Nominatim - " + gfSetRequest.getVin() + "-" + address.getLocation());
+			}
+			object.put("Radius", Double.parseDouble(radius));
+			object.put("Latitude", String.valueOf(gfSetRequest.getLatitude()));
+			object.put("Longitude", String.valueOf(gfSetRequest.getLongitude()));
+			object.put("IsArrival", gfSetRequest.getIsArrival());
+			object.put("IsDeparture", gfSetRequest.getIsDepature());
+
+			if (gfSetRequest.getLandmarkId() != null && gfSetRequest.getLandmarkId() != 0) {
+				object.put("Landmark_id", gfSetRequest.getLandmarkId().intValue());
+			}
+			object.put("MobileNumber",gfSetRequest.getMobileNumber() != null ? gfSetRequest.getMobileNumber().toString() : null);
+
+			if (machineType != null && machineType.equals("LL4")) {
+				JSONObject daytimeNotification = new JSONObject();
+				if (gfSetRequest.getNotificationDetails() != null) {
+					daytimeNotification.put("Push notification",
+							gfSetRequest.getNotificationDetails().getPushNotification());
+					daytimeNotification.put("SMS", gfSetRequest.getNotificationDetails().getSms());
+					object.put("NotificationDetails", daytimeNotification);
+				}
+			}
+
+			if (gfSetRequest.getVin() != null && !gfSetRequest.getVin().isEmpty()) {
+				object.put("MachineList", gfSetRequest.getVin());
+			}
+
+			log.info("Set Geofence Object :" + gfSetRequest.getLandmarkId() + "-" + object);
+			final WebResource geofenceDatawebResource = client.resource(setGeofence);
+			final ClientResponse geofenceDataResponse = geofenceDatawebResource
+					.header("Orgkey", AppServerConstants.livelinkAppServerOrgKey)
+					.header("TokenId", livelinkToken)
+					.type("application/json")
+					.post(ClientResponse.class, object.toString());
+
+			if (geofenceDataResponse.getStatus() == HttpServletResponse.SC_OK) {
+
+				String responseStatus = geofenceDataResponse.getEntity(String.class);
+				if (responseStatus.equalsIgnoreCase("SUCCESS")) {
+					log.info("Success Data -" + gfSetRequest.getVin() + "-" + gfSetRequest.getLandmarkId());
+					if (gfSetRequest.getVin() != null && !gfSetRequest.getVin().isEmpty()) {
+						String machineCount[] = gfSetRequest.getVin().split(",");
+						for (String machine : machineCount) {
+							log.info("Data - " + machine + "-" + gfSetRequest.getLandmarkId());
+							log.info("geofence details available " + machine);
+							MachineGeofence machineGeofence = new MachineGeofence();
+							machineGeofence.setAddress(gfSetRequest.getAddress());
+							if (gfSetRequest.getLandmarkId() != null) {
+								machineGeofence.setLandmarkId(gfSetRequest.getLandmarkId());
+							}
+
+							machineGeofence.setLandmarkName(gfSetRequest.getLandmarkName());
+							machineGeofence.setVin(machine);
+							machineGeofence.setRadius(gfSetRequest.getRadius());
+							machineGeofence.setLatitude(gfSetRequest.getLatitude());
+							machineGeofence.setLongitude(gfSetRequest.getLongitude());
+							machineGeofence.setIsArrival(gfSetRequest.getIsArrival());
+							machineGeofence.setIsDepature(gfSetRequest.getIsDepature());
+							machineGeofence.setMachineType(machineType);
+							if (gfSetRequest.getMobileNumber() != null)
+								machineGeofence.setMobileNumber(gfSetRequest.getMobileNumber());
+							if (machineType != null && machineType.equals("LL4")) {
+								if (gfSetRequest.getNotificationDetails() != null) {
+									machineGeofence.setSms(gfSetRequest.getNotificationDetails().getSms());
+									machineGeofence.setPush(gfSetRequest.getNotificationDetails().getPushNotification());
+								}
+							}
+							machineGeofenceRepository.save(machineGeofence);
+							log.info("Data Saved - " + machineGeofence.getVin());
+						}
+						if (gfSetRequest.getLandmarkId() != null && gfSetRequest.getLandmarkId() != 0) {
+							log.info("Geofence Data Updated Successfully");
+							geofenceResponse = MessagesList.UPDATESUCCESS;
+						} else {
+							log.info("Geofence Data Created successfully");
+							geofenceResponse = MessagesList.SUCCESS;
+						}
+					}
+				} else {
+					log.info("Geofence Create Status :" + responseStatus + "-" + gfSetRequest.getLandmarkId());
+					if (responseStatus.contains("TokenId is null or Invalid")) {
+
+						final User user = userRepository.findByUserName(userName);
+						if (user != null) {
+							livelinkToken = null;
+							livelinkToken = utilities.updateLivelinkServerToken(user, true);
+							return setGeoFenceParam(gfSetRequest, userName, machineType, livelinkToken);
+						}
+					} else if (responseStatus.contains("–")) {
+						responseStatus = responseStatus.split("–")[1];
+					}
+					return responseStatus;
+				}
+			} else {
+				log.error("Set Geofence Wipro API Response Status: " + geofenceDataResponse.getStatus()
+						+ "geofenceDataResponse :" + geofenceDataResponse);
+
+				if (geofenceDataResponse.getStatus() == HttpServletResponse.SC_UNAUTHORIZED) {
+					final User user = userRepository.findByUserName(userName);
+					if (user != null) {
+						livelinkToken = null;
+						livelinkToken = utilities.updateLivelinkServerToken(user, true);
+						return setGeoFenceParam(gfSetRequest, userName, machineType, livelinkToken);
+					}
+				} else {
+					return MessagesList.FAILURE;
+				}
+			}
+		} catch (final Exception ex) {
+			log.error("Error while setting geofence parameter", ex);
+			return MessagesList.FAILURE;
+
+		}
+		return geofenceResponse;
+	}
 
 }
