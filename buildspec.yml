@@ -7,30 +7,33 @@ phases:
       - yum update -y
       - yum install -y maven java-17-amazon-corretto.x86_64
       - export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
+      - export PATH=$JAVA_HOME/bin:$PATH
+ 
   pre_build:
     commands:
-      - echo "Setting environment variables for the database"
+      - echo "Setting environment variables" # More generic message
       - export springDatasourceUrl='jdbc:mysql://10.210.196.240:3306/microservices_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true'
       - export springDatasourceUserName='root'
-      - export springDatasourcePas='root@123#'
-      - echo "Starting pre-build stage"
+      - export springDatasourcePassword='root@123#'
+	  - echo "Starting pre-build stage"
+
+ 
   build:
     commands:
-      - echo "Running Maven clean and package"
-      - echo $JAVA_HOME  # Verify JAVA_HOME is set
-      - echo $PATH      # Verify PATH is updated
-      - export MAVEN_OPTS="-Xmx3072m" 
+      - echo "Building with Maven"
+      - echo "JAVA_HOME: $JAVA_HOME"
+      - echo "PATH: $PATH"
+      - export MAVEN_OPTS="-Xmx3072m"
       - mvn clean package -Dmaven.test.failure.ignore=true
-      - echo "Listing all files after build"
-      - find . -name "*.jar"
-      - echo "Copying JAR files to the artifact directory"
+      - echo "Built JAR files:"
+      - find . -name "*.jar" -print # Cleaner output
+ 
+ 
+      # Dynamically find and copy JARs 
+      - echo "Copying JARs to artifacts directory..."
       - mkdir -p build_artifacts
-      - cp ./JCB-API-Gateway/target/JCB-API-Gateway-0.0.1-SNAPSHOT.jar build_artifacts/
-      - cp ./JCB-Authentication/target/JCB-Authentication-0.0.1-SNAPSHOT.jar build_artifacts/
-      - cp ./JCB-Machines/target/JCB-Machines-0.0.1-SNAPSHOT.jar build_artifacts/
-      - cp ./JCB-Mobile-Authentication/target/JCB-Mobile-Authentication-0.0.1-SNAPSHOT.jar build_artifacts/
-      - cp ./JCB-Service-Registry/target/JCB-Service-Registry-0.0.1-SNAPSHOT.jar build_artifacts/
-      - cp ./JCB-User/target/JCB-User-0.0.1-SNAPSHOT.jar build_artifacts/
+      - find . -name "*.jar" -exec cp {} build_artifacts/ \;
+ 
 artifacts:
   files:
     - build_artifacts/**/*.jar
