@@ -61,5 +61,8 @@ public interface ContactRepo extends JpaRepository<ContactEntity, String> {
     @Modifying
     @Query(nativeQuery = true, value = "UPDATE wise.contact SET lockedOutTime = NULL , errorLogCounter = 0, reset_pass_count = 0")
     void unlockAllUserAccount(@Param("userName") String userName);
+    
+    @Query(value = "SELECT CAST(AES_DECRYPT(password, primary_moblie_number) AS CHAR(50)) password_decrypt from wise.contact where Contact_ID=:userName", nativeQuery = true)
+    String findPwdByUserName(@Param("userName") String userName);
 
 }

@@ -155,6 +155,16 @@ public class UserController {
     	log.info("In UserController::searchByVIN() userName:{} and vin:{}", userName, vin);
         return searchByVinService.getMap(userName, vin);
     }
+    
+    /*
+     * This End Point is to get password By userName
+     */
+    @GetMapping("/getPwdByUserName")
+    public String getPwdByUserName(@RequestHeader("LoggedInUserRole") String userDetails) {
+    	UserDetails userResponse = UserCommonUtils.getUserDetails(userDetails);
+    	String userName = userResponse.getUserName();
+        return contactRepo.findPwdByUserName(userName);
+    }
 }
 
 

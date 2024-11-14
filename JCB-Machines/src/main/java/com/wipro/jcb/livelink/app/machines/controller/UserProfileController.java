@@ -1,12 +1,17 @@
 package com.wipro.jcb.livelink.app.machines.controller;
 
 import com.wipro.jcb.livelink.app.machines.commonUtils.AuthCommonUtils;
+import com.wipro.jcb.livelink.app.machines.commonUtils.Utilities;
 import com.wipro.jcb.livelink.app.machines.constants.MessagesList;
+import com.wipro.jcb.livelink.app.machines.dto.ResponseData;
 import com.wipro.jcb.livelink.app.machines.dto.UserDetails;
 import com.wipro.jcb.livelink.app.machines.exception.ApiError;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
+import com.wipro.jcb.livelink.app.machines.request.GeofenceRequest;
+import com.wipro.jcb.livelink.app.machines.service.MachineService;
 import com.wipro.jcb.livelink.app.machines.service.UserService;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineDownQuestionResponse;
+import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponse;
 import com.wipro.jcb.livelink.app.machines.service.response.UserProfile;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,10 +21,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.net.HttpURLConnection;
 
@@ -35,8 +42,15 @@ import java.net.HttpURLConnection;
 @Tag(name = "User", description = "User Authentication API")
 @RequestMapping("/user/machines")
 public class UserProfileController {
+	
     @Autowired
     UserService userService;
+    
+    @Autowired
+    MachineService machineService;
+
+    @Autowired
+    Utilities utilities;
 
     @Operation(description = "get user profile", summary = " user profile details")
     @ApiResponses(value = {
@@ -118,4 +132,89 @@ public class UserProfileController {
                     MessagesList.APP_REQUEST_PROCESSING_FAILED, null), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    /*
+	 * API to Set GeoFencing Parameter for machines
+	 */
+	@CrossOrigin
+	@Operation(summary = "Setting GeoFencing Parameter for machines")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Geofencing information is updated for machinegeofence", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = MachineListResponse.class)) }),
+			@ApiResponse(responseCode = "401", description = "Auth Failed", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)) }),
+			@ApiResponse(responseCode = "500", description = "Request failed", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)) }) })
+	@PostMapping("/setgeofence")
+	public ResponseEntity<?> setGeoFence(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+			@RequestBody GeofenceRequest geofenceParam) {
+		try {
+			UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+	        String userName = userResponse.getUserName();
+			if (userName != null) {
+				log.info("setmachinegeofenceparam: POST Request for machine {} user {} ", geofenceParam.getVin(), userName);
+				String validation = checkSetGeofenceValidation(geofenceParam);
+				if (validation == null) {
+					String message = machineService.setGeoFenceParam(geofenceParam, userName,
+							geofenceParam.getMachineType(), "optional", userDetails);
+					if (message.equals(MessagesList.SUCCESS)) {
+						return new ResponseEntity<ResponseData>(
+								new ResponseData("Success", "Geofence Created Successfully"), HttpStatus.OK);
+					} else if (message.equals(MessagesList.UPDATESUCCESS)) {
+						return new ResponseEntity<ResponseData>(
+								new ResponseData("Success", "Geofence Updated Successfully"), HttpStatus.OK);
+					} else {
+						return new ResponseEntity<ApiError>(
+								new ApiError(HttpStatus.EXPECTATION_FAILED, "Failed", message, null),
+								HttpStatus.EXPECTATION_FAILED);
+					}
+				} else {
+					return new ResponseEntity<ApiError>(
+							new ApiError(HttpStatus.EXPECTATION_FAILED, "Failed", validation, null),
+							HttpStatus.EXPECTATION_FAILED);
+				}
+			} else {
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+		} catch (final Exception e) {
+			log.error("setGeoFencing: Issue faced while setting geofence parameters for machine ", e);
+			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	private String checkSetGeofenceValidation(GeofenceRequest gfSetRequest) {
+		String reason = null;
+		if (gfSetRequest.getRadius() != null && gfSetRequest.getLatitude() != null
+				&& gfSetRequest.getLongitude() != null && gfSetRequest.getIsArrival() != null
+				&& gfSetRequest.getIsDepature() != null && gfSetRequest.getLandmarkName() != null) {
+
+			if (gfSetRequest.getRadius() == null || gfSetRequest.getRadius().isNaN()) {
+				reason = "Radius can't be null or empty";
+			} else if ((gfSetRequest.getRadius()) < 0.5) {
+				reason = "Please provide valid value greater than or equal to 0.5 for radius";
+			}
+			if (gfSetRequest.getLatitude() == null || gfSetRequest.getLatitude().isEmpty()) {
+				reason = "Latitude can't be null or empty";
+			}
+			if (gfSetRequest.getLongitude() == null || gfSetRequest.getLongitude().isEmpty()) {
+				reason = "Longitude can't be null or empty";
+			}
+			if (gfSetRequest.getIsArrival() == null || gfSetRequest.getIsArrival().isEmpty()) {
+				reason = "IsArrival can't be null or empty";
+			}
+			if (gfSetRequest.getIsDepature() == null || gfSetRequest.getIsDepature().isEmpty()) {
+				reason = "IsDepature can't be null or empty";
+			}
+			if (gfSetRequest.getLandmarkName() == null || gfSetRequest.getLandmarkName().isEmpty()) {
+				reason = "LandmarkName can't be null or empty";
+			}
+		} else {
+			reason = "Please provide valid value for geofence";
+		}
+		return reason;
+	}
+	
 }

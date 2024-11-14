@@ -5,6 +5,7 @@ import com.wipro.jcb.livelink.app.machines.entity.Machine;
 import com.wipro.jcb.livelink.app.machines.entity.MachineDownQuestion;
 import com.wipro.jcb.livelink.app.machines.enums.ServiceStatus;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
+import com.wipro.jcb.livelink.app.machines.request.GeofenceRequest;
 import com.wipro.jcb.livelink.app.machines.service.reports.NotificationRemovedResponse;
 import com.wipro.jcb.livelink.app.machines.service.reports.StandardMachineBaseResponse;
 import com.wipro.jcb.livelink.app.machines.service.reports.UtilizationReport;
@@ -112,5 +113,7 @@ public interface MachineService {
     UtilizationReport getMachineUtilization(String vin, Date startDate, Date endDate);
     
     UtilizationReport getFuelUtilization(String vin, Date startDate, Date endDate);
+    
+    String  setGeoFenceParam(GeofenceRequest gfSetRequest,String userName,String machineType,String tokenId, String userDetails) throws Exception;
 
 }

@@ -1,20 +1,11 @@
 package com.wipro.jcb.livelink.app.machines.repo;
 
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Repository;
 
-/*public interface MachineGeofenceRepository extends CrudRepository<MachineGeofence, String> {
+import com.wipro.jcb.livelink.app.machines.entity.MachineGeofence;
 
-	MachineGeofence findByVin(String vin);
+@Repository
+public interface MachineGeofenceRepository extends CrudRepository<MachineGeofence, String> {
 
-	@Transactional
-	@Modifying
-	@Query("delete from MachineGeofence a where a.landmarkId = ?1 ")
-	void deleteByLandmarkId(Integer landmarkId);
-
-	@Query("select a from MachineGeofence a where a.landmarkId = ?1 ")
-	MachineGeofence findByLandmarkId(Integer landmarkId);
-
-}*/
+}
