@@ -15,7 +15,7 @@ phases:
       - export springDatasourceUrl='jdbc:mysql://10.210.196.240:3306/microservices_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true'
       - export springDatasourceUserName='root'
       - export springDatasourcePassword='root@123#'
-	  - echo "Starting pre-build stage"
+      - echo "Starting pre-build stage"
 
  
   build:
