@@ -22,7 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/auth/web")
+@RequestMapping("/auth")
 public class ResetUsernameAndPasswordController {
 
     private static final Logger log = LoggerFactory.getLogger(ResetUsernameAndPasswordController.class);

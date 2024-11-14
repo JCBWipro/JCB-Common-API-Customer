@@ -27,7 +27,7 @@ public class AuthConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(auth -> auth.requestMatchers(
-                        "/auth/web/register", "/auth/login", "/auth/web/validate", "/auth/web/updatePassword", "/auth/web/refreshToken", "/auth/web/resetPassword", "/auth/web/forgotUsername","/auth/web/unlockAccountsManually","/auth/web/decryptAndExportPasswords")
+                        "/auth/register", "/auth/login", "/auth/validate", "/auth/updatePassword", "/auth/refreshToken", "/auth/resetPassword", "/auth/forgotUsername","/auth/unlockAccountsManually","/auth/decryptAndExportPasswords")
                 .permitAll()).httpBasic(Customizer.withDefaults()).build();
     }
 
