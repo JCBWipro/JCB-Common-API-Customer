@@ -21,8 +21,8 @@ phases:
   build:
     commands:
       - echo "Building with Maven"
-      - echo "JAVA_HOME: $JAVA_HOME"
-      - echo "PATH: $PATH"
+      - echo $JAVA_HOME
+      - echo $PATH
       - export MAVEN_OPTS="-Xmx3072m"
       - mvn clean package -Dmaven.test.failure.ignore=true
       - echo "Built JAR files:"
