@@ -60,7 +60,7 @@ public class DealerController {
     /**
      * Handles GET requests to retrieve all customers for a dealer.
      */
-    @GetMapping(value = "/dealers/dashboard/customers")
+    @GetMapping(value = "/dashboard/customers")
     @Operation(summary = "Dealers All Customers", description = "Dealers All Customers.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Dealers All Customers", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerDistribution.class))),
