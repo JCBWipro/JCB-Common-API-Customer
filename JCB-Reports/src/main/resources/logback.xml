@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Define the application name as a property -->
+    <property name="APP_NAME" value="JCB-Reports"/>
+
+    <!-- Define the log file path and name -->
+    <property name="LOG_PATH" value="D:/JCB-Common-API-Customer/JCB-Common-API-Customer/MS-Logs/${APP_NAME}"/>
+    <!--<property name="LOG_PATH" value="/data4/JCB_New_API_Jars/logs/${APP_NAME}"/>-->
+
+    <!-- Console appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- File appender -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APP_NAME}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- Roll over daily -->
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- Keep 30 days worth of logs -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Root logger configuration -->
+    <root level="info">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </root>
+
+    <!-- Logger for your application package -->
+    <logger name="com.wipro.jcb.livelink.app" level="debug" additivity="false">
+        <appender-ref ref="FILE" />
+    </logger>
+
+</configuration>

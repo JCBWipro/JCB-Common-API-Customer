@@ -1,0 +1,2391 @@
+{
+	"info": {
+		"_postman_id": "7d452a28-d3f4-460e-b91b-bb68e3d64fe4",
+		"name": "JCB_Mobile_API_Collection_AllInOne",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "389846",
+		"_collection_link": "https://gold-crescent-900831.postman.co/workspace/Team-Workspace~aa78b02d-ed70-489d-83f4-0d211c3003d8/collection/389846-7d452a28-d3f4-460e-b91b-bb68e3d64fe4?action=share&source=collection_link&creator=389846"
+	},
+	"item": [
+		{
+			"name": "auth/web/register",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8088/auth/web/register"
+			},
+			"response": []
+		},
+		{
+			"name": "Web_Login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "User-Agent",
+						"value": "Edge",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\r\n//      \"username\": \"Azad316858\",\r\n//      \"password\": \"123456@Azad1\",\r\n//      \"role\": \"Super Admin\"\r\n// }\r\n{\r\n    \"username\": \"Goku977549\",\r\n    \"password\": \"Pass123@wipro1\",\r\n    \"role\": \"Dealer\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8088/auth/login"
+			},
+			"response": []
+		},
+		{
+			"name": "Web_refreshToken",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "User-Agent",
+						"value": "Edge",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"token\":\"2603899c-7fb5-4c1c-8484-cf46358212ef\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8088/auth/refreshToken"
+			},
+			"response": []
+		},
+		{
+			"name": "Web_ResetPassword",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "User-Agent",
+						"value": "Edge",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "Goku977549",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8088/auth/resetPassword"
+			},
+			"response": []
+		},
+		{
+			"name": "Web_UpdatePassword",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "User-Agent",
+						"value": "Edge",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\":\"Goku977549\",\r\n    \"newPassword\":\"Pass123@wipro1\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8088/auth/updatePassword"
+			},
+			"response": []
+		},
+		{
+			"name": "WEB_ForgotUsername",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "User-Agent",
+						"value": "Edge",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\r\n//     \"mobileNumber\": \"+917903164690\"\r\n// }\r\n\r\n{\r\n    \"emailId\": \"gokul.aher@wipro.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8088/auth/forgotUsername"
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_Login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "User-Agent",
+						"value": "Android",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\r\n//      \"username\": \"Azad316858\",\r\n//      \"password\": \"123456@Azad1\",\r\n//      \"role\": \"Super Admin\"\r\n// }\r\n// {\r\n//     \"username\": \"Goku977549\",\r\n//     \"password\": \"Pass123@wipro1\",\r\n//     \"role\": \"Dealer\"\r\n// }\r\n{\r\n   \"password\":\"123456@Azad1\",\r\n    \"userName\":\"Ritu388896\",\r\n    \"userType\":\"JCB\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8088/auth/login"
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_RefreshToken",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"token\":\"f784be5b-9eda-44f3-b84c-7f6783f81e69\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8088/auth/mob/refreshToken"
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_ResetPassword",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "User-Agent",
+						"value": "Android",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "Goku977549",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8088/auth/resetPassword"
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_UpdatePassword",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "User-Agent",
+						"value": "Android",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\":\"Goku977549\",\r\n    \"newPassword\":\"Pass123@wipro1\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8088/auth/updatePassword"
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_ForgotUsername",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "User-Agent",
+						"value": "Android",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\r\n//     \"mobileNumber\": \"+919890091680\"\r\n// }\r\n\r\n{\r\n    \"emailId\": \"gokul.aher@wipro.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8088/auth/forgotUsername"
+			},
+			"response": []
+		},
+		{
+			"name": "Mob_RegisterUser",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "User-Agent",
+						"value": "Android",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:8088/auth/registerUser"
+			},
+			"response": []
+		},
+		{
+			"name": "api/user",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJHb2t1OTc3NTQ5IiwiaWF0IjoxNzMxNTg3ODI0LCJleHAiOjE3MzE1ODc5NDQsInJvbGVzIjoiRGVhbGVyIn0.mwIYpzk6tTmO7JqAzAepFFYLOcr12Q7VXGHi7jxN6Ao"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8088/api/user"
+			},
+			"response": []
+		},
+		{
+			"name": "JCB_User_UnlockAllAccountsManually",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJBemFkMzE2ODU4IiwiaWF0IjoxNzI2MTQwMjM0LCJleHAiOjE3MjYxNDAzNTQsInJvbGVzIjoiU3VwZXIgQWRtaW4ifQ.7K-BGkwYVk-RHJNBMkznGZvFJtpf4lgCfjR4ohp1RRQ"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "localhost:8088/api/user/unlockAccountsManually"
+			},
+			"response": []
+		},
+		{
+			"name": "JCB_User_unlockAccountByUserID",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzMxNTg4NDM0LCJleHAiOjE3MzE1ODg1NTQsInJvbGVzIjoiSkNCIn0.TML9pX7CrpbOb71VSBfqb47Od4opbveeOlAnpbczCHs"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8088/api/user/unlockAccountByUserID/Goku977549"
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_getMachineGroupDetails/Azad316858",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzMxNTg4NzQ2LCJleHAiOjE3MzE1ODg4NjYsInJvbGVzIjoiSkNCIn0.3vgHVzJTvXA8YIWvZLP5jiE8cVg8E5Sy0_1aJHJ75Ig"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "localhost:8088/api/user/getMachineGroupDetails/vina398022"
+			},
+			"response": []
+		},
+		{
+			"name": "/auth/web/decryptAndExportPasswords",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "localhost:9898/auth/web/decryptAndExportPasswords"
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_machinesV2",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzI3NzMwMzI5LCJleHAiOjE3Mjc3MzA5MjksInJvbGVzIjoiSkNCIn0.TvoUvH1BmNp1kKj7H20LovY2g1D6Agu9tMm74b_2fNE"
+					}
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "User-Agent",
+						"value": "Edge",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "accessToken",
+						"value": "",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:8088/user/machines/machinesV2",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"machines",
+						"machinesV2"
+					],
+					"query": [
+						{
+							"key": "pageNumber",
+							"value": "0",
+							"disabled": true
+						},
+						{
+							"key": "pageSize",
+							"value": "25",
+							"disabled": true
+						},
+						{
+							"key": "filter",
+							"value": "3DX",
+							"disabled": true
+						},
+						{
+							"key": "search",
+							"value": "Excavator",
+							"disabled": true
+						},
+						{
+							"key": "skipReports",
+							"value": "true",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "machinesV2",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "User-Agent",
+								"value": "Edge",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "accessToken",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "localhost:8088/user/machines/machinesV2?pageNumber=0&pageSize=25&filter=3DX&skipReports=true",
+							"host": [
+								"localhost"
+							],
+							"port": "8088",
+							"path": [
+								"user",
+								"machines",
+								"machinesV2"
+							],
+							"query": [
+								{
+									"key": "pageNumber",
+									"value": "0"
+								},
+								{
+									"key": "pageSize",
+									"value": "25"
+								},
+								{
+									"key": "filter",
+									"value": "3DX"
+								},
+								{
+									"key": "search",
+									"value": "Excavator",
+									"disabled": true
+								},
+								{
+									"key": "skipReports",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "transfer-encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 08 Nov 2024 07:30:32 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"machines\": [\n        {\n            \"vin\": \"PUN430Z1AL2055169\",\n            \"statusAsOnTime\": \"2024-09-21 11:51:32\",\n            \"serverTimezone\": \"Asia/Kolkata\",\n            \"machineHours\": \"280.0Hrs\",\n            \"fuelPercentage\": \"15.5305%\",\n            \"latitude\": 20.258396315962237,\n            \"longitude\": 20.258396315962237,\n            \"location\": \"-\",\n            \"zone\": \"IND\",\n            \"model\": \"3DX\",\n            \"tag\": \"\",\n            \"dateRange\": \"01 Nov 24 - 07 Nov 24\",\n            \"hours\": \"8 AM - 8 PM\",\n            \"normalAlert\": true,\n            \"serviceAlert\": false,\n            \"normalAlertSeverity\": \"RED\",\n            \"fuelLevel\": \"high\",\n            \"platform\": \"Excavator\",\n            \"thumbnail\": null,\n            \"machineStatus\": {\n                \"engineStatus\": false,\n                \"engineValue\": \"off\",\n                \"connectivity\": false,\n                \"connectivityValue\": \"Off\",\n                \"coolant\": true,\n                \"coolantValue\": \"Fault\",\n                \"batteryConnectedStatus\": true,\n                \"batteryVoltage\": \"18.0\",\n                \"oilValue\": \"Fault\",\n                \"airFilterStatus\": true,\n                \"airValue\": \"Fault\",\n                \"fuelLevelStatus\": true,\n                \"fuelValue\": \"NA\",\n                \"lastCommunicationTime\": \"2024-09-21 11:51:32\",\n                \"oilPressureStatus\": true\n            },\n            \"alert\": [\n                {\n                    \"eventGeneratedTime\": \"2023-12-24 10:00:00\",\n                    \"eventLevel\": \"RED\",\n                    \"name\": \"Low\",\n                    \"eventType\": \"Health\",\n                    \"id\": \"11\",\n                    \"isActive\": true,\n                    \"isDtcAlert\": true\n                }\n            ],\n            \"serviceStatus\": \"NORMAL\",\n            \"serviceReason\": \"NA\",\n            \"fuelHistoryDayDataList\": [],\n            \"engineHistoryDayDataList\": [],\n            \"updatedFuelList\": null,\n            \"updatedUtilizationList\": null,\n            \"updatedPerformanceList\": null,\n            \"utilizationDateRange\": \"2024-11-02 - 2024-11-08\",\n            \"supportFeatures\": false,\n            \"activeFlag\": true\n        },\n        {\n            \"vin\": \"PUNJD22CV0000IIII\",\n            \"statusAsOnTime\": \"2024-09-21 11:51:32\",\n            \"serverTimezone\": \"Asia/Kolkata\",\n            \"machineHours\": \"190.0Hrs\",\n            \"fuelPercentage\": \"150.0%\",\n            \"latitude\": 20.258396315962237,\n            \"longitude\": 20.258396315962237,\n            \"location\": \"-\",\n            \"zone\": \"IND\",\n            \"model\": \"3DX\",\n            \"tag\": \"\",\n            \"dateRange\": \"01 Nov 24 - 07 Nov 24\",\n            \"hours\": \"8 AM - 8 PM\",\n            \"normalAlert\": true,\n            \"serviceAlert\": true,\n            \"normalAlertSeverity\": \"RED\",\n            \"fuelLevel\": \"high\",\n            \"platform\": \"Excavator\",\n            \"thumbnail\": \"thumnail.png\",\n            \"machineStatus\": {\n                \"engineStatus\": false,\n                \"engineValue\": \"off\",\n                \"connectivity\": false,\n                \"connectivityValue\": \"Off\",\n                \"coolant\": true,\n                \"coolantValue\": \"Fault\",\n                \"batteryConnectedStatus\": true,\n                \"batteryVoltage\": \"20.0\",\n                \"oilValue\": \"Fault\",\n                \"airFilterStatus\": true,\n                \"airValue\": \"Fault\",\n                \"fuelLevelStatus\": true,\n                \"fuelValue\": \"NA\",\n                \"lastCommunicationTime\": \"2024-09-15 13:33:22\",\n                \"oilPressureStatus\": true\n            },\n            \"alert\": [\n                {\n                    \"eventGeneratedTime\": \"2023-12-26 10:00:00\",\n                    \"eventLevel\": \"YELLOW\",\n                    \"name\": \"Low Fuel\",\n                    \"eventType\": \"Service\",\n                    \"id\": \"2\",\n                    \"isActive\": true,\n                    \"isDtcAlert\": false\n                },\n                {\n                    \"eventGeneratedTime\": \"2023-12-24 10:00:00\",\n                    \"eventLevel\": \"RED\",\n                    \"name\": \"Low Fuel\",\n                    \"eventType\": \"Security\",\n                    \"id\": \"3\",\n                    \"isActive\": true,\n                    \"isDtcAlert\": false\n                }\n            ],\n            \"serviceStatus\": \"NORMAL\",\n            \"serviceReason\": \"NA\",\n            \"fuelHistoryDayDataList\": [],\n            \"engineHistoryDayDataList\": [],\n            \"updatedFuelList\": null,\n            \"updatedUtilizationList\": null,\n            \"updatedPerformanceList\": null,\n            \"utilizationDateRange\": \"2024-11-02 - 2024-11-08\",\n            \"supportFeatures\": false,\n            \"activeFlag\": true\n        }\n    ],\n    \"alertCount\": {\n        \"service\": 0,\n        \"health\": 0,\n        \"security\": 0,\n        \"utilization\": 0,\n        \"location\": 0\n    },\n    \"machineCount\": 81,\n    \"notificationCount\": 0\n}"
+				}
+			]
+		},
+		{
+			"name": "Mobile_GET_MachinedetailsV3",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzMxNTg5MjU4LCJleHAiOjE3MzE1ODkzNzgsInJvbGVzIjoiSkNCIn0.CiZebFKaYKoafubi0_qT045Uh1g7bNilxYthMmiQhrU"
+					}
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "accessToken",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "localhost:8088/user/machines/machinesdetailsV3?vin=PUNJD22CV0000IIII",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"machines",
+						"machinesdetailsV3"
+					],
+					"query": [
+						{
+							"key": "vin",
+							"value": "PUNJD22CV0000IIII"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_machines_appConfig",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzMxNTg5MzY4LCJleHAiOjE3MzE1ODk0ODgsInJvbGVzIjoiSkNCIn0.PiPRoY5JXUBlZINpDmtWodJ7un0r1OnY1bzTlgobXGc"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "localhost:8088/user/machines/appconfig"
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_getEngineFuelDetailData",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzI3OTUyODY3LCJleHAiOjE3Mjc5NTI5ODcsInJvbGVzIjoiSkNCIn0.Q2DROTycnHKs4FxjOLFNN41uR37ZPeZitNQYwoS6E38"
+					}
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Co",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "localhost:8088/user/machines/getEngineFuelDetailData?vin=PUNJD22CV0000IIII&type=",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"machines",
+						"getEngineFuelDetailData"
+					],
+					"query": [
+						{
+							"key": "vin",
+							"value": "PUNJD22CV0000IIII"
+						},
+						{
+							"key": "type",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_machineprofile",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzMxNTg5MzY4LCJleHAiOjE3MzE1ODk0ODgsInJvbGVzIjoiSkNCIn0.PiPRoY5JXUBlZINpDmtWodJ7un0r1OnY1bzTlgobXGc"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8088/user/machines/machineprofile?vin=PUNJD22CV0000IIII",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"machines",
+						"machineprofile"
+					],
+					"query": [
+						{
+							"key": "vin",
+							"value": "PUNJD22CV0000IIII"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_machinesV3",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "localhost:8088/user/machines/machinesV3"
+			},
+			"response": [
+				{
+					"name": "machinesV3",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": "localhost:8088/user/machines/machinesV3"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "transfer-encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 08 Nov 2024 07:20:54 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"machines\": [\n        {\n            \"vin\": \"PUN430Z1AL2055169\",\n            \"statusAsOnTime\": \"2024-09-21 11:51:32\",\n            \"serverTimezone\": \"Asia/Kolkata\",\n            \"machineHours\": \"280.0Hrs\",\n            \"fuelPercentage\": \"15.5305%\",\n            \"latitude\": 20.258396315962237,\n            \"longitude\": 20.258396315962237,\n            \"location\": \"-\",\n            \"zone\": \"IND\",\n            \"model\": \"3DX\",\n            \"tag\": \"\",\n            \"dateRange\": \"01 Nov 24 - 07 Nov 24\",\n            \"hours\": \"8 AM - 8 PM\",\n            \"normalAlert\": true,\n            \"serviceAlert\": false,\n            \"normalAlertSeverity\": \"RED\",\n            \"fuelLevel\": \"high\",\n            \"platform\": \"Excavator\",\n            \"thumbnail\": null,\n            \"machineStatus\": {\n                \"engineStatus\": false,\n                \"engineValue\": \"off\",\n                \"connectivity\": false,\n                \"connectivityValue\": \"Off\",\n                \"coolant\": true,\n                \"coolantValue\": \"Fault\",\n                \"batteryConnectedStatus\": true,\n                \"batteryVoltage\": \"18.0\",\n                \"oilValue\": \"Fault\",\n                \"airFilterStatus\": true,\n                \"airValue\": \"Fault\",\n                \"fuelLevelStatus\": true,\n                \"fuelValue\": \"-\",\n                \"lastCommunicationTime\": \"2024-09-21 11:51:32\",\n                \"oilPressureStatus\": true\n            },\n            \"alert\": [\n                {\n                    \"eventGeneratedTime\": \"2023-12-24 10:00:00\",\n                    \"eventLevel\": \"RED\",\n                    \"name\": \"Low\",\n                    \"eventType\": \"Health\",\n                    \"id\": \"11\",\n                    \"isActive\": true,\n                    \"isDtcAlert\": true\n                }\n            ],\n            \"serviceStatus\": \"NORMAL\",\n            \"serviceReason\": \"NA\",\n            \"fuelHistoryDayDataList\": [\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-02\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-03\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-04\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-05\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-06\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-07\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-08\"\n                }\n            ],\n            \"engineHistoryDayDataList\": [\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-02\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-03\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-04\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-05\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-06\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-07\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-08\"\n                }\n            ],\n            \"updatedFuelList\": null,\n            \"updatedUtilizationList\": null,\n            \"updatedPerformanceList\": null,\n            \"utilizationDateRange\": \"02 Nov 24 - 08 Nov 24\",\n            \"supportFeatures\": false,\n            \"activeFlag\": true,\n            \"premiumFlag\": \"Standard\"\n        },\n        {\n            \"vin\": \"PUNJD22CV0000IIII\",\n            \"statusAsOnTime\": \"2024-09-21 11:51:32\",\n            \"serverTimezone\": \"Asia/Kolkata\",\n            \"machineHours\": \"190.0Hrs\",\n            \"fuelPercentage\": \"150.0%\",\n            \"latitude\": 20.258396315962237,\n            \"longitude\": 20.258396315962237,\n            \"location\": \"-\",\n            \"zone\": \"IND\",\n            \"model\": \"3DX\",\n            \"tag\": \"\",\n            \"dateRange\": \"01 Nov 24 - 07 Nov 24\",\n            \"hours\": \"8 AM - 8 PM\",\n            \"normalAlert\": true,\n            \"serviceAlert\": true,\n            \"normalAlertSeverity\": \"RED\",\n            \"fuelLevel\": \"high\",\n            \"platform\": \"Excavator\",\n            \"thumbnail\": \"thumnail.png\",\n            \"machineStatus\": {\n                \"engineStatus\": false,\n                \"engineValue\": \"off\",\n                \"connectivity\": false,\n                \"connectivityValue\": \"Off\",\n                \"coolant\": true,\n                \"coolantValue\": \"Fault\",\n                \"batteryConnectedStatus\": true,\n                \"batteryVoltage\": \"20.0\",\n                \"oilValue\": \"Fault\",\n                \"airFilterStatus\": true,\n                \"airValue\": \"Fault\",\n                \"fuelLevelStatus\": true,\n                \"fuelValue\": \"-\",\n                \"lastCommunicationTime\": \"2024-09-15 13:33:22\",\n                \"oilPressureStatus\": true\n            },\n            \"alert\": [\n                {\n                    \"eventGeneratedTime\": \"2023-12-26 10:00:00\",\n                    \"eventLevel\": \"YELLOW\",\n                    \"name\": \"Low Fuel\",\n                    \"eventType\": \"Service\",\n                    \"id\": \"2\",\n                    \"isActive\": true,\n                    \"isDtcAlert\": false\n                },\n                {\n                    \"eventGeneratedTime\": \"2023-12-24 10:00:00\",\n                    \"eventLevel\": \"RED\",\n                    \"name\": \"Low Fuel\",\n                    \"eventType\": \"Security\",\n                    \"id\": \"3\",\n                    \"isActive\": true,\n                    \"isDtcAlert\": false\n                }\n            ],\n            \"serviceStatus\": \"NORMAL\",\n            \"serviceReason\": \"NA\",\n            \"fuelHistoryDayDataList\": [\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-02\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-03\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-04\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-05\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-06\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-07\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-08\"\n                }\n            ],\n            \"engineHistoryDayDataList\": [\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-02\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-03\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-04\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-05\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-06\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-07\"\n                },\n                {\n                    \"values\": [],\n                    \"timestamps\": [],\n                    \"date\": \"2024-11-08\"\n                }\n            ],\n            \"updatedFuelList\": null,\n            \"updatedUtilizationList\": null,\n            \"updatedPerformanceList\": null,\n            \"utilizationDateRange\": \"02 Nov 24 - 08 Nov 24\",\n            \"supportFeatures\": false,\n            \"activeFlag\": true,\n            \"premiumFlag\": \"Standard\"\n        }\n    ],\n    \"alertCount\": {\n        \"service\": 0,\n        \"health\": 0,\n        \"security\": 0,\n        \"utilization\": 0,\n        \"location\": 0\n    },\n    \"machineCount\": 81,\n    \"notificationCount\": 0\n}"
+				}
+			]
+		},
+		{
+			"name": "Mobile_POST_setmachinetimefenceparam",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzMxNTg5NTA5LCJleHAiOjE3MzE1ODk2MjksInJvbGVzIjoiSkNCIn0.uS9Rs4jhtloz0T7M61kdrml4HDlz3SUJu2xp_kyYapM"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"vin\": \"PUNJD22CV0000IIII\",\r\n  \"startTime\": \"2024-12-25T08:00:000000\", \r\n  \"endTime\": \"2024-12-25T17:00:00000\" \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8088/user/machines/setmachinetimefenceparam"
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_POST_setmachinegeofenceparam",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzMxNTg5NTA5LCJleHAiOjE3MzE1ODk2MjksInJvbGVzIjoiSkNCIn0.uS9Rs4jhtloz0T7M61kdrml4HDlz3SUJu2xp_kyYapM"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"centerLatitude\": 40.7128, \r\n    \"centerLongitude\": -74.0060, \r\n    \"radis\": 1000,          \r\n    \"vin\": \"PUNJD22CV0000IIII\" \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8088/user/machines/setmachinegeofenceparam"
+			},
+			"response": []
+		},
+		{
+			"name": "APIGateway/machines_v11?pageNumber=1&pageSize=20",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Orgkey",
+						"value": "S2lyYW5fcmFqYWdvcGFs",
+						"type": "text"
+					},
+					{
+						"key": "TokenId",
+						"value": "37aa1b15_20240522150705",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:27000/APIGateway/machines_v11?pageNumber=1&pageSize=5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "27000",
+					"path": [
+						"APIGateway",
+						"machines_v11"
+					],
+					"query": [
+						{
+							"key": "pageNumber",
+							"value": "1"
+						},
+						{
+							"key": "pageSize",
+							"value": "5"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_machineserviceinfo",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8084/user/machines/machineserviceinfo?vin=PUNJD22CV0000IIII",
+					"host": [
+						"localhost"
+					],
+					"port": "8084",
+					"path": [
+						"user",
+						"machines",
+						"machineserviceinfo"
+					],
+					"query": [
+						{
+							"key": "vin",
+							"value": "PUNJD22CV0000IIII"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "/machineserviceinfo",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8088/user/machines/machineserviceinfo?vin=PUNJD22CV0000IIII",
+							"host": [
+								"localhost"
+							],
+							"port": "8088",
+							"path": [
+								"user",
+								"machines",
+								"machineserviceinfo"
+							],
+							"query": [
+								{
+									"key": "vin",
+									"value": "PUNJD22CV0000IIII"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "transfer-encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 25 Oct 2024 18:47:09 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"hours\": 190,\n    \"overdue\": 10.1,\n    \"overdueAt\": \"2024-09-09 00:00:00\",\n    \"due\": 11.19,\n    \"dueAt\": \"2024-09-09 00:00:00\",\n    \"done\": 22.09,\n    \"doneAt\": \"2024-09-10 00:00:00\",\n    \"thumbnail\": null,\n    \"vin\": \"PUNJD22CV0000IIII\",\n    \"model\": \"3DX\",\n    \"platform\": \"Excavator\",\n    \"tag\": \"Heavy Duty\",\n    \"image\": null,\n    \"history\": [\n        {\n            \"serviceDate\": \"2024-09-10 00:00:00\",\n            \"serviceJobId\": \"123456788\",\n            \"serviceName\": \"Service done\"\n        },\n        {\n            \"serviceDate\": \"2024-09-09 00:00:00\",\n            \"serviceJobId\": \"123456789\",\n            \"serviceName\": \"Service done\"\n        }\n    ]\n}"
+				}
+			]
+		},
+		{
+			"name": "Mobile_GET_userprofile",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzMxNTg5NjM5LCJleHAiOjE3MzE1ODk3NTksInJvbGVzIjoiSkNCIn0.y2go5IFzq4RjH8N6JXc6JZhRb5tLbm4zahNQ3tDaXiY"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "localhost:8088/user/machines/userprofile"
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_alertsV2",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzMxNTkwMTA4LCJleHAiOjE3MzE1OTAyMjgsInJvbGVzIjoiSkNCIn0.9ddM6u9VY21T-SgrjnLLW39WD6UxT6_5Xf31eUrydr4"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8088/user/alerts/alertsV2?pageNumber=0&pageSize=200",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"alerts",
+						"alertsV2"
+					],
+					"query": [
+						{
+							"key": "from",
+							"value": "2024-10-10",
+							"disabled": true
+						},
+						{
+							"key": "to",
+							"value": "2024-10-15",
+							"disabled": true
+						},
+						{
+							"key": "pageNumber",
+							"value": "0"
+						},
+						{
+							"key": "pageSize",
+							"value": "200"
+						},
+						{
+							"key": "filter",
+							"value": "3DX,Super",
+							"disabled": true
+						},
+						{
+							"key": "search",
+							"value": "JCBBHLS1J02220002",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_getAdvanceReportsV2",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2aW5hMzk4MDIyIiwiaWF0IjoxNzI5MDc5OTU5LCJleHAiOjE3MjkwODA4NTksInJvbGVzIjoiSkNCIn0.bYb-iKuZKRhMCaw-6Hi0XMmmZ8aR67ITUBsB_KnSiIg"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8088/user/reports/getAdvanceReportsV2?vin=PUNJD22CV0000IIII",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"reports",
+						"getAdvanceReportsV2"
+					],
+					"query": [
+						{
+							"key": "vin",
+							"value": "PUNJD22CV0000IIII"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_locationV3",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzMxNTkwNTk1LCJleHAiOjE3MzE1OTA3MTUsInJvbGVzIjoiSkNCIn0.ylXBjQxz_5axOJmHwT-Tu32_a9x2BORmOLjtZm-vIq0"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8088/user/machines/locationV3?latitude=20.258396315962237&longitude=20.258396315962237",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"machines",
+						"locationV3"
+					],
+					"query": [
+						{
+							"key": "latitude",
+							"value": "20.258396315962237"
+						},
+						{
+							"key": "longitude",
+							"value": "20.258396315962237"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_autosuggestion",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzI5MjY5MDk5LCJleHAiOjE3MjkyNjkyMTksInJvbGVzIjoiSkNCIn0.nHC_rXtUvnBPWYktP2MnfwSo6tyXIizbTIbiJx2LrGo"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/machines/autosuggestion?word=&type=ALERT",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"machines",
+						"autosuggestion"
+					],
+					"query": [
+						{
+							"key": "word",
+							"value": ""
+						},
+						{
+							"key": "type",
+							"value": "ALERT"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "/autosuggestion",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8088/user/machines/autosuggestion?word=&type=ALERT",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8088",
+							"path": [
+								"user",
+								"machines",
+								"autosuggestion"
+							],
+							"query": [
+								{
+									"key": "word",
+									"value": ""
+								},
+								{
+									"key": "type",
+									"value": "ALERT"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "transfer-encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 18 Oct 2024 16:32:17 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "[\n    \"Heavy Duty\",\n    \"HAR3DXS4H03119189\",\n    \"HAR3DXXTC02832490\",\n    \"JCBBHLS1J02220002\",\n    \"PUNJD22CV0000IIII\",\n    \"Low Fuel\",\n    \"YELLOW\",\n    \"PUN\",\n    \"BLR\",\n    \"Site D\",\n    \"Site A\"\n]"
+				}
+			]
+		},
+		{
+			"name": "Mobile_GET_alertinfo",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzMxNTkwNzU5LCJleHAiOjE3MzE1OTA4NzksInJvbGVzIjoiSkNCIn0.A0VuNALn7SuSqgLletcOaBQW-XVR67rx6zWDGPDqWsg"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/alerts/alertinfo?id=2&vin=PUNJD22CV0000IIII",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"alerts",
+						"alertinfo"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "2"
+						},
+						{
+							"key": "vin",
+							"value": "PUNJD22CV0000IIII"
+						},
+						{
+							"key": "from",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "to",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "/alertinfo",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8088/user/alerts/alertinfo?id=2&vin=PUNJD22CV0000IIII",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8088",
+							"path": [
+								"user",
+								"alerts",
+								"alertinfo"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "2"
+								},
+								{
+									"key": "vin",
+									"value": "PUNJD22CV0000IIII"
+								},
+								{
+									"key": "from",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "to",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "transfer-encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 22 Oct 2024 14:17:10 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": \"2\",\n    \"vin\": \"PUNJD22CV0000IIII\",\n    \"name\": \"Low Fuel\",\n    \"eventLevel\": \"YELLOW\",\n    \"eventGeneratedTime\": \"2023-12-26 10:00:00\",\n    \"tag\": \"Heavy Duty\",\n    \"thumbnail\": null,\n    \"readFlag\": false,\n    \"platform\": \"Excavator\",\n    \"alertInfoResponse\": {\n        \"alert\": {\n            \"description\": \"Low fuel level detected\",\n            \"location\": \"BLR\",\n            \"profile\": \"Excavator\",\n            \"dealerName\": \"-\",\n            \"dealerNumber\": \"-\",\n            \"alertType\": \"Health\",\n            \"natureOfFault\": \"-\",\n            \"modelName\": \"3DX\",\n            \"isDtcAlert\": false\n        },\n        \"history\": [\n            {\n                \"serviceDate\": \"09 Sep 2024\",\n                \"serviceJobId\": \"123456789\",\n                \"serviceName\": \"Service done\"\n            }\n        ]\n    },\n    \"isActive\": false,\n    \"isDtcAlert\": false\n}"
+				}
+			]
+		},
+		{
+			"name": "Mobile_GET_filters",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/machines/filters?type=MODEL",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"machines",
+						"filters"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "MODEL"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "/filters",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8088/user/machines/filters?type=ALERT",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8088",
+							"path": [
+								"user",
+								"machines",
+								"filters"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "ALERT"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "transfer-encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 22 Oct 2024 19:27:39 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"filters\": [\n        {\n            \"filter\": \"3DX-XTRA\"\n        },\n        {\n            \"filter\": \"3DX\"\n        },\n        {\n            \"filter\": \"Backhoe\"\n        },\n        {\n            \"filter\": \"Excavators\"\n        },\n        {\n            \"filter\": \"Excavator\"\n        }\n    ]\n}"
+				}
+			]
+		},
+		{
+			"name": "Mobile_PUT_notify",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzMxNTkxMTg2LCJleHAiOjE3MzE1OTEzMDYsInJvbGVzIjoiSkNCIn0.CNhxPrEUVDlr5qlHYSkPLhajMrJ8r3T-lvA8uZcc660"
+					}
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "enable",
+						"value": "false",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "true\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8088/user/alerts/notify"
+			},
+			"response": [
+				{
+					"name": "/notify",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "true",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8088/user/alerts/notify"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "transfer-encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 25 Oct 2024 07:30:10 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"Notification has been enabled\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Mobile_GET_Sharelivelink/generatelink",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzMxNTkxMTg2LCJleHAiOjE3MzE1OTEzMDYsInJvbGVzIjoiSkNCIn0.CNhxPrEUVDlr5qlHYSkPLhajMrJ8r3T-lvA8uZcc660"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/machines/generatelink?vin=PUNJD22CV0000IIII&slot=345",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"machines",
+						"generatelink"
+					],
+					"query": [
+						{
+							"key": "vin",
+							"value": "PUNJD22CV0000IIII"
+						},
+						{
+							"key": "slot",
+							"value": "345"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Sharelivelink/generatelink",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8088/user/machines/generatelink?vin=PUNJD22CV0000IIII&slot=48_hours",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8088",
+							"path": [
+								"user",
+								"machines",
+								"generatelink"
+							],
+							"query": [
+								{
+									"key": "vin",
+									"value": "PUNJD22CV0000IIII"
+								},
+								{
+									"key": "slot",
+									"value": "48_hours"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "transfer-encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 25 Oct 2024 18:45:08 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"link\": \"http://localhost:8088/sharelivelinkGdyCNhTpTLXwau1kLV3K0lTxhmJd6WJJTJacgT82k8vU77BccHSr7jZXdetdR17eNR9qd8s09UNSN/djYE9EYg\",\n    \"vin\": \"PUNJD22CV0000IIII\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Mobile_GET_/machineserviceinfoV2",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzMxNTkxMzY0LCJleHAiOjE3MzE1OTE0ODQsInJvbGVzIjoiSkNCIn0.POgk3P2wThT8Dq6Se2KxTJweFQbn1zz_YNuv4g6im2Y"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/machines/machineserviceinfoV2?vin=PUNJD22CV0000IIII",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"machines",
+						"machineserviceinfoV2"
+					],
+					"query": [
+						{
+							"key": "vin",
+							"value": "PUNJD22CV0000IIII"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_Dealer_Customers_On_DashBoard",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzMxNTkxNDkyLCJleHAiOjE3MzE1OTE2MTIsInJvbGVzIjoiSkNCIn0.OCYSu5iMZ19z2TLS3xF7YZWSTmQ1DjFboE3unqVP39M"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8088/user/dealer/dealers/dashboard/customers?pageNumber=0&pageSize=20",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"dealer",
+						"dealers",
+						"dashboard",
+						"customers"
+					],
+					"query": [
+						{
+							"key": "pageNumber",
+							"value": "0"
+						},
+						{
+							"key": "pageSize",
+							"value": "20"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_User_Dealer_Dashboard?type=ALERT",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzMxNTkxNjMxLCJleHAiOjE3MzE1OTE3NTEsInJvbGVzIjoiSkNCIn0.TrNjfDhQ2TeL0emSYbCtha_5SD42oMIodWxRIl7PZkQ"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/dealer/dashboard?type=ALERT",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"dealer",
+						"dashboard"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "ALERT"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "user/dealer/dashboard?type=ALERT",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8088/user/dealer/dashboard",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8088",
+							"path": [
+								"user",
+								"dealer",
+								"dashboard"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "CONNECTIVITY",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "Critical",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "transfer-encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 06 Nov 2024 12:57:23 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"platformDist\": {\n        \"machineCount\": 1,\n        \"keys\": [\n            {\n                \"machineCount\": 1,\n                \"category\": \"RED\"\n            }\n        ]\n    },\n    \"alerts\": {\n        \"machineCount\": 1,\n        \"keys\": [\n            {\n                \"machineCount\": 1,\n                \"category\": \"YELLOW\"\n            }\n        ]\n    },\n    \"serviceStatus\": {\n        \"machineCount\": 1,\n        \"keys\": [\n            {\n                \"machineCount\": 1,\n                \"category\": \"YELLOW\"\n            }\n        ]\n    },\n    \"utilization\": {\n        \"machineCount\": 1,\n        \"keys\": [\n            {\n                \"machineCount\": 1,\n                \"category\": \"YELLOW\"\n            }\n        ]\n    },\n    \"machineLocator\": {\n        \"machineCount\": 1,\n        \"keys\": []\n    },\n    \"connectivity\": {\n        \"machineCount\": 1,\n        \"keys\": [\n            {\n                \"machineCount\": 1,\n                \"category\": \"SUBSCRIBED_COUNT\"\n            }\n        ]\n    },\n    \"topCustomers\": {\n        \"machineCount\": 1,\n        \"customerInfo\": [\n            {\n                \"customerName\": \"Rituraj\",\n                \"customerId\": \"Ritu388896\",\n                \"machineCount\": 1,\n                \"platforms\": [\n                    {\n                        \"machineCount\": 1,\n                        \"category\": \"Android\"\n                    },\n                    {\n                        \"machineCount\": 1,\n                        \"category\": \"Web\"\n                    },\n                    {\n                        \"machineCount\": 1,\n                        \"category\": \"BlackBerry\"\n                    }\n                ]\n            }\n        ],\n        \"platforms\": [\n            {\n                \"platform\": \"Loadall\"\n            },\n            {\n                \"platform\": \"Backhoe\"\n            },\n            {\n                \"platform\": \"Excavators\"\n            },\n            {\n                \"platform\": \"Excavator\"\n            }\n        ]\n    },\n    \"warranty\": {\n        \"machineCount\": 200,\n        \"keys\": [\n            {\n                \"machineCount\": 100,\n                \"category\": \"UNDER_WARRANTY\"\n            },\n            {\n                \"machineCount\": 100,\n                \"category\": \"WARRANTY_EXPIRED\"\n            }\n        ]\n    },\n    \"renewalStatus\": {\n        \"machineCount\": 1,\n        \"keys\": []\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "Mobile_GET_User_Alerts_getNotificationList",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzMxMDUzNTc3LCJleHAiOjE3MzEwNTQ0NzcsInJvbGVzIjoiSkNCIn0.-jODa8tiUiIc_8xoNZ2gMR-fWTakFwF3wEhZBYTzdCs"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/alerts/getNotificationList?pageNumber=0&pageSize",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"alerts",
+						"getNotificationList"
+					],
+					"query": [
+						{
+							"key": "pageNumber",
+							"value": "0"
+						},
+						{
+							"key": "pageSize",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "/user/alerts/getNotificationList",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8088/user/alerts/getNotificationList?pageNumber=0&pageSize",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8088",
+							"path": [
+								"user",
+								"alerts",
+								"getNotificationList"
+							],
+							"query": [
+								{
+									"key": "pageNumber",
+									"value": "0"
+								},
+								{
+									"key": "pageSize",
+									"value": null
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "transfer-encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 08 Nov 2024 08:16:21 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"notificationData\": [\n        {\n            \"date\": \"2024-10-18\",\n            \"notificationList\": [\n                {\n                    \"id\": 1,\n                    \"vin\": \"JCBBHLS1J02220002\",\n                    \"alertId\": \"13\",\n                    \"alertTitle\": \"Low Fuel\",\n                    \"alertDesc\": \"Low Fuel\",\n                    \"alertTime\": \"2024-10-18 00:00\",\n                    \"createdAt\": \"2024-10-18 00:00\",\n                    \"updatedAt\": \"2024-10-18\",\n                    \"deletedAt\": \"2024-10-18\",\n                    \"notificationHeader\": \"New Push Notification\",\n                    \"notificationDescription\": \"New Push Notification\",\n                    \"date\": \"2024-10-18\",\n                    \"type\": \"Security\",\n                    \"user_id\": \"Ritu388896\",\n                    \"flag\": false\n                }\n            ]\n        },\n        {\n            \"date\": \"2024-10-17\",\n            \"notificationList\": [\n                {\n                    \"id\": 2,\n                    \"vin\": \"JCBBHLS1J02220002\",\n                    \"alertId\": \"13\",\n                    \"alertTitle\": \"Low Fuel\",\n                    \"alertDesc\": \"Low Fuel\",\n                    \"alertTime\": \"2024-10-17 00:00\",\n                    \"createdAt\": \"2024-10-17 00:00\",\n                    \"updatedAt\": \"2024-10-17\",\n                    \"deletedAt\": \"2024-10-17\",\n                    \"notificationHeader\": \"New Push Notification\",\n                    \"notificationDescription\": \"New Push Notification\",\n                    \"date\": \"2024-10-17\",\n                    \"type\": \"Security\",\n                    \"user_id\": \"Ritu388896\",\n                    \"flag\": false\n                }\n            ]\n        }\n    ]\n}"
+				}
+			]
+		},
+		{
+			"name": "Mobile_User_Alerts_readnotification",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSaXR1Mzg4ODk2IiwiaWF0IjoxNzMxNTkxOTU1LCJleHAiOjE3MzE1OTIwNzUsInJvbGVzIjoiSkNCIn0.ukG1A9vmCL_50fUaVD0KY1dwUar3D-38r9XLKl_qacg"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/alerts/readnotification?notificationType=ALL&id=",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"alerts",
+						"readnotification"
+					],
+					"query": [
+						{
+							"key": "notificationType",
+							"value": "ALL"
+						},
+						{
+							"key": "id",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "http://localhost:8088/user/alerts/readnotification?notificationType&id",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8088/user/alerts/readnotification?notificationType=Security&alertId=4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8088",
+							"path": [
+								"user",
+								"alerts",
+								"readnotification"
+							],
+							"query": [
+								{
+									"key": "notificationType",
+									"value": "Security"
+								},
+								{
+									"key": "alertId",
+									"value": "4"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "transfer-encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Mon, 11 Nov 2024 14:05:27 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"ID not present in DB for the userID: Ritu388896\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Mobile_GET_Machine_Profile",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJWaWthOTc3NTUwIiwiaWF0IjoxNzMxNDgyMjkyLCJleHAiOjE3MzE3NDE0OTIsInJvbGVzIjoiSkNCIn0.tgMXkx44Ee8MouZXkonRl-Xqm3TpnkRhuocHO00FSco"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/machines/machineprofile?vin=HAR3DXXTC02832490",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"machines",
+						"machineprofile"
+					],
+					"query": [
+						{
+							"key": "vin",
+							"value": "HAR3DXXTC02832490"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_PUT_MAchine_Profile",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJWaWthOTc3NTUwIiwiaWF0IjoxNzMxNDgyMjkyLCJleHAiOjE3MzE3NDE0OTIsInJvbGVzIjoiSkNCIn0.tgMXkx44Ee8MouZXkonRl-Xqm3TpnkRhuocHO00FSco"
+					}
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "image",
+							"type": "file",
+							"src": "/Users/vi20475016/Desktop/testing.png"
+						},
+						{
+							"key": "operatorName",
+							"value": "ABC",
+							"type": "text"
+						},
+						{
+							"key": "vin",
+							"value": "HAR3DXXTC02832490",
+							"type": "text"
+						},
+						{
+							"key": "jcbCertified",
+							"value": "false",
+							"type": "text"
+						}
+					]
+				},
+				"url": "http://localhost:8088/user/machines/machineprofile"
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_POST_User_Machines_setmachinegeofenceparam",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJWaWthOTc3NTUwIiwiaWF0IjoxNzMxNDgyMjkyLCJleHAiOjE3MzE3NDE0OTIsInJvbGVzIjoiSkNCIn0.tgMXkx44Ee8MouZXkonRl-Xqm3TpnkRhuocHO00FSco"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"centerLatitude\": 18.773166666666672,\n    \"centerLongitude\": 73.69824166666668,\n    \"radis\": 1,\n    \"vin\": \"HAR3DXXTC02832490\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8088/user/machines/setmachinegeofenceparam"
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_POST_User_Machines_setmachinetimefenceparam",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJWaWthOTc3NTUwIiwiaWF0IjoxNzMxNDgyMjkyLCJleHAiOjE3MzE3NDE0OTIsInJvbGVzIjoiSkNCIn0.tgMXkx44Ee8MouZXkonRl-Xqm3TpnkRhuocHO00FSco"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"endTime\":\"8:57 PM\",\n    \"startTime\":\"8:57 PM\",\n    \"vin\":\"HAR3DXXTC02832490\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8088/user/machines/setmachinetimefenceparam"
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_Machine_machinelocation",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJWaWthOTc3NTUwIiwiaWF0IjoxNzMxNDgyMjkyLCJleHAiOjE3MzE3NDE0OTIsInJvbGVzIjoiSkNCIn0.tgMXkx44Ee8MouZXkonRl-Xqm3TpnkRhuocHO00FSco"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/machines/machinelocation?vin=HAR3DXS4H03119189&pageNumber=0&pageSize=6",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"machines",
+						"machinelocation"
+					],
+					"query": [
+						{
+							"key": "vin",
+							"value": "HAR3DXS4H03119189"
+						},
+						{
+							"key": "pageNumber",
+							"value": "0"
+						},
+						{
+							"key": "pageSize",
+							"value": "6"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_User_Machine_machinelocationhistory",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJWaWthOTc3NTUwIiwiaWF0IjoxNzI4NTQ5NDIxLCJleHAiOjE3Mjg2MzU4MjEsInJvbGVzIjoiSkNCIn0.SKPweCmEC3WfAPX0ct5qNIU5_oUeNI_zyhWPTxLhiAY"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/machines/machinelocationhistory?vin=HAR3DXS4H03119189&date=2024-10-05",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"machines",
+						"machinelocationhistory"
+					],
+					"query": [
+						{
+							"key": "vin",
+							"value": "HAR3DXS4H03119189"
+						},
+						{
+							"key": "date",
+							"value": "2024-10-05"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_User_Machine_machineutilizationreport",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJWaWthOTc3NTUwIiwiaWF0IjoxNzMxNDgyMjkyLCJleHAiOjE3MzE3NDE0OTIsInJvbGVzIjoiSkNCIn0.tgMXkx44Ee8MouZXkonRl-Xqm3TpnkRhuocHO00FSco"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/machines/machineutilizationreport?vin=HAR3DXS4H03119189&startDate=2023-3-1&endDate=2023-3-2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"machines",
+						"machineutilizationreport"
+					],
+					"query": [
+						{
+							"key": "vin",
+							"value": "HAR3DXS4H03119189"
+						},
+						{
+							"key": "startDate",
+							"value": "2023-3-1"
+						},
+						{
+							"key": "endDate",
+							"value": "2023-3-2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_User_Machine_fuelutilizationreport",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJWaWthOTc3NTUwIiwiaWF0IjoxNzMxNDgyMjkyLCJleHAiOjE3MzE3NDE0OTIsInJvbGVzIjoiSkNCIn0.tgMXkx44Ee8MouZXkonRl-Xqm3TpnkRhuocHO00FSco"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/machines/fuelutilizationreport?vin=HAR3DXS4H03119189&startDate=2023-3-1&endDate=2023-3-27",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"machines",
+						"fuelutilizationreport"
+					],
+					"query": [
+						{
+							"key": "vin",
+							"value": "HAR3DXS4H03119189"
+						},
+						{
+							"key": "startDate",
+							"value": "2023-3-1"
+						},
+						{
+							"key": "endDate",
+							"value": "2023-3-27"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_User_Machines_setgeofence",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJWaWthOTc3NTUwIiwiaWF0IjoxNzMxNDgyMjkyLCJleHAiOjE3MzE3NDE0OTIsInJvbGVzIjoiSkNCIn0.tgMXkx44Ee8MouZXkonRl-Xqm3TpnkRhuocHO00FSco"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"address\": \"R9JGFVM, Shirur, Maharashtra 412210, India\",\n    \"notificationDetails\": {\n        \"sms\": \"1\"\n    },\n    \"isArrival\": \"1\",\n    \"isDepature\": \"1\",\n    \"landmarkId\": 3011,\n    \"landmarkName\": \"malur\",\n    \"latitude\": \"18.831250628074443\",\n    \"longitude\": \"74.37826417386532\",\n    \"machineType\": \"LL4\",\n    \"mobileNumber\": \"1212121272\",\n    \"radius\": 24.0,\n    \"vin\": \"HAR3DXS4H03054165\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8088/user/machines/setgeofence"
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_User_Reports_getAdvanceReportsV2",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJWaWthOTc3NTUwIiwiaWF0IjoxNzMxNDgyMjkyLCJleHAiOjE3MzE3NDE0OTIsInJvbGVzIjoiSkNCIn0.tgMXkx44Ee8MouZXkonRl-Xqm3TpnkRhuocHO00FSco"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/reports/getAdvanceReportsV2?vin=HAR3DXS4H03119189",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"reports",
+						"getAdvanceReportsV2"
+					],
+					"query": [
+						{
+							"key": "vin",
+							"value": "HAR3DXS4H03119189"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_User_Reports_reportV2",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJWaWthOTc3NTUwIiwiaWF0IjoxNzMxNDgyMjkyLCJleHAiOjE3MzE3NDE0OTIsInJvbGVzIjoiSkNCIn0.tgMXkx44Ee8MouZXkonRl-Xqm3TpnkRhuocHO00FSco"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/reports/reportV2?filter=HAR3DXS4H03119189&startDate=2024-10-08&endDate=2024-10-11",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"reports",
+						"reportV2"
+					],
+					"query": [
+						{
+							"key": "filter",
+							"value": "HAR3DXS4H03119189"
+						},
+						{
+							"key": "startDate",
+							"value": "2024-10-08"
+						},
+						{
+							"key": "endDate",
+							"value": "2024-10-11"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_User_Reports_getVisualizationReportsV2",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJWaWthOTc3NTUwIiwiaWF0IjoxNzMxNDgyMjkyLCJleHAiOjE3MzE3NDE0OTIsInJvbGVzIjoiSkNCIn0.tgMXkx44Ee8MouZXkonRl-Xqm3TpnkRhuocHO00FSco"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/reports/getVisualizationReportsV2?vin=HAR3DXS4H03119189&startDate=2024-10-07&endDate=2024-10-11",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"reports",
+						"getVisualizationReportsV2"
+					],
+					"query": [
+						{
+							"key": "vin",
+							"value": "HAR3DXS4H03119189"
+						},
+						{
+							"key": "startDate",
+							"value": "2024-10-07"
+						},
+						{
+							"key": "endDate",
+							"value": "2024-10-11"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_User_Reports_getAdvanceReportsV3",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJWaWthOTc3NTUwIiwiaWF0IjoxNzI5NDk4NTg0LCJleHAiOjE3MzAxMDMzODQsInJvbGVzIjoiSkNCIn0.OCVREx7QYld_xz41KPxBNHda4dIn67xStcm_1kxFUI4"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/reports/getAdvanceReportsV3?vin=HAR3DXS4H03119189",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"reports",
+						"getAdvanceReportsV3"
+					],
+					"query": [
+						{
+							"key": "vin",
+							"value": "HAR3DXS4H03119189"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_User_Reports_getVisualizationReportsV3",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJWaWthOTc3NTUwIiwiaWF0IjoxNzMxNDgyMjkyLCJleHAiOjE3MzE3NDE0OTIsInJvbGVzIjoiSkNCIn0.tgMXkx44Ee8MouZXkonRl-Xqm3TpnkRhuocHO00FSco"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/reports/getVisualizationReportsV3?vin=HAR3DXS4H03119189&startDate=2024-10-10&endDate=2024-10-16",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"reports",
+						"getVisualizationReportsV3"
+					],
+					"query": [
+						{
+							"key": "vin",
+							"value": "HAR3DXS4H03119189"
+						},
+						{
+							"key": "startDate",
+							"value": "2024-10-10"
+						},
+						{
+							"key": "endDate",
+							"value": "2024-10-16"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_User_Reports_getIntelliReportsV3",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJWaWthOTc3NTUwIiwiaWF0IjoxNzMxNDgyMjkyLCJleHAiOjE3MzE3NDE0OTIsInJvbGVzIjoiSkNCIn0.tgMXkx44Ee8MouZXkonRl-Xqm3TpnkRhuocHO00FSco"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/reports/getIntelliReportsV3?vin=HAR3DXS4H03119189&startDate=2024-10-10&endDate=2024-10-16",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"reports",
+						"getIntelliReportsV3"
+					],
+					"query": [
+						{
+							"key": "vin",
+							"value": "HAR3DXS4H03119189"
+						},
+						{
+							"key": "startDate",
+							"value": "2024-10-10"
+						},
+						{
+							"key": "endDate",
+							"value": "2024-10-16"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_User_Reports_joinpremium",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJWaWthOTc3NTUwIiwiaWF0IjoxNzMxNDgyMjkyLCJleHAiOjE3MzE3NDE0OTIsInJvbGVzIjoiSkNCIn0.tgMXkx44Ee8MouZXkonRl-Xqm3TpnkRhuocHO00FSco"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/reports/joinpremium?vin=HAR3DXS4H03119189",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"reports",
+						"joinpremium"
+					],
+					"query": [
+						{
+							"key": "vin",
+							"value": "HAR3DXS4H03119189"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_User_Reports_premiummachineimages",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJWaWthOTc3NTUwIiwiaWF0IjoxNzI5NDk4NTg0LCJleHAiOjE3MzAxMDMzODQsInJvbGVzIjoiSkNCIn0.OCVREx7QYld_xz41KPxBNHda4dIn67xStcm_1kxFUI4"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8088/user/reports/premiummachineimages"
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_User_Reports_pdfreport",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJWaWthOTc3NTUwIiwiaWF0IjoxNzMxNDgyMjkyLCJleHAiOjE3MzE3NDE0OTIsInJvbGVzIjoiSkNCIn0.tgMXkx44Ee8MouZXkonRl-Xqm3TpnkRhuocHO00FSco"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/reports/pdfreport?vin=HAR3DXS4H03119189&type=pdf",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"reports",
+						"pdfreport"
+					],
+					"query": [
+						{
+							"key": "vin",
+							"value": "HAR3DXS4H03119189"
+						},
+						{
+							"key": "type",
+							"value": "pdf"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mobile_GET_User_Reports_pdfreport",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJWaWthOTc3NTUwIiwiaWF0IjoxNzMxNDgyMjkyLCJleHAiOjE3MzE3NDE0OTIsInJvbGVzIjoiSkNCIn0.tgMXkx44Ee8MouZXkonRl-Xqm3TpnkRhuocHO00FSco"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8088/user/reports/pdfreport?vin=HAR3DXS4H03119189&type=json",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8088",
+					"path": [
+						"user",
+						"reports",
+						"pdfreport"
+					],
+					"query": [
+						{
+							"key": "vin",
+							"value": "HAR3DXS4H03119189"
+						},
+						{
+							"key": "type",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

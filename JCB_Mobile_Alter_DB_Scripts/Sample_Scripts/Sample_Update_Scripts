@@ -1,0 +1,22 @@
+UPDATE `microservices_db`.`alert`
+SET
+`alert_id` = <{alert_id: }>,
+`created_at` = <{created_at: CURRENT_TIMESTAMP}>,
+`created_by` = <{created_by: }>,
+`event_description` = <{event_description: }>,
+`event_generated_time` = <{event_generated_time: }>,
+`event_level` = <{event_level: }>,
+`event_name` = <{event_name: }>,
+`event_type` = <{event_type: }>,
+`is_customer_visible` = <{is_customer_visible: }>,
+`is_dtc_alert` = <{is_dtc_alert: }>,
+`is_generated` = <{is_generated: }>,
+`is_open` = <{is_open: }>,
+`is_updated` = <{is_updated: }>,
+`latitude` = <{latitude: }>,
+`location` = <{location: }>,
+`longitude` = <{longitude: }>,
+`read_flag` = <{read_flag: }>,
+`updated_at` = <{updated_at: CURRENT_TIMESTAMP}>,
+`vin` = <{vin: }>
+WHERE `alert_id` = <{expr}>;
