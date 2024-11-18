@@ -115,5 +115,7 @@ public interface MachineService {
     UtilizationReport getFuelUtilization(String vin, Date startDate, Date endDate);
     
     String setGeoFenceParam(GeofenceRequest gfSetRequest,String userName,String machineType,String tokenId) throws Exception;
+    
+    GeofenceRequest getGeofenceDetails(String vin,String userName,String token);
 
 }

@@ -229,7 +229,7 @@ public class MachineController {
     })
     @Transactional(readOnly = true)
     @GetMapping("/machineprofile")
-    public ResponseEntity<?> getMachineProfile(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails, @RequestParam(required = false) String vin) {
+    public ResponseEntity<?> getMachineProfile(@RequestHeader(MessagesList.LOGGED_IN_USER_ROLE) String userDetails, @RequestParam(required = false) String vin) {
         UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
         String userName = userResponse.getUserName();
         try {
@@ -265,7 +265,7 @@ public class MachineController {
             @ApiResponse(responseCode = "500", description = "Request failed")
     })
     @PutMapping(value = "/machineprofile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> putMachineProfile(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+    public ResponseEntity<?> putMachineProfile(@RequestHeader(MessagesList.LOGGED_IN_USER_ROLE) String userDetails,
                                                @RequestPart(value = "operatorName", required = false) String operatorName, @RequestPart("vin") String vin,
                                                @RequestPart(value = "tag", required = false) String tag,
                                                @RequestPart(value = "hours", required = false) String hours,
@@ -312,7 +312,7 @@ public class MachineController {
             @ApiResponse(responseCode = "401", description = "Auth Failed"),
             @ApiResponse(responseCode = "500", description = "Request failed")})
     @PostMapping("/setmachinegeofenceparam")
-    public ResponseEntity<?> setGeoFencingForMachine(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+    public ResponseEntity<?> setGeoFencingForMachine(@RequestHeader(MessagesList.LOGGED_IN_USER_ROLE) String userDetails,
                                                      @RequestBody GeofenceSetRequest geofenceSetRequest) {
         try {
             UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
@@ -354,7 +354,7 @@ public class MachineController {
             @ApiResponse(responseCode = "401", description = "Auth Failed"),
             @ApiResponse(responseCode = "500", description = "Request failed")})
     @PostMapping("/setmachinetimefenceparam")
-    public ResponseEntity<?> setTimeFencingForMachine(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+    public ResponseEntity<?> setTimeFencingForMachine(@RequestHeader(MessagesList.LOGGED_IN_USER_ROLE) String userDetails,
                                                       @RequestBody TimefenceSetRequest timefenceSetRequest) {
         try {
             UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
@@ -392,7 +392,7 @@ public class MachineController {
             @ApiResponse(responseCode = "401", description = "Auth Failed"),
             @ApiResponse(responseCode = "500", description = "Request failed")})
     @GetMapping("/machinelocation")
-    public ResponseEntity<?> getMachineLocationDetail(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+    public ResponseEntity<?> getMachineLocationDetail(@RequestHeader(MessagesList.LOGGED_IN_USER_ROLE) String userDetails,
                                                       @RequestParam(value = "vin", required = false) String vin, @RequestParam("pageNumber") String pageNumber,
                                                       @RequestParam(value = "pageSize", defaultValue = "${machines.location.pageSize}") String pageSize) {
         String userName = null;
@@ -437,7 +437,7 @@ public class MachineController {
             @ApiResponse(responseCode = "401", description = "Auth Failed"),
             @ApiResponse(responseCode = "500", description = "Request failed")})
     @GetMapping("/machinelocationhistory")
-    public ResponseEntity<?> getMachineLocationHistory(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+    public ResponseEntity<?> getMachineLocationHistory(@RequestHeader(MessagesList.LOGGED_IN_USER_ROLE) String userDetails,
                                                        @RequestParam(value = "vin", required = false) String vin,
                                                        @RequestParam(value = "date", required = false) String date) {
         String userName = null;
@@ -498,7 +498,7 @@ public class MachineController {
             @ApiResponse(responseCode = "500", description = "Request failed")})
     @GetMapping("/machineutilizationreport")
     public ResponseEntity<?> getMachineUtilizationReport(
-            @RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+            @RequestHeader(MessagesList.LOGGED_IN_USER_ROLE) String userDetails,
             @RequestParam(value = "vin", required = false) String vin,
             @RequestParam(value = "startDate", required = false) String startDate,
             @RequestParam(value = "endDate", required = false) String endDate) {
@@ -613,7 +613,7 @@ public class MachineController {
             @ApiResponse(responseCode = "500", description = "Request failed")})
     @Transactional(readOnly = true)
     @GetMapping("/fuelutilizationreport")
-    public ResponseEntity<?> getFuelUtilizationReport(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+    public ResponseEntity<?> getFuelUtilizationReport(@RequestHeader(MessagesList.LOGGED_IN_USER_ROLE) String userDetails,
                                                       @RequestParam(value = "vin", required = false) String vin,
                                                       @RequestParam(value = "startDate", required = false) String startDate,
                                                       @RequestParam(value = "endDate", required = false) String endDate) {

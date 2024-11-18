@@ -42,11 +42,15 @@ public class MessagesList {
 
     public static final String RENEWAL_ALERT ="The selected VIN not renewed, so please renewal to view the details.";
     
-    public static final String LoggedInUserRole = "LoggedInUserRole";
+    public static final String LOGGED_IN_USER_ROLE = "LoggedInUserRole";
 	public static final String NO_FIRMWARE = "No Firmware";
 	public static final String LL2 = "LL2";
 	public static final String LL4 = "LL4";
 	public static final String SUCCESS = "SUCCESS";
 	public static final String UPDATESUCCESS = "UPDATE-SUCCESS";
 	public static final String FAILURE = "FAILURE";
+	
+	//Wise URL
+	public static final String SET_LANDMARK_DETAILS = "/v05/WorkManagement/geoFenceService/SetLandmarkDetails";
+	public static final String GET_LANDMARK_DETAILS = "/v05/WorkManagement/geoFenceService/GetLandmarkDetails";
 }

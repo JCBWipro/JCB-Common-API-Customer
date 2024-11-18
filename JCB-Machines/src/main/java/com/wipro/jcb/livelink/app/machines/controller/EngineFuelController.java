@@ -179,7 +179,7 @@ public class EngineFuelController {
             @ApiResponse(responseCode = "500", description = "Request failed", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))})})
     @GetMapping( "/getEngineFuelDataV3")
     public ResponseEntity<?> getEngineFuelDataV3(
-            @RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+            @RequestHeader(MessagesList.LOGGED_IN_USER_ROLE) String userDetails,
             @RequestParam("vin") String vin,
             @RequestParam(value = "startDate", defaultValue = "optional") String startDate,
             @RequestParam(value = "endDate", defaultValue = "optional") String endDate) {
@@ -252,7 +252,7 @@ public class EngineFuelController {
             @ApiResponse(responseCode = "500", description = "Request failed", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))})})
 
     @PostMapping(value = "/feedback", produces = { MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<?> userFeedback(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+    public ResponseEntity<?> userFeedback(@RequestHeader(MessagesList.LOGGED_IN_USER_ROLE) String userDetails,
                                           @RequestBody FeedbackRequest feedbackRequest) {
         try {
             UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
