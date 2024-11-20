@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.HttpURLConnection;
@@ -140,7 +141,7 @@ public class UserProfileController {
 			@ApiResponse(responseCode = "500", description = "Request failed", content = {
 					@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)) }) })
 	@PostMapping("/setgeofence")
-	public ResponseEntity<?> setGeoFence(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+	public ResponseEntity<?> setGeoFence(@RequestHeader(MessagesList.LOGGED_IN_USER_ROLE) String userDetails,
 			@RequestBody GeofenceRequest geofenceParam) {
 		try {
 			UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
@@ -210,5 +211,42 @@ public class UserProfileController {
 			reason = "Please provide valid value for geofence";
 		}
 		return reason;
+	}
+	
+	/*
+	 * API to Get Geofence Details
+	 */
+	@CrossOrigin
+	@Operation(summary = "Get Geofence Details for machines")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Geofencing information is updated for machinegeofence", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = MachineListResponse.class)) }),
+			@ApiResponse(responseCode = "401", description = "Auth Failed", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)) }),
+			@ApiResponse(responseCode = "500", description = "Request failed", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)) }) })
+	@Transactional(readOnly = false)
+	@GetMapping("/getgeofence")
+	public ResponseEntity<?> getGeofenceDetils(@RequestHeader(MessagesList.LOGGED_IN_USER_ROLE) String userDetails,
+			@RequestParam("vin") String vin) {
+		try {
+			UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+			String userName = userResponse.getUserName();
+			log.info("getGeofenceDetils() Method Started " + vin + "-" + userName);
+			if (userName != null) {
+				return new ResponseEntity<GeofenceRequest>(machineService.getGeofenceDetails(vin, userName, "optional"),
+						HttpStatus.OK);
+			} else {
+				log.info("Get Geofence : No Vallid session present");
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+
+		} catch (final Exception e) {
+			log.error("Issue faced while get geofence");
+			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 }

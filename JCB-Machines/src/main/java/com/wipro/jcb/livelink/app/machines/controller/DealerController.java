@@ -68,7 +68,7 @@ public class DealerController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
     })
 
-    public ResponseEntity<?> getDealerAllCustomers(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+    public ResponseEntity<?> getDealerAllCustomers(@RequestHeader(MessagesList.LOGGED_IN_USER_ROLE) String userDetails,
                                                    @RequestParam("pageNumber") String pageNumber,
                                                    @RequestParam(value = "pageSize", defaultValue = "${controller.dealer.home.pageSize}") String pageSize,
                                                    @RequestParam(value = "search", defaultValue = "optional") String search) {
@@ -100,7 +100,7 @@ public class DealerController {
             @ApiResponse(responseCode = "401", description = "Auth Failed", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))}),
             @ApiResponse(responseCode = "500", description = "Request failed", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))})})
     @GetMapping("/dashboard/details")
-	public ResponseEntity<?> getDashboardDetails(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+	public ResponseEntity<?> getDashboardDetails(@RequestHeader(MessagesList.LOGGED_IN_USER_ROLE) String userDetails,
 			@RequestParam("pageNumber") String pageNumber,
 			@RequestParam(value = "pageSize", defaultValue = "${controller.dealer.home.pageSize}") String pageSize,
 			@RequestParam(value = "distributor", defaultValue = "optional") String distributor,
@@ -138,7 +138,7 @@ public class DealerController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
     })
     @Transactional(timeout = ConstantConfig.REQUEST_TIMEOUT, readOnly = true)
-    public ResponseEntity<?> getDashboardData(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+    public ResponseEntity<?> getDashboardData(@RequestHeader(MessagesList.LOGGED_IN_USER_ROLE) String userDetails,
                                               @RequestParam(value = "search", defaultValue = "optional") String search,
                                               @RequestParam(value = "type", defaultValue = "optional") String type) {
         UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
@@ -180,7 +180,7 @@ public class DealerController {
 	@Transactional(timeout = ConstantConfig.REQUEST_TIMEOUT, readOnly = true)
 	@GetMapping("/dashboard/customer/machinesV3")
 	public ResponseEntity<?> getCustomerMachinesVThreee(
-			@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+			@RequestHeader(MessagesList.LOGGED_IN_USER_ROLE) String userDetails,
 			@RequestParam("customerId") String customerId, @RequestParam("pageNumber") String pageNumber,
 			@RequestParam("distributer") String distributer, @RequestParam("keyParam") String keyParam,
 			@RequestParam("tabSeparator") String tabSeparator,

@@ -7,5 +7,7 @@ import com.wipro.jcb.livelink.app.machines.entity.MachineGeofence;
 
 @Repository
 public interface MachineGeofenceRepository extends CrudRepository<MachineGeofence, String> {
+	
+	MachineGeofence findByVin(String vin);
 
 }
