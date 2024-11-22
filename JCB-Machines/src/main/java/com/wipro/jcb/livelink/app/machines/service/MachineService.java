@@ -117,5 +117,7 @@ public interface MachineService {
     String setGeoFenceParam(GeofenceRequest gfSetRequest,String userName,String machineType,String tokenId) throws Exception;
     
     GeofenceRequest getGeofenceDetails(String vin,String userName,String token);
+    
+    String deleteGeofenceDetails(GeofenceRequest geofenceParam, String userName, String tokenId);
 
 }

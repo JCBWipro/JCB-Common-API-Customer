@@ -53,4 +53,5 @@ public class MessagesList {
 	//Wise URL
 	public static final String SET_LANDMARK_DETAILS = "/v05/WorkManagement/geoFenceService/SetLandmarkDetails";
 	public static final String GET_LANDMARK_DETAILS = "/v05/WorkManagement/geoFenceService/GetLandmarkDetails";
+	public static final String DELETE_LANDMARK_DETAILS = "/v02/WorkManagement/geoFenceService/DeleteLandmark";
 }
