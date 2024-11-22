@@ -1132,4 +1132,77 @@ public class MachineServiceImpl implements MachineService {
 		}
 		return geofenceResponse;
 	}
+	
+	@Override
+	public String deleteGeofenceDetails(GeofenceRequest geofenceParam, String userName, String livelinkTokenId) {
+		String response = null;
+		String livelinkToken = "37aa1b15_20240522150705";
+		try {
+			if (geofenceParam.getLandmarkId() != null) {
+
+				final Client client = Client.create();
+				client.setConnectTimeout(connectTimeout);
+				client.setReadTimeout(readTimeout);
+
+				final String deleteGeofence = AppServerConstants.livelinkAppServerBaseUrl+ MessagesList.DELETE_LANDMARK_DETAILS;
+
+				JSONObject object = new JSONObject();
+				object.put("LoginID", userName);
+				object.put("Landmark_id", geofenceParam.getLandmarkId());
+
+				final WebResource deletefenceDatawebResource = client.resource(deleteGeofence);
+				final ClientResponse deletefenceDataResponse = deletefenceDatawebResource
+						.header("Orgkey", AppServerConstants.livelinkAppServerOrgKey)
+						.header("TokenId", livelinkToken)
+						.type("application/json")
+						.post(ClientResponse.class, object.toString());
+				
+				if (deletefenceDataResponse.getStatus() == HttpServletResponse.SC_OK) {
+
+					String responseStatus = deletefenceDataResponse.getEntity(String.class);
+					if (responseStatus.equalsIgnoreCase(MessagesList.SUCCESS)) {
+
+						machineGeofenceRepository.deleteByLandmarkId(geofenceParam.getLandmarkId());
+						log.info("Geofence Delete Status:{}", responseStatus);
+						return responseStatus;
+					} else {
+						log.info("Geofence Delete Status:{}", responseStatus);
+						if (responseStatus.contains("TokenId is null or Invalid")) {
+							final User user = userRepository.findByUserName(userName);
+							if (user != null) {
+								livelinkToken = null;
+								livelinkToken = utilities.updateLivelinkServerToken(user, true);
+								return deleteGeofenceDetails(geofenceParam, userName, livelinkToken);
+							}
+						} else {
+							return responseStatus;
+						}
+					}
+				} else {
+					log.error("Set Geofence Wipro API Response");
+					log.error("Status:{}", deletefenceDataResponse.getStatus());
+					log.error("geofenceDataResponse:{}", deletefenceDataResponse);
+					log.error("VIN:{}", geofenceParam.getVin());
+
+					if (deletefenceDataResponse.getStatus() == HttpServletResponse.SC_UNAUTHORIZED) {
+						final User user = userRepository.findByUserName(userName);
+						if (user != null) {
+							livelinkToken = null;
+							livelinkToken = utilities.updateLivelinkServerToken(user, true);
+							return deleteGeofenceDetails(geofenceParam, userName, livelinkToken);
+						}
+					} else {
+						return MessagesList.FAILURE;
+					}
+				}
+			} else {
+				log.error("No data found in selected landmark " + geofenceParam.getLandmarkId());
+				response = MessagesList.FAILURE;
+			}
+		} catch (Exception e) {
+			response = MessagesList.FAILURE;
+			e.printStackTrace();
+		}
+		return response;
+	}
 }
