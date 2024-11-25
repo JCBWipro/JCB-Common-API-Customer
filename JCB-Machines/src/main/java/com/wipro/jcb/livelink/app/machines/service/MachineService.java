@@ -119,5 +119,7 @@ public interface MachineService {
     GeofenceRequest getGeofenceDetails(String vin,String userName,String token);
     
     String deleteGeofenceDetails(GeofenceRequest geofenceParam, String userName, String tokenId);
+    
+    GeofenceLandmarkResponse getLandmarkDetails(String userName, String landmarkName,String livelinkTokenId,String vin);
 
 }

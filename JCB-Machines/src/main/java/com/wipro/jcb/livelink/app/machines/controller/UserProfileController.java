@@ -1,6 +1,7 @@
 package com.wipro.jcb.livelink.app.machines.controller;
 
 import com.wipro.jcb.livelink.app.machines.commonUtils.AuthCommonUtils;
+import com.wipro.jcb.livelink.app.machines.constants.ConstantConfig;
 import com.wipro.jcb.livelink.app.machines.constants.MessagesList;
 import com.wipro.jcb.livelink.app.machines.dto.ResponseData;
 import com.wipro.jcb.livelink.app.machines.dto.UserDetails;
@@ -9,6 +10,7 @@ import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.machines.request.GeofenceRequest;
 import com.wipro.jcb.livelink.app.machines.service.MachineService;
 import com.wipro.jcb.livelink.app.machines.service.UserService;
+import com.wipro.jcb.livelink.app.machines.service.response.GeofenceLandmarkResponse;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineDownQuestionResponse;
 import com.wipro.jcb.livelink.app.machines.service.response.MachineListResponse;
 import com.wipro.jcb.livelink.app.machines.service.response.UserProfile;
@@ -294,6 +296,49 @@ public class UserProfileController {
 
 		} catch (final Exception e) {
 			log.error("Issue faced while delete geofence");
+			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	/*
+	 * API to Get Geofence Landmark Details
+	 */
+	@CrossOrigin
+	@Operation(summary = "Get Geofence Landmark Details")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Get Geofence Landmark Details", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = MachineListResponse.class)) }),
+			@ApiResponse(responseCode = "401", description = "Auth Failed", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)) }),
+			@ApiResponse(responseCode = "500", description = "Request failed", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)) }) })
+	@Transactional(timeout = ConstantConfig.REQUEST_TIMEOUT, readOnly = false)
+	@GetMapping("/getlandmarks")
+	public ResponseEntity<?> getLandmarks(@RequestHeader(MessagesList.LOGGED_IN_USER_ROLE) String userDetails,
+			@RequestParam(value = "landmarkName", defaultValue = "optional") String landmarkName,
+			@RequestParam("vin") String vin) {
+		try {
+			UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+			final String userName = userResponse.getUserName();
+			log.info("Get Landmark Method Started " + userName);
+			if (userName != null) {
+				if (vin != null && !vin.isEmpty()) {
+					return new ResponseEntity<GeofenceLandmarkResponse>(
+							machineService.getLandmarkDetails(userName, landmarkName, "optional", vin), HttpStatus.OK);
+				} else {
+					return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+							"Please select vin number", "Please select vin number", null),
+							HttpStatus.EXPECTATION_FAILED);
+				}
+			} else {
+				log.info("Get Timefence : No Vallid session present");
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+		} catch (final Exception e) {
+			log.error("Issue faced while get landmarks");
 			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
 					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
 					HttpStatus.INTERNAL_SERVER_ERROR);

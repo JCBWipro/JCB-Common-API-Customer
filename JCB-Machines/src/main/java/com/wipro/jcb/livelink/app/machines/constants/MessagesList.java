@@ -54,4 +54,5 @@ public class MessagesList {
 	public static final String SET_LANDMARK_DETAILS = "/v05/WorkManagement/geoFenceService/SetLandmarkDetails";
 	public static final String GET_LANDMARK_DETAILS = "/v05/WorkManagement/geoFenceService/GetLandmarkDetails";
 	public static final String DELETE_LANDMARK_DETAILS = "/v02/WorkManagement/geoFenceService/DeleteLandmark";
+	public static final String GET_LANDMARK_DETAILS_FOR_USER = "/v05/WorkManagement/geoFenceService/GetLandmarkDetailsForUser";
 }
