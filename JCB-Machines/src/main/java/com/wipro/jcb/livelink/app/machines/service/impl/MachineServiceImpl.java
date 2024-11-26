@@ -22,6 +22,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -1204,5 +1205,153 @@ public class MachineServiceImpl implements MachineService {
 			e.printStackTrace();
 		}
 		return response;
+	}
+	
+	@Override
+	public GeofenceLandmarkResponse getLandmarkDetails(String userName, String landmarkName, String livelinkTokenId,
+			String vin) {
+		long start = System.currentTimeMillis();
+		String livelinkToken = "37aa1b15_20240522150705";
+		GeofenceRequest getGeofence = getGeofenceDetails(vin, userName, livelinkTokenId);
+		List<GeofenceRequest> geofenceList = new ArrayList<>();
+		if (getGeofence.getVin()!= null && getGeofence.getLandmarkId()!= 0) {
+			geofenceList.add(getGeofence);
+		}
+		log.info("GeofenceList :" + geofenceList.size());
+		List<GeofenceRequest> geofenceResponseList = new ArrayList<>();
+		GeofenceLandmarkResponse landmarkResponse = new GeofenceLandmarkResponse();
+		
+		final Client client = Client.create();
+		client.setConnectTimeout(connectTimeout);
+		client.setReadTimeout(readTimeout);
+		final String getLandmarkDetailURL = AppServerConstants.livelinkAppServerBaseUrl+ MessagesList.GET_LANDMARK_DETAILS_FOR_USER;
+		final MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
+		queryParams.add("LoginID", userName);
+
+		log.info("Landmark API Token and user : " + livelinkToken + "-" + userName);
+		try {
+			final WebResource getLandmarkWebResource = client.resource(getLandmarkDetailURL).queryParams(queryParams);
+			final ClientResponse getLandmarkDataResponse = getLandmarkWebResource.accept("application/json")
+					.header("Orgkey", AppServerConstants.livelinkAppServerOrgKey)
+					.header("TokenId", livelinkToken)
+					.type("application/json")
+					.get(ClientResponse.class);
+
+			if (getLandmarkDataResponse.getStatus() == HttpServletResponse.SC_OK) {
+				String LandmarkStringResponse = getLandmarkDataResponse.getEntity(String.class);
+				if (!LandmarkStringResponse.contains("No data available")
+						&& !LandmarkStringResponse.contains("TokenId is null or Invalid")) {
+					JSONArray jsonArray = new JSONArray(LandmarkStringResponse);
+					if (jsonArray.length() > 0) {
+						log.info("Data Size" + jsonArray.length());
+						for (int i = 0; i < jsonArray.length(); i++) {
+							final JSONObject responseobj = jsonArray.getJSONObject(i);
+
+							if (responseobj != null) {
+								String vinNumber = responseobj.get("vin").toString();
+								log.info("vinNumber " + vinNumber);
+								if (vinNumber != null && !vinNumber.isEmpty() && !vinNumber.equals("null")) {
+									log.info("Data " + getGeofence.getVin() + "-" + getGeofence.getLandmarkId() + "-"
+											+ vinNumber);
+									if (getGeofence.getVin() != null && getGeofence.getLandmarkId() != 0
+											&& vinNumber.contains(getGeofence.getVin())) {
+										log.info("List Added " + getGeofence.getVin() + "-" + vinNumber);
+										GeofenceRequest geofence = geofenceList.get(0);
+										geofence.setVin(vinNumber);
+										geofenceList.set(0, geofence);
+									} else {
+										log.info("List Added " + vinNumber);
+										landmarkListDetails(geofenceList, responseobj);
+									}
+								} else {
+									log.info("landmarkID :" + responseobj.get("landmarkID").toString());
+									if (responseobj.get("landmarkID").toString() != null) {
+										landmarkListDetails(geofenceList, responseobj);
+									}
+								}
+							} else {
+								log.info("GetLandmark Details Empty");
+							}
+						}
+						if (geofenceList != null && !geofenceList.isEmpty()) {
+
+							if (!"optional".equals(landmarkName)) {
+								for (GeofenceRequest landmarkDetails : geofenceList) {
+									if (landmarkDetails.getLandmarkName().toLowerCase()
+											.contains(landmarkName.toLowerCase())) {
+										geofenceResponseList.add(landmarkDetails);
+									}
+								}
+
+							} else {
+								geofenceResponseList.addAll(geofenceList);
+							}
+						}
+						landmarkResponse.setLandmark(landmarkName);
+						landmarkResponse.setLandmarkDetails(geofenceResponseList);
+					}
+				} else {
+					log.info("Empty Reposnse " + LandmarkStringResponse);
+					if (LandmarkStringResponse.contains("TokenId is null or Invalid")) {
+						final User user = userRepository.findByUserName(userName);
+						if (user != null) {
+							livelinkToken = null;
+							livelinkToken = utilities.updateLivelinkServerToken(user, true);
+							return getLandmarkDetails(userName, landmarkName, livelinkToken, vin);
+						}
+					} else {
+						log.error("GetLandmarkDetailsForUser API Response " + userName + "-"
+								+ getLandmarkDataResponse.getStatus());
+					}
+				}
+			} else {
+				log.error("GetLandmarkDetailsForUser API Response " + userName + "-"
+						+ getLandmarkDataResponse.getStatus());
+				if (getLandmarkDataResponse.getStatus() == HttpServletResponse.SC_UNAUTHORIZED) {
+					final User user = userRepository.findByUserName(userName);
+					if (user != null) {
+						livelinkToken = null;
+						livelinkToken = utilities.updateLivelinkServerToken(user, true);
+						return getLandmarkDetails(userName, landmarkName, livelinkToken, vin);
+					}
+				}
+			}
+		} catch (Exception e) {
+			log.error("Error in  LandmarkDetails API " + e.getMessage());
+			e.printStackTrace();
+		}
+		long end = System.currentTimeMillis();
+		long elapsedTime = end - start;
+		log.info("LandmarkDetails API Duration :" + elapsedTime + "-" + userName);
+		return landmarkResponse;
+	}
+
+	private void landmarkListDetails(List<GeofenceRequest> geofenceList, final JSONObject responseobj) {
+		GeofenceRequest geofenceResponse = new GeofenceRequest();
+		geofenceResponse.setVin(responseobj.get("vin")!= null ? responseobj.get("vin").toString() : "");
+		geofenceResponse.setMobileNumber(responseobj.get("mobileNumber")!= null ? responseobj.get("mobileNumber").toString() : "");
+		geofenceResponse.setLandmarkId(responseobj.get("landmarkID").toString()!= null ? Integer.parseInt(responseobj.get("landmarkID").toString()) : 0);
+		geofenceResponse.setLandmarkName(responseobj.get("landmarkName")!= null ? responseobj.get("landmarkName").toString() : "");
+		
+		String geofence = responseobj.get("geofenceDetails").toString();
+		JSONObject geofenceObject = new JSONObject(geofence);
+		geofenceResponse.setRadius(geofenceObject.get("Radius")!=null ? Double.valueOf(geofenceObject.get("Radius").toString()) : 0);
+		geofenceResponse.setLatitude(geofenceObject.get("LAT")!= null ? geofenceObject.get("LAT").toString() : "");
+		geofenceResponse.setLongitude(geofenceObject.get("LONG")!= null ? geofenceObject.get("LONG").toString() : "");
+		geofenceResponse.setAddress(geofenceObject.get("Address")!=null ? geofenceObject.get("Address").toString() : "");
+		geofenceResponse.setIsArrival(geofenceObject.get("IsArrival")!=null ? geofenceObject.get("IsArrival").toString() : "");
+		geofenceResponse.setIsDepature(geofenceObject.get("IsDeparture")!=null ? geofenceObject.get("IsDeparture").toString() : "");
+
+		if (responseobj.get("notificationDetails").toString()!= null
+				&& !responseobj.get("notificationDetails").toString().equals("null")) {
+
+			String daytime = responseobj.get("notificationDetails").toString();
+			JSONObject daytimeObject = new JSONObject(daytime);
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setPushNotification(daytimeObject.get("Push notification").toString());
+			notificationDetails.setSms(daytimeObject.get("SMS").toString());
+			geofenceResponse.setNotificationDetails(notificationDetails);
+		}
+		geofenceList.add(geofenceResponse);
 	}
 }
