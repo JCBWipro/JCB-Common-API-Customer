@@ -1,20 +1,28 @@
 package com.wipro.jcb.livelink.app.machines.service;
 
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.wipro.jcb.livelink.app.machines.dto.MachineLocation;
 import com.wipro.jcb.livelink.app.machines.entity.Machine;
 import com.wipro.jcb.livelink.app.machines.entity.MachineDownQuestion;
 import com.wipro.jcb.livelink.app.machines.enums.ServiceStatus;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.machines.request.GeofenceRequest;
+import com.wipro.jcb.livelink.app.machines.request.TimefenceRequest;
 import com.wipro.jcb.livelink.app.machines.service.reports.NotificationRemovedResponse;
 import com.wipro.jcb.livelink.app.machines.service.reports.StandardMachineBaseResponse;
 import com.wipro.jcb.livelink.app.machines.service.reports.UtilizationReport;
-import com.wipro.jcb.livelink.app.machines.service.response.*;
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.Date;
-import java.util.List;
+import com.wipro.jcb.livelink.app.machines.service.response.Filter;
+import com.wipro.jcb.livelink.app.machines.service.response.GeofenceLandmarkResponse;
+import com.wipro.jcb.livelink.app.machines.service.response.LocationHistory;
+import com.wipro.jcb.livelink.app.machines.service.response.MachineServiceInfo;
+import com.wipro.jcb.livelink.app.machines.service.response.MachineServiceInfoV2;
+import com.wipro.jcb.livelink.app.machines.service.response.RdMachineDetailsResponse;
+import com.wipro.jcb.livelink.app.machines.service.response.RdMachineResponse;
 
 /**
  * Author: Rituraj Azad
@@ -121,5 +129,7 @@ public interface MachineService {
     String deleteGeofenceDetails(GeofenceRequest geofenceParam, String userName, String tokenId);
     
     GeofenceLandmarkResponse getLandmarkDetails(String userName, String landmarkName,String livelinkTokenId,String vin);
+    
+    String setTimeFenceParam(TimefenceRequest timefenceParam, String userName,String machineType,String tokenId);
 
 }

@@ -8,6 +8,8 @@ import com.wipro.jcb.livelink.app.machines.dto.UserDetails;
 import com.wipro.jcb.livelink.app.machines.exception.ApiError;
 import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.machines.request.GeofenceRequest;
+import com.wipro.jcb.livelink.app.machines.request.TimefenceRequest;
+import com.wipro.jcb.livelink.app.machines.service.MachineResponseService;
 import com.wipro.jcb.livelink.app.machines.service.MachineService;
 import com.wipro.jcb.livelink.app.machines.service.UserService;
 import com.wipro.jcb.livelink.app.machines.service.response.GeofenceLandmarkResponse;
@@ -29,6 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.HttpURLConnection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Author: Jitendra Prasad
@@ -48,6 +52,9 @@ public class UserProfileController {
     
     @Autowired
     MachineService machineService;
+    
+    @Autowired
+    MachineResponseService machineResponseService;
 
     @Operation(description = "get user profile", summary = " user profile details")
     @ApiResponses(value = {
@@ -303,12 +310,12 @@ public class UserProfileController {
 	}
 	
 	/*
-	 * API to Get Geofence Landmark Details
+	 * API to Get Landmark Details
 	 */
 	@CrossOrigin
-	@Operation(summary = "Get Geofence Landmark Details")
+	@Operation(summary = "Get Landmark Details")
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "Get Geofence Landmark Details", content = {
+			@ApiResponse(responseCode = "200", description = "Get Landmark Details", content = {
 					@Content(mediaType = "application/json", schema = @Schema(implementation = MachineListResponse.class)) }),
 			@ApiResponse(responseCode = "401", description = "Auth Failed", content = {
 					@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)) }),
@@ -343,5 +350,116 @@ public class UserProfileController {
 					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
+	
+	/*
+	 * API to Set TimeFence Parameter for machines
+	 */
+	@CrossOrigin
+	@Operation(summary = "Set Timefence Parameter for machines")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Set Timefence Parameter for machines", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = MachineListResponse.class)) }),
+			@ApiResponse(responseCode = "401", description = "Auth Failed", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)) }),
+			@ApiResponse(responseCode = "500", description = "Request failed", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)) }) })
+	@PostMapping("/settimefence")
+	public ResponseEntity<?> setTimeFence(@RequestHeader(MessagesList.LOGGED_IN_USER_ROLE) String userDetails,
+			@RequestBody TimefenceRequest timefenceParam) {
+		try {
+			UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+			final String userName = userResponse.getUserName();
+			if (userName != null) {
+				log.info("setmachinetimefenceparam: POST Request for machine {} user {} ", timefenceParam.getVin(),
+						userName);
+				System.out.println("gfSetRequest" + timefenceParam);
+				String machineType = machineResponseService.getMachinetype(timefenceParam.getVin());
+				if (!machineType.equals(MessagesList.NO_FIRMWARE)) {
+					String validation = checkTimefenceValidation(timefenceParam, machineType);
+					log.info("validation " + validation);
+					if (validation == null) {
+						String message = machineService.setTimeFenceParam(timefenceParam, userName, machineType,
+								"optional");
+						if (message.equals(MessagesList.SUCCESS)) {
+							return new ResponseEntity<ResponseData>(
+									new ResponseData("Success", "Timefence Updated Successfully"), HttpStatus.OK);
+						} else {
+							return new ResponseEntity<ApiError>(
+									new ApiError(HttpStatus.EXPECTATION_FAILED, "Failed", message, null),
+									HttpStatus.EXPECTATION_FAILED);
+						}
+					} else {
+						return new ResponseEntity<ApiError>(
+								new ApiError(HttpStatus.EXPECTATION_FAILED, "Failed", validation, null),
+								HttpStatus.EXPECTATION_FAILED);
+					}
+				} else {
+					return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED, "Failed",
+							"No Firmware version for selected vin", null), HttpStatus.EXPECTATION_FAILED);
+				}
+
+			} else {
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+		} catch (final Exception e) {
+			log.error("setTimeFencing: Issue faced while setting timefence parameters for machine ", e);
+			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	private String checkTimefenceValidation(TimefenceRequest timefenceParam, String machineType) {
+		String reason = null;
+
+		if (timefenceParam.getVin() == null || timefenceParam.getVin().equals("")) {
+			reason = "VIN cannot be null or empty";
+		}
+		if (machineType.equals(MessagesList.LL4)) {
+
+			if (timefenceParam.getMobileNumber() == null || timefenceParam.getMobileNumber().equals("")) {
+				reason = "Mobile number can't be null or empty";
+			} else {
+				Pattern p = Pattern.compile("^\\d{10}$");
+				Matcher m = p.matcher(timefenceParam.getMobileNumber());
+				if (!m.matches()) {
+					reason = "Please provide valid value for mobilnumber";
+				}
+			}
+
+			if (timefenceParam.getNotificationPattern() == null || timefenceParam.getNotificationPattern().equals("")) {
+				reason = "Notification can't be null or empty";
+			}
+			if (timefenceParam.getNotificationPattern().equalsIgnoreCase("OneTime")) {
+				if (timefenceParam.getNotificationDate() == null || timefenceParam.getNotificationDate().equals(""))
+					reason = "Notification date can't be null or empty";
+
+			} else {
+				if (timefenceParam.getRecurrence() == null || timefenceParam.getRecurrence().equals("")) {
+					reason = "Recurrence pattern can't be null or empty";
+				}
+				if (timefenceParam.getRecurrenceStartDate() == null
+						|| timefenceParam.getRecurrenceStartDate().equals("")) {
+					reason = "Recurrence start date can't be null or empty";
+				}
+			}
+
+			if (timefenceParam.getNotificationDetails() == null) {
+				reason = "Please select notification details";
+			}
+		} else {
+
+			if (timefenceParam.getOperatingStartTime() == null && timefenceParam.getOperatingStartTime().equals("")) {
+				reason = "Operation start time can't be null or empty";
+			}
+			if (timefenceParam.getOperatingEndTime() == null && timefenceParam.getOperatingEndTime().equals("")) {
+				reason = "Operation end time can't be null or empty";
+			}
+		}
+
+		return reason;
+
 	}
 }

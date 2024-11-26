@@ -12,6 +12,7 @@ import com.wipro.jcb.livelink.app.machines.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.machines.repo.*;
 import com.wipro.jcb.livelink.app.machines.request.GeofenceRequest;
 import com.wipro.jcb.livelink.app.machines.request.NotificationDetails;
+import com.wipro.jcb.livelink.app.machines.request.TimefenceRequest;
 import com.wipro.jcb.livelink.app.machines.service.MachineFeatureInfoService;
 import com.wipro.jcb.livelink.app.machines.service.MachineService;
 import com.wipro.jcb.livelink.app.machines.service.reports.*;
@@ -99,6 +100,9 @@ public class MachineServiceImpl implements MachineService {
 
     @Autowired
 	LivelinkUserTokenServiceImpl livelinkUserTokenServiceImpl;
+    
+    @Autowired
+    MachineTimefenceRepository machineTimefenceRepository;
 
     @Value("${machine.approachingservicedays}")
     int machineApproachingServiceDays;
@@ -1239,8 +1243,8 @@ public class MachineServiceImpl implements MachineService {
 
 			if (getLandmarkDataResponse.getStatus() == HttpServletResponse.SC_OK) {
 				String LandmarkStringResponse = getLandmarkDataResponse.getEntity(String.class);
-				if (!LandmarkStringResponse.contains("No data available")
-						&& !LandmarkStringResponse.contains("TokenId is null or Invalid")) {
+				if (!LandmarkStringResponse.contains(MessagesList.NO_DATA_AVAILABLE)
+						&& !LandmarkStringResponse.contains(MessagesList.TOKEN_ID_INVALID)) {
 					JSONArray jsonArray = new JSONArray(LandmarkStringResponse);
 					if (jsonArray.length() > 0) {
 						log.info("Data Size" + jsonArray.length());
@@ -1292,7 +1296,7 @@ public class MachineServiceImpl implements MachineService {
 					}
 				} else {
 					log.info("Empty Reposnse " + LandmarkStringResponse);
-					if (LandmarkStringResponse.contains("TokenId is null or Invalid")) {
+					if (LandmarkStringResponse.contains(MessagesList.TOKEN_ID_INVALID)) {
 						final User user = userRepository.findByUserName(userName);
 						if (user != null) {
 							livelinkToken = null;
@@ -1353,5 +1357,139 @@ public class MachineServiceImpl implements MachineService {
 			geofenceResponse.setNotificationDetails(notificationDetails);
 		}
 		geofenceList.add(geofenceResponse);
+	}
+	
+	@Override
+	public String setTimeFenceParam(TimefenceRequest timefenceParam, String userName, String machineType,
+			String livelinkTokenId) {
+		String responseStatus = MessagesList.SUCCESS;
+		String livelinkToken = "37aa1b15_20240522150705";
+
+		try {
+			log.info("Timefence Data : Start to processs");
+			JSONObject object = new JSONObject();
+			object.put("LoginID", userName);
+			object.put("VIN_id", timefenceParam.getVin());
+			object.put("OperatingStartTime", timefenceParam.getOperatingStartTime());
+			object.put("OperatingEndtime", timefenceParam.getOperatingEndTime());
+			object.put("MobileNumber", timefenceParam.getMobileNumber());
+
+			if (machineType.equals(MessagesList.LL4)) {
+				object.put("NotificationPattern", timefenceParam.getNotificationPattern());
+				if (timefenceParam.getNotificationPattern() != null
+						&& timefenceParam.getNotificationPattern().equalsIgnoreCase("OneTime")) {
+					object.put("NotificationDate", timefenceParam.getNotificationDate());
+				} else {
+
+					JSONObject recurrence = new JSONObject();
+					if (timefenceParam.getRecurrenceType().equals("Daily")) {
+						recurrence.put("Daily", timefenceParam.getRecurrence());
+
+					} else {
+						recurrence.put("Weekly", timefenceParam.getRecurrence());
+					}
+
+					object.put("RecurrencePattern", recurrence);
+
+					JSONObject recurrencerange = new JSONObject();
+					recurrencerange.put("StartDate", timefenceParam.getRecurrenceStartDate());
+					recurrencerange.put("EndDate", timefenceParam.getRecurrenceEndDate());
+					object.put("RecurrenceRange", recurrencerange);
+				}
+
+				JSONObject daytimeNotification = new JSONObject();
+				daytimeNotification.put("Push notification",timefenceParam.getNotificationDetails().getPushNotification());
+				daytimeNotification.put("SMS", timefenceParam.getNotificationDetails().getSms());
+				object.put("NotificationDetails", daytimeNotification);
+
+			}
+
+			final Client client = Client.create();
+			client.setConnectTimeout(connectTimeout);
+			client.setReadTimeout(readTimeout);
+			final String setTimefencece = AppServerConstants.livelinkAppServerBaseUrl + MessagesList.SET_TIME_FENCE;
+			log.info("Calling Timefence API URL :" + setTimefencece);
+
+			final WebResource timefenceDatawebResource = client.resource(setTimefencece);
+			final ClientResponse timefenceDataResponse = timefenceDatawebResource
+					.header("Orgkey", AppServerConstants.livelinkAppServerOrgKey)
+					.header("TokenId", livelinkToken)
+					.type("application/json")
+					.post(ClientResponse.class, object.toString());
+
+			if (timefenceDataResponse.getStatus() == HttpServletResponse.SC_OK) {
+
+				responseStatus = timefenceDataResponse.getEntity(String.class);
+				if (responseStatus.equalsIgnoreCase(MessagesList.SUCCESS)) {
+
+					MachineTimefence machineTimefence = new MachineTimefence();
+
+					machineTimefence.setVin(timefenceParam.getVin());
+
+					machineTimefence.setOperatingStartTime(timefenceParam.getOperatingStartTime());
+					machineTimefence.setOperatingEndTime(timefenceParam.getOperatingEndTime());
+
+					if (machineType.equals(MessagesList.LL4)) {
+						machineTimefence.setMobileNumber(timefenceParam.getMobileNumber());
+						machineTimefence.setNotificationPattern(timefenceParam.getNotificationPattern());
+
+						if (timefenceParam.getNotificationPattern() != null
+								&& timefenceParam.getNotificationPattern().equalsIgnoreCase("OneTime")) {
+
+							machineTimefence.setNotificationDate(timefenceParam.getNotificationDate());
+						} else {
+
+							// Recurrence
+							machineTimefence.setRecurrenceType(timefenceParam.getRecurrenceType());
+							machineTimefence.setRecurrence(timefenceParam.getRecurrence());
+							machineTimefence.setRecurrenceStartDate(timefenceParam.getRecurrenceStartDate());
+							machineTimefence.setRecurrenceEndDate(timefenceParam.getRecurrenceEndDate());
+						}
+						machineTimefence.setSms(timefenceParam.getNotificationDetails().getSms());
+						machineTimefence.setPush(timefenceParam.getNotificationDetails().getPushNotification());
+
+					}
+
+					log.info("MachineTimefence Request " + machineTimefence);
+					machineTimefenceRepository.save(machineTimefence);
+					log.info("Timefence Data updated successfully " + responseStatus);
+
+					return responseStatus;
+				} else {
+					log.info("Timefence Create Status :" + responseStatus);
+					if (responseStatus.contains(MessagesList.TOKEN_ID_INVALID)) {
+						final User user = userRepository.findByUserName(userName);
+						if (user != null) {
+							livelinkToken = null;
+							livelinkToken = utilities.updateLivelinkServerToken(user, true);
+							return setTimeFenceParam(timefenceParam, userName, machineType, livelinkToken);
+						}
+					} else {
+						return responseStatus;
+					}
+				}
+			} else {
+				log.error("Set Timefence Wipro API Response Status: " + timefenceDataResponse.getStatus()
+						+ "geofenceDataResponse :" + timefenceDataResponse);
+				if (timefenceDataResponse.getStatus() == HttpServletResponse.SC_UNAUTHORIZED) {
+
+					final User user = userRepository.findByUserName(userName);
+					if (user != null) {
+						livelinkToken = null;
+						livelinkToken = utilities.updateLivelinkServerToken(user, true);
+						return setTimeFenceParam(timefenceParam, userName, machineType, livelinkToken);
+					}
+				} else {
+					return MessagesList.FAILURE;
+				}
+			}
+
+		} catch (final Exception ex) {
+			log.error("Error while setting geofence parameter", ex);
+			return MessagesList.FAILURE;
+
+		}
+		return responseStatus;
+
 	}
 }
