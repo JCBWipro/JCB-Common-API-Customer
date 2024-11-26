@@ -49,10 +49,13 @@ public class MessagesList {
 	public static final String SUCCESS = "SUCCESS";
 	public static final String UPDATESUCCESS = "UPDATE-SUCCESS";
 	public static final String FAILURE = "FAILURE";
+	public static final String TOKEN_ID_INVALID = "TokenId is null or Invalid";
+	public static final String NO_DATA_AVAILABLE = "No data available";
 	
 	//Wise URL
 	public static final String SET_LANDMARK_DETAILS = "/v05/WorkManagement/geoFenceService/SetLandmarkDetails";
 	public static final String GET_LANDMARK_DETAILS = "/v05/WorkManagement/geoFenceService/GetLandmarkDetails";
 	public static final String DELETE_LANDMARK_DETAILS = "/v02/WorkManagement/geoFenceService/DeleteLandmark";
 	public static final String GET_LANDMARK_DETAILS_FOR_USER = "/v05/WorkManagement/geoFenceService/GetLandmarkDetailsForUser";
+	public static final String SET_TIME_FENCE = "/v04/WorkManagement/timeFenceService/SetTimeFence";
 }
