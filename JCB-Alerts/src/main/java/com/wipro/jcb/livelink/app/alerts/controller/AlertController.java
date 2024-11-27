@@ -4,6 +4,7 @@ import com.wipro.jcb.livelink.app.alerts.commonUtils.AlertCommonUtils;
 import com.wipro.jcb.livelink.app.alerts.commonUtils.AlertUtilities;
 import com.wipro.jcb.livelink.app.alerts.config.ConstantConfig;
 import com.wipro.jcb.livelink.app.alerts.constants.MessagesList;
+import com.wipro.jcb.livelink.app.alerts.constants.NotificationsConstants;
 import com.wipro.jcb.livelink.app.alerts.dto.*;
 import com.wipro.jcb.livelink.app.alerts.exception.ApiError;
 import com.wipro.jcb.livelink.app.alerts.exception.ProcessCustomError;
@@ -492,9 +493,9 @@ public class AlertController {
                     log.info("notification list : {}", users.size());
                     log.info("Breakfast Push Notification From Firebase - Start");
                     MessageContent pushNotification = new MessageContent();
-                    pushNotification.setData(new Data("Breakfast Report for the date " + yesterday,
-                            "Machine Update Type", "MachineUpdate", "Breakfast Report"));
-                    pushNotification.setNotification(new Notification("Breakfast Report for the date " + yesterday, "Breakfast Report"));
+                    pushNotification.setData(new Data(NotificationsConstants.BREAKFAST_ALERT_DESCRIPTION + yesterday,
+                            NotificationsConstants.BREAKFAST_ALERT_TYPE, NotificationsConstants.BREAKFAST_ALERT_KEY, NotificationsConstants.BREAKFAST_ALERT_TITLE));
+                    pushNotification.setNotification(new Notification(NotificationsConstants.BREAKFAST_ALERT_NOTIFICATION_TITLE + yesterday, NotificationsConstants.BREAKFAST_ALERT_NOTIFICATION_BODY));
 
                     for (String firebaseToken : users) {
 
@@ -508,9 +509,9 @@ public class AlertController {
                     log.info("notification list :{}", users.size());
                     log.info("Salesforce Push Notification From Firebase - Start");
                     MessageContent pushNotification = new MessageContent();
-                    pushNotification.setData(new Data("Please help us in reaching our goal of 100 % fantastic sales experience by answering a few questions about your recent purchase.",
-                            "Customer Sales Feedback", "CustomerSalesFeedback", "Customer Sales Feedback"));
-                    pushNotification.setNotification(new Notification("Please help us in reaching our goal of 100 % fantastic sales experience by answering a few questions about your recent purchase.", "Customer Sales Feedback"));
+                    pushNotification.setData(new Data(NotificationsConstants.SALESFORCE_ALERT_DESCRIPTION,
+                            NotificationsConstants.SALESFORCE_ALERT_TYPE, NotificationsConstants.SALESFORCE_ALERT_KEY, NotificationsConstants.SALESFORCE_ALERT_TITLE));
+                    pushNotification.setNotification(new Notification(NotificationsConstants.SALESFORCE_ALERT_NOTIFICATION_TITLE, NotificationsConstants.SALESFORCE_ALERT_NOTIFICATION_BODY));
 
                     for (String firebaseToken : users) {
 
@@ -522,8 +523,8 @@ public class AlertController {
                 case "HighbandBHL" -> {
                     log.info("HighbandBHL Push Notification From Firebase - Start");
                     MessageContent pushNotification = new MessageContent();
-                    pushNotification.setData(new Data("New Push Notification For Highband BHL", "New Push Notification For Highband BHL Type", "Highband BHL", "New Push Notification For Highband BHL"));
-                    pushNotification.setNotification(new Notification("New Push Notification For Highband BHL", "Highband BHL"));
+                    pushNotification.setData(new Data(NotificationsConstants.HIGHBANDBHL_ALERT_DESCRIPTION, NotificationsConstants.HIGHBANDBHL_ALERT_TYPE, NotificationsConstants.HIGHBANDBHL_ALERT_KEY, NotificationsConstants.HIGHBANDBHL_ALERT_TITLE));
+                    pushNotification.setNotification(new Notification(NotificationsConstants.HIGHBANDBHL_ALERT_NOTIFICATION_TITLE, NotificationsConstants.HIGHBANDBHL_ALERT_NOTIFICATION_BODY));
 
                     for (String firebaseToken : users) {
 
@@ -536,8 +537,8 @@ public class AlertController {
                     log.info("UserList size is: {}" , users.size());
                     log.info("HighbandExcavator Push Notification From Firebase - Start");
                     MessageContent pushNotification = new MessageContent();
-                    pushNotification.setData(new Data("New Push Notification For Highband Excavator", "New Push Notification For Highband Excavator Type", "Highband Excavator", "New Push Notification For Highband Excavator"));
-                    pushNotification.setNotification(new Notification("New Push Notification For Highband Excavator", "Highband Excavator"));
+                    pushNotification.setData(new Data(NotificationsConstants.HIGHBANDEXCAVATOR_ALERT_DESCRIPTION, NotificationsConstants.HIGHBANDEXCAVATOR_ALERT_TYPE, NotificationsConstants.HIGHBANDEXCAVATOR_ALERT_KEY, NotificationsConstants.HIGHBANDEXCAVATOR_ALERT_TITLE));
+                    pushNotification.setNotification(new Notification(NotificationsConstants.HIGHBANDEXCAVATOR_ALERT_NOTIFICATION_TITLE, NotificationsConstants.HIGHBANDEXCAVATOR_ALERT_NOTIFICATION_BODY));
 
                     for (String firebaseToken : users) {
 
@@ -550,8 +551,8 @@ public class AlertController {
                     log.info("UserList size {}", users.size());
                     log.info("HighIdling Push Notification From Firebase - Start");
                     MessageContent pushNotification = new MessageContent();
-                    pushNotification.setData(new Data("New Push Notification For High Idling", "New Push Notification For High Idling Type", "High Idling", "New Push Notification For High Idling"));
-                    pushNotification.setNotification(new Notification("New Push Notification For High Idling", "High Idling"));
+                    pushNotification.setData(new Data(NotificationsConstants.HIGHIDLING_ALERT_DESCRIPTION, NotificationsConstants.HIGHIDLING_ALERT_TYPE, NotificationsConstants.HIGHIDLING_ALERT_KEY, NotificationsConstants.HIGHIDLING_ALERT_TITLE));
+                    pushNotification.setNotification(new Notification(NotificationsConstants.HIGHIDLING_ALERT_NOTIFICATION_TITLE, NotificationsConstants.HIGHIDLING_ALERT_NOTIFICATION_BODY));
 
                     for (String firebaseToken : users) {
 
