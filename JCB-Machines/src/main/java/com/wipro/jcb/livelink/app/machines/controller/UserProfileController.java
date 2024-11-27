@@ -462,4 +462,40 @@ public class UserProfileController {
 		return reason;
 
 	}
+	
+	/*
+	 * API to Get TimeFence Details
+	 */
+	@CrossOrigin
+	@Operation(summary = "Get Timefence Details")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Get Timefence Details", content = {
+			@Content(mediaType = "application/json", schema = @Schema(implementation = MachineListResponse.class)) }),
+			@ApiResponse(responseCode = "401", description = "Auth Failed", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)) }),
+			@ApiResponse(responseCode = "500", description = "Request failed", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)) }) })
+	@Transactional(readOnly = false)
+	@GetMapping("/gettimefence")
+	public ResponseEntity<?> getTimefenceDetils(@RequestHeader(MessagesList.LOGGED_IN_USER_ROLE) String userDetails,
+			@RequestParam("vin") String vin) {
+		try {
+			UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+			final String userName = userResponse.getUserName();
+			log.info("Get Timefence Method Started" + vin + "-" + userName);
+			if (userName != null) {
+				return new ResponseEntity<TimefenceRequest>(
+						machineService.getTimefenceDetails(vin, userName, "optional"), HttpStatus.OK);
+			} else {
+				log.info("Get Timefence : No Vallid session present");
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+
+		} catch (final Exception e) {
+			log.error("Issue faced while get timefence");
+			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 }

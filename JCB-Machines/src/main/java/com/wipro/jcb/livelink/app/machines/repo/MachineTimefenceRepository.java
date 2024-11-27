@@ -6,5 +6,7 @@ import com.wipro.jcb.livelink.app.machines.entity.MachineTimefence;
 
 
 public interface MachineTimefenceRepository extends CrudRepository<MachineTimefence, String> {
+	
+	MachineTimefence findByVin(String vin);
 
 }

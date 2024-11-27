@@ -131,5 +131,7 @@ public interface MachineService {
     GeofenceLandmarkResponse getLandmarkDetails(String userName, String landmarkName,String livelinkTokenId,String vin);
     
     String setTimeFenceParam(TimefenceRequest timefenceParam, String userName,String machineType,String tokenId);
+    
+    TimefenceRequest getTimefenceDetails(String vin,String userName,String tokenId);
 
 }
