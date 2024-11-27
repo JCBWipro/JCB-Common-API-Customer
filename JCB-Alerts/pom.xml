@@ -155,6 +155,23 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.auth</groupId>
+            <artifactId>google-auth-library-oauth2-http</artifactId>
+            <version>1.30.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.google.firebase/firebase-admin -->
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>9.4.1</version>
+        </dependency>
+        <!--&lt;!&ndash; https://mvnrepository.com/artifact/com.splunk.logging/splunk-library-javalogging &ndash;&gt;
+        <dependency>
+            <groupId>com.splunk.logging</groupId>
+            <artifactId>splunk-library-javalogging</artifactId>
+            <version>1.11.0</version>
+        </dependency>-->
     </dependencies>
     <dependencyManagement>
         <dependencies>
