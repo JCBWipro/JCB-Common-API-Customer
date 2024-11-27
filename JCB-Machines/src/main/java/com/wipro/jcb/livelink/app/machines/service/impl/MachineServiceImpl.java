@@ -1492,4 +1492,155 @@ public class MachineServiceImpl implements MachineService {
 		return responseStatus;
 
 	}
+	
+	@Override
+	public TimefenceRequest getTimefenceDetails(String vin, String userName, String livelinkTokenId) {
+		String livelinkToken = "37aa1b15_20240522150705";
+		MachineTimefence timefenceData = new MachineTimefence();
+		TimefenceRequest timefenceResponse = new TimefenceRequest();
+
+		final Client client = Client.create();
+		client.setConnectTimeout(connectTimeout);
+		client.setReadTimeout(readTimeout);
+		final String getTimefenceURL = AppServerConstants.livelinkAppServerBaseUrl + MessagesList.GET_TIME_FENCE;
+		final MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
+		queryParams.add("VIN", vin);
+
+		final WebResource getTimefencewebResource = client.resource(getTimefenceURL).queryParams(queryParams);
+		final ClientResponse getTimefenceDataResponse = getTimefencewebResource.accept("application/json")
+				.header("Orgkey", AppServerConstants.livelinkAppServerOrgKey)
+				.header("TokenId", livelinkToken)
+				.type("application/json")
+				.get(ClientResponse.class);
+		try {
+			if (getTimefenceDataResponse.getStatus() == HttpServletResponse.SC_OK) {
+				String timefenceStringResponse = getTimefenceDataResponse.getEntity(String.class);
+				if (!timefenceStringResponse.contains(MessagesList.NO_DATA_AVAILABLE)
+						&& !timefenceStringResponse.contains(MessagesList.TOKEN_ID_INVALID)) {
+
+					final JSONObject timefenceObj = new JSONObject(timefenceStringResponse);
+					if (!timefenceObj.get("operatingStartTime").toString().equals("null")
+							&& timefenceObj.get("operatingStartTime") != null
+							&& timefenceObj.get("operatingEndtime") != null
+							&& !timefenceObj.get("operatingEndtime").toString().equals("null")) {
+
+						timefenceData.setVin(timefenceObj.get("vin") != null ? timefenceObj.get("vin").toString() : "");
+
+						timefenceData.setOperatingStartTime(timefenceObj.get("operatingStartTime") != null
+								? timefenceObj.get("operatingStartTime").toString(): "");
+						timefenceData.setOperatingEndTime(timefenceObj.get("operatingEndtime") != null
+								? timefenceObj.get("operatingEndtime").toString(): "");
+
+						timefenceData.setMobileNumber(
+								timefenceObj.get("mobileNumber") != null ? timefenceObj.get("mobileNumber").toString() : "");
+						String notification = null;
+
+						if (timefenceObj != null && !timefenceObj.get("timefenceDetails").equals(null)) {
+							notification = timefenceObj.get("timefenceDetails").toString();
+
+						} else {
+							notification = null;
+						}
+						if (notification != null && !notification.isEmpty()) {
+							JSONObject notificationObject = new JSONObject(notification);
+
+							timefenceData.setNotificationPattern(notificationObject.get("NotificationPattern").toString());
+
+							if (timefenceData.getNotificationPattern() != null
+									&& timefenceData.getNotificationPattern().equalsIgnoreCase("OneTime")) {
+								timefenceData.setNotificationDate(notificationObject.get("NotificationDate").toString());
+							} else {
+								String recurrence = notificationObject.get("RecurrencePattern").toString();
+								JSONObject recurrenceObject = new JSONObject(recurrence);
+
+								if (recurrenceObject.keySet().contains("Weekly")) {
+									log.info("Weekly - " + recurrenceObject.getString("Weekly"));
+									timefenceData.setRecurrenceType("Weekly");
+									timefenceData.setRecurrence(recurrenceObject.get("Weekly").toString());
+								}
+								if (recurrenceObject.keySet().contains("Daily")) {
+									log.info("Daily - " + recurrenceObject.getString("Daily"));
+									timefenceData.setRecurrenceType("Daily");
+									timefenceData.setRecurrence(recurrenceObject.get("Daily").toString());
+								}
+
+								String recurrenceRange = notificationObject.get("RecurrenceRange").toString();
+								JSONObject recurrenceRangeObject = new JSONObject(recurrenceRange);
+
+								timefenceData.setRecurrenceStartDate(recurrenceRangeObject.get("StartDate").toString());
+								if (recurrenceRangeObject.keySet().contains("EndDate")) {
+									timefenceData.setRecurrenceEndDate(recurrenceRangeObject.get("EndDate").toString());
+								}
+							}
+						}
+
+						// DaytimeNotification Details
+						if (!timefenceObj.get("notificationDetails").equals(null)) {
+							String notificationData = timefenceObj.get("notificationDetails").toString();
+							JSONObject notificationDataObject = new JSONObject(notificationData);
+							timefenceData.setPush(notificationDataObject.get("Push notification").toString());
+							timefenceData.setSms(notificationDataObject.get("SMS").toString());
+						}
+						machineTimefenceRepository.save(timefenceData);
+						timefenceResponse.setVin(timefenceData.getVin());
+						timefenceResponse.setMobileNumber(timefenceData.getMobileNumber());
+						timefenceResponse.setOperatingStartTime(timefenceData.getOperatingStartTime());
+						timefenceResponse.setOperatingEndTime(timefenceData.getOperatingEndTime());
+						timefenceResponse.setNotificationPattern(timefenceData.getNotificationPattern());
+
+						if (timefenceResponse.getNotificationPattern() != null
+								&& timefenceResponse.getNotificationPattern().equalsIgnoreCase("OneTime")) {
+							timefenceResponse.setNotificationDate(timefenceData.getNotificationDate());
+						} else {
+							timefenceResponse.setRecurrenceType(timefenceData.getRecurrenceType());
+							timefenceResponse.setRecurrence(timefenceData.getRecurrence());
+							timefenceResponse.setRecurrenceStartDate(timefenceData.getRecurrenceStartDate());
+							timefenceResponse.setRecurrenceEndDate(timefenceData.getRecurrenceEndDate());
+						}
+
+						NotificationDetails notificationDetails = new NotificationDetails();
+						notificationDetails.setPushNotification(timefenceData.getPush());
+						notificationDetails.setSms(timefenceData.getSms());
+						timefenceResponse.setNotificationDetails(notificationDetails);
+					}
+				} else {
+					if (timefenceStringResponse.contains(MessagesList.TOKEN_ID_INVALID)) {
+						final User user = userRepository.findByUserName(userName);
+						if (user != null) {
+							livelinkToken = null;
+							livelinkToken = utilities.updateLivelinkServerToken(user, true);
+							return getTimefenceDetails(vin, userName, livelinkToken);
+						}
+					} else {
+						if (timefenceStringResponse.contains(MessagesList.NO_DATA_AVAILABLE)) {
+							MachineTimefence machineTimefence = machineTimefenceRepository.findByVin(vin);
+							if (machineTimefence != null) {
+								machineTimefenceRepository.deleteById(vin);
+							}
+						}
+					}
+				}
+			} else {
+				log.info("getTimefence response status: " + getTimefenceDataResponse.getStatus());
+				if (getTimefenceDataResponse.getStatus() == HttpServletResponse.SC_UNAUTHORIZED) {
+
+					final User user = userRepository.findByUserName(userName);
+					if (user != null) {
+						livelinkToken = null;
+						livelinkToken = utilities.updateLivelinkServerToken(user, true);
+						return getTimefenceDetails(vin, userName, livelinkToken);
+					}
+				} else if (getTimefenceDataResponse.getStatus() == HttpServletResponse.SC_NO_CONTENT) {
+
+					MachineTimefence machineTimefence = machineTimefenceRepository.findByVin(vin);
+					if (machineTimefence != null) {
+						machineTimefenceRepository.deleteById(vin);
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return timefenceResponse;
+	}
 }
