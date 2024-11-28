@@ -2,13 +2,20 @@ package com.wipro.jcb.livelink.app.alerts.controller;
 
 import com.wipro.jcb.livelink.app.alerts.commonUtils.AlertCommonUtils;
 import com.wipro.jcb.livelink.app.alerts.commonUtils.AlertUtilities;
+import com.wipro.jcb.livelink.app.alerts.config.ConstantConfig;
 import com.wipro.jcb.livelink.app.alerts.constants.MessagesList;
+import com.wipro.jcb.livelink.app.alerts.constants.NotificationsConstants;
 import com.wipro.jcb.livelink.app.alerts.dto.*;
 import com.wipro.jcb.livelink.app.alerts.exception.ApiError;
 import com.wipro.jcb.livelink.app.alerts.exception.ProcessCustomError;
+import com.wipro.jcb.livelink.app.alerts.repo.UserNotificationDetailRepo;
 import com.wipro.jcb.livelink.app.alerts.service.AdvanceReportService;
 import com.wipro.jcb.livelink.app.alerts.service.AlertInfoResponseService;
+import com.wipro.jcb.livelink.app.alerts.service.EmailService;
 import com.wipro.jcb.livelink.app.alerts.service.response.AlertObject;
+import com.wipro.jcb.livelink.app.alerts.service.response.Data;
+import com.wipro.jcb.livelink.app.alerts.service.response.MessageContent;
+import com.wipro.jcb.livelink.app.alerts.service.response.Notification;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,7 +34,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.HttpURLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.TimeZone;
 
 import static com.wipro.jcb.livelink.app.alerts.constants.AppServerConstants.loadHistoricalDataForDays;
 
@@ -58,6 +70,12 @@ public class AlertController {
 
     @Autowired
     AdvanceReportService advanceReportService;
+
+    @Autowired
+    UserNotificationDetailRepo userNotificationDetailRepo;
+
+    @Autowired
+    EmailService emailService;
 
 
     @GetMapping(value = "/alertsV2")
@@ -335,21 +353,21 @@ public class AlertController {
             @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
             @ApiResponse(responseCode = "500", description = "Request failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
     })
-    @DeleteMapping(value = "/deletenotification", produces = {MediaType.APPLICATION_JSON_VALUE })
+    @DeleteMapping(value = "/deletenotification", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> deleteNotification(@RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
-                                                @RequestParam(name="id", defaultValue = "-1") int notificationId ,
+                                                @RequestParam(name = "id", defaultValue = "-1") int notificationId,
                                                 @RequestParam(name = "notificationType") String type) {
         try {
             UserDetails userResponse = AlertCommonUtils.getUserDetails(userDetails);
             String userName = userResponse.getUserName();
             Integer id = notificationId;
-            log.info("Requested Delete notification for the User:{} , Notification Id : {}", userName,id);
+            log.info("Requested Delete notification for the User:{} , Notification Id : {}", userName, id);
             if (userName == null) {
                 log.info("Delete notification : No Valid session present");
                 return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED,
                         "No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
             }
-            if(type.equals("ALL")) {
+            if (type.equals("ALL")) {
                 return new ResponseEntity<>(advanceReportService.deleteAllNotification(userName), HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(advanceReportService.deleteNotification(id, userName), HttpStatus.OK);
@@ -406,6 +424,155 @@ public class AlertController {
                     userDetails, alertId, type, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to process request", "SERVER_ERROR", null));
+        }
+    }
+
+    @GetMapping(value = "/pushnotification", produces = {MediaType.APPLICATION_JSON_VALUE})
+    @Operation(summary = "Send Push Notifications")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Push notification sent successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "401", description = "Auth Failed",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "500", description = "Request failed",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
+    })
+    @Transactional(timeout = ConstantConfig.REQUEST_TIMEOUT)
+    public ResponseEntity<?> breakFastNotification(
+            @RequestHeader(MessagesList.LoggedInUserRole) String userDetails,
+            @RequestParam(value = "ostype") String osType,
+            @RequestParam(value = "type") String type,
+            @RequestParam(value = "minusDays", required = false) Optional<Integer> minusDays,
+            @RequestParam(value = "pushToken", defaultValue = "optional") String pushToken) {
+
+        log.info("Send Push Notification Request: OsType={}, type={}, minusDays={}, pushToken={}", osType, type, minusDays, pushToken);
+
+        try {
+            UserDetails userResponse = AlertCommonUtils.getUserDetails(userDetails);
+            String userName = userResponse.getUserName();
+            String yesterday = alertUtilities.getDDMMYY(1);
+            log.info("START :: sendBreakfastUpdateNotification {}", type);
+
+            if (userName == null) {
+                return new ResponseEntity<>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+                        "No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+            }
+
+
+            if ("optional".equals(pushToken)) {
+                //pushToken = "cr3VYqumSHG7rLtzGp7ytb:APssA91b12GJ65FHlL2_eRjfAj7F76yAuHv6Qstb5XZNiNovaw7N9tkpfDLLOWY7derw5vRI1aLEQefXQfwzFa8m7CuWU1_iTZeGkPWk7a5rZMH15ym18i4Ct41231231Oc4ievLdHba1neelS11BDcxP8H";
+                pushToken = "123456yhntgb789";
+            }
+
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            DateFormat dateformat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+            df.setTimeZone(TimeZone.getTimeZone("Asia/Kolkata"));
+            dateformat.setTimeZone(TimeZone.getTimeZone("Asia/Kolkata"));
+
+            List<String> users = osType.equalsIgnoreCase("Android")
+                    ? userNotificationDetailRepo.getAndroidFCMKeyForSalesforceUniqueUser(userName, userDetails)
+                    : userNotificationDetailRepo.getIosFCMKeyForSalesforce(userName, userDetails);
+
+
+            switch (type) {
+                case "Alert" -> {
+                    log.info("Alert Push Notification From Firebase - Start");
+                    MessageContent pushNotification = new MessageContent();
+                    pushNotification.setData(new Data("Alert Description", "Alert Event Type", "Alert", "New Alert Event Type Alert"));
+                    pushNotification.setNotification(new Notification("Alert", "Alert Event Type"));
+
+                    for (String firebaseToken : users) {
+
+                        pushNotification.setToken(firebaseToken);
+                        alertUtilities.sendNotificationUsingV1(pushNotification);
+                    }
+
+                    log.info("Alert Push Notification From Firebase - End");
+                }
+                case "Breakfast" -> {
+                    log.info("notification list : {}", users.size());
+                    log.info("Breakfast Push Notification From Firebase - Start");
+                    MessageContent pushNotification = new MessageContent();
+                    pushNotification.setData(new Data(NotificationsConstants.BREAKFAST_ALERT_DESCRIPTION + yesterday,
+                            NotificationsConstants.BREAKFAST_ALERT_TYPE, NotificationsConstants.BREAKFAST_ALERT_KEY, NotificationsConstants.BREAKFAST_ALERT_TITLE));
+                    pushNotification.setNotification(new Notification(NotificationsConstants.BREAKFAST_ALERT_NOTIFICATION_TITLE + yesterday, NotificationsConstants.BREAKFAST_ALERT_NOTIFICATION_BODY));
+
+                    for (String firebaseToken : users) {
+
+                        pushNotification.setToken(firebaseToken);
+                        alertUtilities.sendNotificationUsingV1(pushNotification);
+                    }
+
+                    log.info("Breakfast Push Notification From Firebase - End");
+                }
+                case "Salesforce" -> {
+                    log.info("notification list :{}", users.size());
+                    log.info("Salesforce Push Notification From Firebase - Start");
+                    MessageContent pushNotification = new MessageContent();
+                    pushNotification.setData(new Data(NotificationsConstants.SALESFORCE_ALERT_DESCRIPTION,
+                            NotificationsConstants.SALESFORCE_ALERT_TYPE, NotificationsConstants.SALESFORCE_ALERT_KEY, NotificationsConstants.SALESFORCE_ALERT_TITLE));
+                    pushNotification.setNotification(new Notification(NotificationsConstants.SALESFORCE_ALERT_NOTIFICATION_TITLE, NotificationsConstants.SALESFORCE_ALERT_NOTIFICATION_BODY));
+
+                    for (String firebaseToken : users) {
+
+                        pushNotification.setToken(firebaseToken);
+                        alertUtilities.sendNotificationUsingV1(pushNotification);
+                    }
+                    log.info("Salesforce Push Notification From Firebase - End");
+                }
+                case "HighbandBHL" -> {
+                    log.info("HighbandBHL Push Notification From Firebase - Start");
+                    MessageContent pushNotification = new MessageContent();
+                    pushNotification.setData(new Data(NotificationsConstants.HIGHBANDBHL_ALERT_DESCRIPTION, NotificationsConstants.HIGHBANDBHL_ALERT_TYPE, NotificationsConstants.HIGHBANDBHL_ALERT_KEY, NotificationsConstants.HIGHBANDBHL_ALERT_TITLE));
+                    pushNotification.setNotification(new Notification(NotificationsConstants.HIGHBANDBHL_ALERT_NOTIFICATION_TITLE, NotificationsConstants.HIGHBANDBHL_ALERT_NOTIFICATION_BODY));
+
+                    for (String firebaseToken : users) {
+
+                        pushNotification.setToken(firebaseToken);
+                        alertUtilities.sendNotificationUsingV1(pushNotification);
+                    }
+                    log.info("HighbandBHL Push Notification From Firebase - End");
+                }
+                case "HighbandExcavator" -> {
+                    log.info("UserList size is: {}" , users.size());
+                    log.info("HighbandExcavator Push Notification From Firebase - Start");
+                    MessageContent pushNotification = new MessageContent();
+                    pushNotification.setData(new Data(NotificationsConstants.HIGHBANDEXCAVATOR_ALERT_DESCRIPTION, NotificationsConstants.HIGHBANDEXCAVATOR_ALERT_TYPE, NotificationsConstants.HIGHBANDEXCAVATOR_ALERT_KEY, NotificationsConstants.HIGHBANDEXCAVATOR_ALERT_TITLE));
+                    pushNotification.setNotification(new Notification(NotificationsConstants.HIGHBANDEXCAVATOR_ALERT_NOTIFICATION_TITLE, NotificationsConstants.HIGHBANDEXCAVATOR_ALERT_NOTIFICATION_BODY));
+
+                    for (String firebaseToken : users) {
+
+                        pushNotification.setToken(firebaseToken);
+                        alertUtilities.sendNotificationUsingV1(pushNotification);
+                    }
+                    log.info("HighbandExcavator Push Notification From Firebase - End");
+                }
+                case "HighIdling" -> {
+                    log.info("UserList size {}", users.size());
+                    log.info("HighIdling Push Notification From Firebase - Start");
+                    MessageContent pushNotification = new MessageContent();
+                    pushNotification.setData(new Data(NotificationsConstants.HIGHIDLING_ALERT_DESCRIPTION, NotificationsConstants.HIGHIDLING_ALERT_TYPE, NotificationsConstants.HIGHIDLING_ALERT_KEY, NotificationsConstants.HIGHIDLING_ALERT_TITLE));
+                    pushNotification.setNotification(new Notification(NotificationsConstants.HIGHIDLING_ALERT_NOTIFICATION_TITLE, NotificationsConstants.HIGHIDLING_ALERT_NOTIFICATION_BODY));
+
+                    for (String firebaseToken : users) {
+
+                        pushNotification.setToken(firebaseToken);
+                        alertUtilities.sendNotificationUsingV1(pushNotification);
+                    }
+                    log.info("HighIdling Push Notification From Firebase - End");
+                }
+                case "Email" -> emailService.sentRetryMail("Machine Scheduler", "Return Empty Data", 0, 0);
+                default -> {
+                    return new ResponseEntity<>("Please give correct type", HttpStatus.OK);
+                }
+            }
+            return ResponseEntity.ok("Push notification sent successfully");
+
+        } catch (final Exception e) {
+            log.error("Issue observed while testAndroidSalesforceNotification {}", e.getMessage());
+            return new ResponseEntity<>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+                    MessagesList.ANDROID_PUSH_ERROR, MessagesList.ANDROID_PUSH_ERROR, null),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -7,6 +7,8 @@ import com.wipro.jcb.livelink.app.alerts.exception.ProcessCustomError;
 import com.wipro.jcb.livelink.app.alerts.repo.UserNotificationDetailRepo;
 import com.wipro.jcb.livelink.app.alerts.service.AppServerTokenService;
 import com.wipro.jcb.livelink.app.alerts.service.LivelinkUserTokenService;
+import com.wipro.jcb.livelink.app.alerts.service.response.Message;
+import com.wipro.jcb.livelink.app.alerts.service.response.MessageContent;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
@@ -14,7 +16,9 @@ import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -23,15 +27,14 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.FileInputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import com.google.auth.oauth2.GoogleCredentials;
 
 import static com.wipro.jcb.livelink.app.alerts.constants.AppServerConstants.timezone;
 
@@ -51,6 +54,12 @@ public class AlertUtilities {
     int connectTimeout;
     @Value("${livelinkserver.readTimeout}")
     int readTimeout;
+
+    @Value("${fcmv1.url}")
+    String fcmUrlV1;
+
+    @Value("${fcm1.json}")
+    String fcmJson;
 
     @Autowired
     LivelinkUserTokenService livelinkUserTokenService;
@@ -178,7 +187,7 @@ public class AlertUtilities {
                         livelinkUserTokenService.setUserTokenByUsername(userToken);
 
                         String appFCMKey = appToken.getAppFCMKey();
-                        log.info(" app FCM Key value is: {}",appFCMKey);
+                        log.info(" app FCM Key value is: {}", appFCMKey);
                         if (appFCMKey != null) {
                             Optional<UserNotificationDetail> existingDetail = userNotificationDetailRepo.findById(appFCMKey);
                             existingDetail.ifPresent(userNotificationDetail -> {
@@ -208,9 +217,65 @@ public class AlertUtilities {
     }
 
     public Date getPreviousDay(Date day) {
-        LocalDate date = LocalDate.parse( new SimpleDateFormat("yyyy-MM-dd").format(day) );
+        LocalDate date = LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(day));
         return date.minusDays(1).toDate();
 
+    }
+
+    public String getDDMMYY(int daysBefore) {
+        final DateFormat parseFormat = new SimpleDateFormat(AppServerConstants.DateFormatForMachineUpdate);
+        return parseFormat.format(LocalDateTime.now(DateTimeZone.forID(timezone)).minusDays(daysBefore).toDate());
+    }
+
+    public void sendNotificationUsingV1(MessageContent pushNotification) {
+
+
+        try {
+            // Firebase Authorization Token Creation/Update
+            String fireBaseToken = getAccessToken();
+
+            // Payload for firebase notification
+            Message pushData = new Message();
+            pushData.setMessage(pushNotification);
+
+            // Header
+            final MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+            headers.add("Authorization", "Bearer " + fireBaseToken);
+            headers.add("Content-Type", "application/json");
+
+            final RestTemplate restTemplate = new RestTemplate();
+            final HttpEntity<Message> request = new HttpEntity<>(pushData, headers);
+            final ResponseEntity<String> out = restTemplate.exchange(fcmUrlV1, HttpMethod.POST, request,
+                    String.class);
+
+            if (out.getStatusCode() == HttpStatus.OK) {
+                log.info("PUSH NOTIFICATION SEND {}", out);
+            } else {
+                log.info("PUSH NOTIFICATION FAULTED{}RESPONSE{}", pushNotification, out.getBody());
+            }
+
+        } catch (Exception e) {
+            log.error("Exception occurred in push message {}", e.getMessage());
+        }
+
+    }
+
+    private String getAccessToken() {
+        String token = "";
+        try {
+
+            String[] scope = new String[]{"https://www.googleapis.com/auth/firebase.messaging"};
+            GoogleCredentials googleCredentials = GoogleCredentials
+                    .fromStream(new FileInputStream(fcmJson))
+                    .createScoped(List.of(scope));
+            googleCredentials.refreshIfExpired();
+            googleCredentials.refreshAccessToken();
+            log.info("googleCredentials : {}", googleCredentials);
+            token = googleCredentials.getAccessToken().getTokenValue();
+        } catch (Exception e) {
+            log.info("Exception in firebase accessToken {}", e.getMessage());
+        }
+        return token;
     }
 
 }
