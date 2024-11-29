@@ -498,4 +498,53 @@ public class UserProfileController {
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	/*
+	 * API to Delete TimeFence Details
+	 */
+	@CrossOrigin
+	@Operation(summary = "Delete Timefence Details")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Timefence Details Deleted Successfully", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = MachineListResponse.class)) }),
+			@ApiResponse(responseCode = "401", description = "Auth Failed", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)) }),
+			@ApiResponse(responseCode = "500", description = "Request failed", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)) }) })
+	@PostMapping("/deletetimefence")
+	public ResponseEntity<?> deletetimefence(@RequestHeader(MessagesList.LOGGED_IN_USER_ROLE) String userDetails,
+			@RequestBody GeofenceRequest geofenceParam) {
+		try {
+			UserDetails userResponse = AuthCommonUtils.getUserDetails(userDetails);
+			final String userName = userResponse.getUserName();
+			log.info("Delete Geofence Method Started " + userName);
+			if (userName != null) {
+				if (geofenceParam.getVin() != null) {
+					String response = machineService.deleteTimefenceDetails(geofenceParam.getVin(), userName, "optional");
+					if (response.equals(MessagesList.SUCCESS)) {
+						return new ResponseEntity<ResponseData>(
+								new ResponseData("Success", "Timefence Deleted Successfully"), HttpStatus.OK);
+					} else {
+						return new ResponseEntity<ApiError>(
+								new ApiError(HttpStatus.EXPECTATION_FAILED, "Failed", response, null),
+								HttpStatus.EXPECTATION_FAILED);
+					}
+				} else {
+					log.info("Validation Issue");
+					return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+							"VIN can't be null or empty", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+				}
+			} else {
+				log.info("Delete Geofence : No Vallid session present");
+				return new ResponseEntity<ApiError>(new ApiError(HttpStatus.EXPECTATION_FAILED,
+						"No valid session present", "Session expired", null), HttpStatus.EXPECTATION_FAILED);
+			}
+
+		} catch (final Exception e) {
+			log.error("Issue faced while delete geofence");
+			return new ResponseEntity<ApiError>(new ApiError(HttpURLConnection.HTTP_INTERNAL_ERROR,
+					MessagesList.APP_REQUEST_PROCESSING_FAILED, MessagesList.APP_REQUEST_PROCESSING_FAILED, null),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 }

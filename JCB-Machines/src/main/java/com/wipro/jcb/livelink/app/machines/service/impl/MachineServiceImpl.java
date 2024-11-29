@@ -359,11 +359,6 @@ public class MachineServiceImpl implements MachineService {
     }
 
     @Override
-    public String deleteTimefenceDetails(String vin, String userName, String tokenId) {
-        return "";
-    }
-
-    @Override
     public String storeServiceCallRequestFileUpload(String vin, String customerName, String customerPhone, String contactName, String customerAlternativePhone, String machineHmr, String serviceDealerName, String model, String machineLocation, String warrantyStatus, String contractStatus, String machineStatus, String remarks, List<MultipartFile> image, String userName) {
         return "";
     }
@@ -1642,5 +1637,78 @@ public class MachineServiceImpl implements MachineService {
 			e.printStackTrace();
 		}
 		return timefenceResponse;
+	}
+	
+	@Override
+	public String deleteTimefenceDetails(String vin, String userName, String livelinkTokenId) {
+		String response = null;
+		try {
+			String livelinkToken = "37aa1b15_20240522150705";
+			final MachineTimefence timefence = machineTimefenceRepository.findByVin(vin);
+			if (timefence != null) {
+				
+				final Client client = Client.create();
+				client.setConnectTimeout(connectTimeout);
+				client.setReadTimeout(readTimeout);
+
+				final String deleteTimefence = AppServerConstants.livelinkAppServerBaseUrl+MessagesList.DELETE_TIME_FENCE;
+				log.info("geofence API URL :" + deleteTimefence);
+
+				JSONObject object = new JSONObject();
+				object.put("LoginID", userName);
+				object.put("VIN", vin);
+
+				final WebResource deleteTimefenceResource = client.resource(deleteTimefence);
+				final ClientResponse deletefenceDataResponse = deleteTimefenceResource
+						.header("Orgkey", AppServerConstants.livelinkAppServerOrgKey)
+						.header("TokenId", livelinkToken)
+						.type("application/json")
+						.post(ClientResponse.class, object.toString());
+				
+				if (deletefenceDataResponse.getStatus() == HttpServletResponse.SC_OK) {
+
+					String responseStatus = deletefenceDataResponse.getEntity(String.class);
+					if (responseStatus.equalsIgnoreCase(MessagesList.SUCCESS)) {
+						machineTimefenceRepository.deleteById(vin);
+						log.info("Timefence Delete Status :" + responseStatus);
+						response = responseStatus;
+					} else {
+						log.info("Timefence Delete Status :" + responseStatus);
+						if (responseStatus.contains(MessagesList.TOKEN_ID_INVALID)) {
+							final User user = userRepository.findByUserName(userName);
+							if (user != null) {
+								livelinkToken = null;
+								livelinkToken = utilities.updateLivelinkServerToken(user, true);
+								return deleteTimefenceDetails(vin, userName, livelinkToken);
+							}
+						} else {
+							response = responseStatus;
+						}
+					}
+				} else {
+					log.error("Set Geofence Wipro API Response Status: " + deletefenceDataResponse.getStatus()
+							+ "geofenceDataResponse :" + deletefenceDataResponse + " VIN: " + vin);
+					if (deletefenceDataResponse.getStatus() == HttpServletResponse.SC_UNAUTHORIZED) {
+
+						final User user = userRepository.findByUserName(userName);
+						if (user != null) {
+							livelinkToken = null;
+							livelinkToken = utilities.updateLivelinkServerToken(user, true);
+							return deleteTimefenceDetails(vin, userName, livelinkToken);
+						}
+
+					} else {
+						return MessagesList.FAILURE;
+					}
+				}
+			} else {
+				log.info("No data found in selected VIN " + vin);
+				response = MessagesList.FAILURE;
+			}
+		} catch (Exception e) {
+			response = MessagesList.FAILURE;
+			e.printStackTrace();
+		}
+		return response;
 	}
 }

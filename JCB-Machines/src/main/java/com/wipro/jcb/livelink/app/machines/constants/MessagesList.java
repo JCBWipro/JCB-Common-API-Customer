@@ -59,4 +59,5 @@ public class MessagesList {
 	public static final String GET_LANDMARK_DETAILS_FOR_USER = "/v05/WorkManagement/geoFenceService/GetLandmarkDetailsForUser";
 	public static final String SET_TIME_FENCE = "/v04/WorkManagement/timeFenceService/SetTimeFence";
 	public static final String GET_TIME_FENCE = "/v04/WorkManagement/timeFenceService/GetTimeFence";
+	public static final String DELETE_TIME_FENCE = "/v02/WorkManagement/timeFenceService/DeleteTimeFence";
 }
