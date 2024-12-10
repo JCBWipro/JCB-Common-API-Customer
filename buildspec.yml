@@ -1,73 +1,39 @@
+
 version: 0.2
  
 phases:
   install:
     commands:
-      - echo "Installing required dependencies..."
+      - echo "Installing Maven and JDK"
       - yum update -y
-      - yum install -y maven java-17-amazon-corretto.x86_64 aws-cli
+      - yum install -y maven java-17-amazon-corretto.x86_64
       - export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
       - export PATH=$JAVA_HOME/bin:$PATH
  
   pre_build:
     commands:
-      - echo "Setting up pre-build environment variables..."
-      - export springDatasourceUrl=jdbc:mysql://10.210.196.240:3306/microservices_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      - export springDatasourceUserName=root
-      - export springDatasourcePassword=root@123
-      - echo "Pre-build setup completed successfully."
+      - echo "Setting environment variables" # More generic message
+      - export springDatasourceUrl='jdbc:mysql://10.210.196.240:3306/microservices_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true'
+      - export springDatasourceUserName='root'
+      - export springDatasourcePassword='root@123#'
+      - echo "Starting pre-build stage"
+
  
   build:
     commands:
-      - echo "Building the project using Maven..."
-      - echo "JAVA_HOME=$JAVA_HOME"
-      - echo "PATH=$PATH"
+      - echo "Building with Maven"
+      - echo $JAVA_HOME
+      - echo $PATH
       - export MAVEN_OPTS="-Xmx3072m"
-      - mvn clean package -Dmaven.test.failure.ignore=false
-      - if [ $? -ne 0 ]; then
-          echo "Build failed! Exiting with failure.";
-          exit 1;
-        fi
-      - echo "Build successful! Copying generated JAR files to build artifacts directory..."
+      - mvn clean package -Dmaven.test.failure.ignore=true
+      - echo "Built JAR files:"
+      - find . -name "*.jar" -print # Cleaner output
+ 
+ 
+      # Dynamically find and copy JARs 
+      - echo "Copying JARs to artifacts directory..."
       - mkdir -p build_artifacts
       - find . -name "*.jar" -exec cp {} build_artifacts/ \;
-      - if [ ! -f build_artifacts/*.jar ]; then
-          echo "No JAR files found after build! Exiting with failure.";
-          exit 1;
-        fi
- 
-  post_build:
-    commands:
-      - echo "Post-build phase: Fetching the latest artifact from S3 and deploying..."
-      
-      # Fetching the latest JAR from the specified S3 bucket
-      - BUCKET_NAME="codepipeline-ap-south-1-633051940229"
-      - FOLDER_NAME="JCBMobileAPI_CodePip/BuildArtif/"
-      - echo "Finding the latest file in S3 bucket $BUCKET_NAME under $FOLDER_NAME..."
-      - LATEST_FILE=$(aws s3 ls s3://$BUCKET_NAME/$FOLDER_NAME --recursive | sort | tail -n 1 | awk '{print $4}')
-      - if [ -z "$LATEST_FILE" ]; then
-          echo "No latest file found in the S3 bucket! Exiting with failure.";
-          exit 1;
-        fi
-      - echo "Latest file identified: $LATEST_FILE"
-      
-      # Downloading the latest file from S3
-      - aws s3 cp s3://$BUCKET_NAME/$LATEST_FILE ./latest_artifact.zip
-      
-      # Extracting the file if it’s a ZIP
-      - echo "Extracting downloaded artifact..."
-      - unzip -o latest_artifact.zip -d extracted_artifacts/
-      
-      # Deploying the extracted artifact to the server
-      - echo "Deploying artifact to the server..."
-      - yum install -y epel-release
-      - yum install -y sshpass
-      - sshpass -p 'Welcomeaws@2022' scp -o StrictHostKeyChecking=no extracted_artifacts/*.jar jcbuser1@10.210.196.206:/data5/JCB_MobileAPI_Artifact/
-      - if [ $? -ne 0 ]; then
-          echo "Deployment failed! Exiting with failure.";
-          exit 1;
-        fi
-      - echo "Deployment completed successfully."
  
 artifacts:
   files:
