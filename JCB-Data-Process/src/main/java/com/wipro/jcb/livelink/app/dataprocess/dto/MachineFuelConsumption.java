@@ -16,6 +16,6 @@ import java.sql.Timestamp;
 @ToString
 public class MachineFuelConsumption {
     private String vin;
-    private Timestamp stausAsOn;
-    private Double fuelLevelPerc;
+    private Timestamp statusAsOn;
+    private Double fuelLevelPercentage;
 }

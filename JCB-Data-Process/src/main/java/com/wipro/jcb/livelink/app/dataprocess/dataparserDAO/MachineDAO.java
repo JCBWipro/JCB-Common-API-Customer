@@ -108,8 +108,8 @@ public class MachineDAO {
                     MachineFuelConsumption packet = packets.get(i);
                     ps.setString(1, packet.getVin());
                     ps.setString(2, packet.getVin());
-                    ps.setTimestamp(3, packet.getStausAsOn());
-                    ps.setDouble(4, packet.getFuelLevelPerc());
+                    ps.setTimestamp(3, packet.getStatusAsOn());
+                    ps.setDouble(4, packet.getFuelLevelPercentage());
                 }
 
                 @Override
