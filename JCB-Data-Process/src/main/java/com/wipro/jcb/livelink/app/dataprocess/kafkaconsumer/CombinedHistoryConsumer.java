@@ -1,202 +1,133 @@
-/*
 package com.wipro.jcb.livelink.app.dataprocess.kafkaconsumer;
 
-
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.wipro.jcb.livelink.app.dataprocess.dataparser.CombinedHistoryDataParser;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.logging.Logger;
+import java.util.concurrent.*;
 
-*/
-/**
- * Author: Rituraj Azad
- * User: RI20474447
- * Date:12-12-2024
- *//*
-
+@Slf4j
+@Component
 public class CombinedHistoryConsumer implements Runnable {
 
-    Thread t;
-    String topicName = "CombinedHistory";
-    static int numberOfThreads = 0;
-    static int listenerFlag = 1;
-    public static KafkaConsumer<String, String> consumer = null;//CR330.n
-    public static ExecutorService executor;;//CR330.n
+    @Value("${CombinedHistoryThreadCount}")
+    int numberOfThreads;
 
-    public CombinedHistoryConsumer() {
-        t = new Thread(this, "CombinedHistoryConsumer");
-        t.start();
+    @Value("${kafka.bootstrap-servers}")
+    String bootstrapServers;
+
+    @Value("${kafka.topic-name}")
+    String topicName;
+
+    @Value("${kafka.enable-auto-commit}")
+    boolean enableAutoCommit;
+
+    @Value("${kafka.key-deserializer}")
+    String keyDeserializer;
+
+    @Value("${kafka.value-deserializer}")
+    String valueDeserializer;
+
+    private volatile boolean running = true;// Use a volatile flag for shutdown
+    private KafkaConsumer<String, String> consumer;
+    private ExecutorService executor;
+
+
+    @PostConstruct  // Initialize after bean creation
+    public void init() {
+        // Configure Kafka consumer properties
+        String groupId = "Client_" + topicName;
+        Properties props = new Properties();
+        props.put("bootstrap.servers", bootstrapServers);
+        props.put("group.id",groupId);
+        props.put("enable.auto.commit", enableAutoCommit);
+        props.put("key.deserializer", keyDeserializer);
+        props.put("value.deserializer", valueDeserializer);
+        consumer = new KafkaConsumer<>(props);
+        consumer.subscribe(Collections.singletonList(topicName)); // Subscribe to the topic
+
+        // Create thread pool
+        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
+                .setNameFormat("CombinedHistoryConsumer-thread-%d").build();
+        executor = Executors.newFixedThreadPool(numberOfThreads, namedThreadFactory);
+
+        // Start the consumer thread
+        new Thread(this, "CombinedHistoryConsumer").start();
     }
 
-    //CR330.sn
     @Override
     public void run() {
-        Logger iLogger = InfoLoggerClass.logger;
-        Logger fLogger = FatalLoggerClass.logger;
+        log.info("CombinedHistoryConsumer started.  topicName={}, numberOfThreads={}", topicName, numberOfThreads); // Startup message
 
-        //--------- Step1: Get the number of threads that can run in parallel after consuming the message from Kafka
-        try {
-            Properties prop = new StaticProperties().getConfProperty();
-            numberOfThreads = Integer.parseInt(prop.getProperty("CombinedHistoryThreadCount"));
-        } catch (Exception e) {
-            fLogger.fatal("CombinedHistoryConsumer:Error in intializing property File:" + e.getMessage());
-        }
-
-        //Need to stop the thread if there is an error in reading from the property file
-        if (numberOfThreads != 0) {
+        while (running) {
             try {
-                //------------ Step2: Provide the connection parameters
-                String groupId = "Client_" + topicName;
-                Properties props = new Properties();
-                props.put("bootstrap.servers", "localhost:9092");
-                props.put("group.id", groupId);
-                props.put("enable.auto.commit", "true");
-                props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-                props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+                ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+                if (!records.isEmpty()) {
+                    log.debug("Received {} records from Kafka", records.count());  // Log number of records received
+                    List<Future<?>> futures = new ArrayList<>();
 
-                ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
-                        .setNameFormat("CombinedHistoryConsumer-thread-%d").build();
-                List<TopicPartition> partitionList = new LinkedList<TopicPartition>();
-                TopicPartition partition = new TopicPartition(topicName, 0);
-                partitionList.add(partition);
-                CombinedHistoryConsumer.consumer = new KafkaConsumer<>(props);
-                CombinedHistoryConsumer.consumer.assign(partitionList);
-
-                outerLoop: while (numberOfThreads != 0) {
-                    int msgsProcessed = 0;
-                    int ActiveCount = 0;
-
-                    if (CombinedHistoryConsumer.listenerFlag == 1) {
-                        ConsumerRecords<String, String> streams = CombinedHistoryConsumer.consumer.poll(100);
-
-                        if (streams != null && !streams.isEmpty()) {
-                            //We are using Fixed Pool Executor and given numberOfThreads as fixed and not the number of messages in Kafka,
-                            //since there is no method available to find the number of messages to be consumed yet from Kafka.
-                            //Kafka Topic is considered to be of infinite messages.
-
-                            executor = Executors.newFixedThreadPool(numberOfThreads, namedThreadFactory);
-
-                            //Important Note: Kafka stream will not come out of this for loop even after consuming all the messages.
-                            //It would be waiting for the next set of messages to be consumed and hence it acts like a continuous listener as long as this thread exists.
-                            for (ConsumerRecord<String, String> stream : streams) {
-                                if (CombinedHistoryConsumer.listenerFlag == 0) {
-                                    int infiniteCounter = 0;
-                                    iLogger.info(
-                                            "CombinedHistoryConsumer:ForKafkaStreamStart:Listener Flag is set to 0. Hence stop consuming messages from Topic");
-                                    executor.shutdown();
-                                    while (!executor.isTerminated()) {
-                                        if (infiniteCounter == 0) {
-                                            iLogger.info(
-                                                    "CombinedHistoryConsumer:ForKafkaStreamStart:Waiting for Termination");
-                                            infiniteCounter++;
-                                        }
-                                        Thread.sleep(100);
-                                    }
-                                    executor.shutdownNow();
-                                    infiniteCounter = 0;
-                                    while (CombinedHistoryConsumer.listenerFlag == 0) {
-                                        if (infiniteCounter == 0) {
-                                            iLogger.info(
-                                                    "CombinedHistoryConsumer:ForKafkaStreamStart:Listener Flag ==0 ");
-                                            infiniteCounter++;
-                                        }
-                                        Thread.sleep(1000);
-                                    }
-                                    iLogger.info(
-                                            "CombinedHistoryConsumer:Control Came out of Infinite Loop when Lister Falg Set to 1");
-                                    continue outerLoop;
-                                }
-
-                                if (executor instanceof ThreadPoolExecutor) {
-                                    Thread.sleep(10);
-
-                                    ActiveCount = ((ThreadPoolExecutor) executor).getActiveCount();
-                                    iLogger.debug("MDA:DI:MDAConsumer: ActiveCount :" + ActiveCount);
-                                    activeCountCheck: while (ActiveCount >= numberOfThreads) {
-                                        Thread.sleep(500);
-                                        ActiveCount = ((ThreadPoolExecutor) executor).getActiveCount();
-                                        if (CombinedHistoryConsumer.listenerFlag == 0) {
-                                            break activeCountCheck;
-                                        }
-                                    }
-                                }
-
-                                if (CombinedHistoryConsumer.listenerFlag == 0) {
-                                    int infiniteCounter = 0;
-                                    iLogger.info(
-                                            "CombinedHistoryConsumer:It.hasNext():Listener Flag is set to 0. Hence stop consuming messages from Topic");
-                                    executor.shutdown();
-                                    while (!executor.isTerminated()) {
-                                        if (infiniteCounter == 0) {
-                                            iLogger.info("CombinedHistoryConsumer:It.hasNext():Waiting for Termination");
-                                            infiniteCounter++;
-                                        }
-                                        Thread.sleep(100);
-                                    }
-                                    executor.shutdownNow();
-
-                                    infiniteCounter = 0;
-                                    while (CombinedHistoryConsumer.listenerFlag == 0) {
-                                        if (infiniteCounter == 0) {
-                                            iLogger.info("CombinedHistoryConsumer:It.hasNext():Listener Flag ==0 ");
-                                            infiniteCounter++;
-                                        }
-                                        Thread.sleep(1000);
-                                    }
-                                    iLogger.info(
-                                            "CombinedHistoryConsumer:Control Came out of Infinite Loop when Lister Falg Set to 1");
-                                    continue outerLoop;
-                                }
-                                msgsProcessed++;
-                                iLogger.debug(
-                                        "CombinedHistoryConsumer:Number of Messages processed  =" + msgsProcessed);
-
-                                //the msgReceived variable is consisting of the actual values (packets) that we need to persist into the DB,
-                                //we need to parse the data, process the data to split it and insert it into respective tables .
-                                String msgReceived = stream.value();
-                                iLogger.info("CombinedHistoryConsumer:ActiveCount : " + ActiveCount + " msgReceived ="
-                                        + msgReceived);
-
-                                */
-/*StreamRabbitMQConsumer streamConsumer = new StreamRabbitMQConsumer();
-                                streamConsumer.payload = msgReceived;
-                                executor.execute(streamConsumer);*//*
-
+                    for (ConsumerRecord<String, String> record : records) {
+                        futures.add(executor.submit(() -> {
+                            try {
+                                String msgReceived = record.value();
+                                log.trace("Processing message: {}", msgReceived);
+                                CombinedHistoryDataParser.dataParsing(msgReceived);
+                            } catch (Exception e) {
+                                log.error("Error processing message: {} - Exception: {}", record.value(), e.getMessage(), e);
                             }
-                            CombinedHistoryDataParser.dataParsing(msgReceived);
-                            executor.shutdown();
-
-                            //--------- Introducing while loop here to wait for all the threads to be completed, so that next set of packets can be consumed from Kafka
-                            //Otherwise it would just bombard the executor where in executor can't open up new threads until it is released from other
-                            iLogger.debug("CombinedHistoryConsumer:Wait for Executor to terminate");
-                            int infiniteCounter1 = 0;
-                            while (!executor.isTerminated()) {
-                                if (infiniteCounter1 == 0) {
-                                    iLogger.info(
-                                            "CombinedHistoryConsumer:It.When For loops Ended :Waiting for Termination");
-                                    infiniteCounter1++;
-                                }
-                            }
-                            executor.shutdownNow();
-                            iLogger.debug("CombinedHistoryConsumer:Executor terminated");
-                        }
-                    }else {
-                        fLogger.debug(
-                                "CombinedHistoryConsumer:Listener Flag is set to 0. Hence not consuming messages from Topic");
-                        break outerLoop;
+                        }));
                     }
+
+                    for (Future<?> future : futures) {
+                        try {
+                            future.get();  // Get the result of each task.  This blocks and will re-throw any exceptions
+                        } catch (InterruptedException e) {
+                            log.warn("Task interrupted: {}", e.getMessage());
+                            Thread.currentThread().interrupt();
+                        } catch (ExecutionException e) {
+                            log.error("Task execution failed: {}", e.getMessage(), e.getCause()); // Log the causing exception
+                        }
+                    }
+                } else {
+                    log.trace("No records received from Kafka. Polling again..."); // Trace-level logging to avoid excessive output
                 }
-            }catch (Exception e) {
-                fLogger.fatal("CombinedHistoryConsumer:Unable to subscribe kafka consumer:Exception:" + e.getMessage());
-            }finally {
-                CombinedHistoryConsumer.consumer.close();
-                iLogger.info("CombinedHistoryConsumer:End on Thread Run ");
+
+            } catch (Exception e) {
+                log.error("Unexpected error in consumer loop: {}", e.getMessage(), e); // Catch and log any other exception
             }
         }
+        shutdown();
     }
 
+    public void shutdown() {
+        running = false; // Signal the consumer loop to stop
+        if (executor != null) {
+            executor.shutdown(); // Initiate shutdown of the executor
+            try {
+                if (!executor.awaitTermination(10, TimeUnit.SECONDS)) { // Wait for termination
+                    executor.shutdownNow(); // Forceful shutdown if tasks don't complete in time
+                }
+            } catch (InterruptedException e) {
+                log.error("Interrupted while waiting for executor shutdown", e);
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        if (consumer != null) {
+            consumer.close();
+        }
+        log.info("CombinedHistoryConsumer shutdown complete");
+    }
 }
-*/
+

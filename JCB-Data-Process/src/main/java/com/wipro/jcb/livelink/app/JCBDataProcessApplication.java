@@ -4,11 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
-/**
+/*
  * Author: Rituraj Azad
  * User: RI20474447
- * Date:05-09-2024
- *
+ * Date:11-12-2024
  */
 
 @SpringBootApplication
