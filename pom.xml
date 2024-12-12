@@ -11,6 +11,7 @@
         <module>JCB-User</module>
         <module>JCB-Reports</module>
         <module>JCB-Alerts</module>
+        <module>JCB-Data-Process</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
