@@ -1,341 +1,427 @@
-/*
 package com.wipro.jcb.livelink.app.dataprocess.dataparser;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wipro.jcb.livelink.app.dataprocess.config.AppConfiguration;
+import com.wipro.jcb.livelink.app.dataprocess.constants.Constant;
+import com.wipro.jcb.livelink.app.dataprocess.constants.EventName;
+import com.wipro.jcb.livelink.app.dataprocess.constants.EventType;
+import com.wipro.jcb.livelink.app.dataprocess.constants.UserType;
+import com.wipro.jcb.livelink.app.dataprocess.dataparserDAO.MachineDAO;
+import com.wipro.jcb.livelink.app.dataprocess.dto.*;
+import com.wipro.jcb.livelink.app.dataprocess.service.LivelinkUserTokenService;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-*/
-/**
+/*
  * Author: Rituraj Azad
  * User: RI20474447
  * Date:12-12-2024
- *//*
-
+ * */
+@Slf4j
 public class CombinedHistoryDataParser {
+    @Autowired
+    MachineDAO machineDao;
+    @Autowired
+    AppConfiguration config;
+    @Value("${fcm.apiKey}")
+    private String apiKey;
+    @Value("${fcm.url}")
+    private String fcmUrl;
+    @Autowired
+    LivelinkUserTokenService livelinkUserTokenService;
 
     public static void dataParsing(String msgReceived){
         //parsing logic to be implemented
+        try {
+            // 1. Split the message into individual packets
+            String[] packets = msgReceived.split(Constant.MESSAGE_SEPARATOR);
+
+            LinkedList<String> packetList = new LinkedList<>(Arrays.asList(packets));
+
+            // 2. Process and update the packets
+            CombinedHistoryDataParser parser = new CombinedHistoryDataParser();
+            parser.processAndUpdatePacket(packetList);
+
+        } catch (Exception e) {
+            log.error("Error parsing message: {}", e.getMessage(), e);
+        }
+
     }
 
-    {
-        private final Logger logger = LoggerFactory.getLogger(CombinedHistoryDataParser.class);
-        @Autowired
-        MachineDAO machineDao;
-        @Autowired
-        AppConfiguration config;
-        @Autowired
-        AppServerTokenService appServerTokenService;
-        @Value("${fcm.apiKey}")
-        private String apiKey;
-        @Value("${fcm.url}")
-        private String fcmUrl;
-        @Autowired
-        TestMachineDAO testMachineDAO;
-        @Autowired
-        LivelinkUserTokenService livelinkUserTokenService;
+    public void processAndUpdatePacket(LinkedList<String> packets) {
+        List<MachineData> machineDataList = new ArrayList<>();
+        List<MachineData> machineDataWithoutFuel = new ArrayList<>();
+        final List<MachineData> machineDataWithoutLocation = new LinkedList<>();
+        final List<MachineData> machineDataWithoutFuelLocation = new LinkedList<>();
+        List<MachineEngineStatus> machineEngineStatusList = new ArrayList<>();
+        List<MachineFuelConsumption> machineFuelConsumptionList = new ArrayList<>();
+        final List<AlertData> alertDataList = List.of();
+        final Set<String> vinList = Set.of();
+        final Set<String> vinListForGeo = Set.of();
 
-        @Autowired
-        private FeedParserStatisticsRepository feedRepo;
-
-        @Autowired
-        private EmailService emailService;
-
-        @Autowired
-        private FirmwarePacketRepo firmwarePacketRepo;
-
-
-
-        @Autowired
-        Utilities utilities;
-
-        @Autowired
-        MachineLocationHistoryRepo machineLocationHistoryRepo;
-
-        @Autowired
-        MachineFeedParserDataRepo machineFeedParserDataRepo;
-
-        @Autowired
-        MachineFuelHistoryDataRepo machineFuelHistoryDataRepo;
-
-        SimpleDateFormat newdateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-
-        // Declare variable to count the number of parameters
-        private static volatile long packetCount = 0;
-
-        private final List<MachineData> machineDataList = new LinkedList<>();
-        private final List<MachineData> machineDataWithoutFuel = new LinkedList<>();
-        private final List<MachineLocation> machinelocationList = new LinkedList<>();
-        private final List<MachineEngineStatus> machineEngineStatusList = new LinkedList<>();
-        private final List<MachineFuelConsumption> machineFuelConsumptionList = new LinkedList<>();
-        private final List<MachineData> machineStatusList = new LinkedList<>();
-
-        public void processAndUpdatePacket(List<String> packets) {
-        logger.info("packets size from queue: {}", packets.size());
-        final Set<String> vinList = new LinkedHashSet<>();
-        final Set<String> vinListforGeo = new LinkedHashSet<>();
-        Date lastDate =	utilities.getDate(utilities.getStartDate(14));
-        packetCount = packetCount + packets.size();
-        long start = System.currentTimeMillis();
-        for (final String packet : packets) {
-            //logger.info("Packets "+packet);
+        for (String packet : packets) {
             try {
-                final String[] inputStringArray = packet.split("\\|inputPacketString:");
-                final String inputString = inputStringArray[1];
-                final String firware = inputString.substring(11, 19);
-                final JSONObject parser = config.getPacketStr();
-                if (parser.has(firware) && (!parser.isNull(firware))) {
-                    try {
-                        final JSONObject packetObj = parser.getJSONObject(inputString.substring(11, 19));
-                        final String msgId = inputString.substring(packetObj.getInt("msgidstart"),
-                                packetObj.getInt("msgidend"));
-                        final JSONObject parseMessageId = packetObj.getJSONObject("data");
-                        if (parseMessageId.has(msgId) && !"100".equals(msgId)) {
-                            final JSONObject infoSeq = parseMessageId.getJSONObject(msgId);
-                            final String vin = inputString.substring(infoSeq.getInt("vinstart"),
-                                    infoSeq.getInt("vinend"));
-                            final String statusason = inputString.substring(infoSeq.getInt("statusasonstart"),
-                                    infoSeq.getInt("statusasonend"));
-                            String hrmValues = inputString.substring(infoSeq.getInt("hmrstart"), infoSeq.getInt("hmrend"));
-                            Double  hmr=null;
-                            if(!hrmValues.isEmpty())
-                            {
-                                hmr = Double.parseDouble(hrmValues);
-                            }else {
-                                logger.info("Empty HMR "+vin);
-                            }
-                            final String location = inputString.substring(infoSeq.getInt("locationstart"),
-                                    infoSeq.getInt("locationend"));
-                            String batterValues = inputString.substring(infoSeq.getInt("batteryvoltstart"), infoSeq.getInt("batteryvoltend"));
-                            Double batteryVoltage =null;
-                            if(!batterValues.isEmpty())
-                            {
-                                batteryVoltage = Double.parseDouble(batterValues);
-                            }else {
-                                logger.info("Empty Battery "+vin);
-                            }
-                            Timestamp statusAsOnTime = getStatusAsOnTime(statusason);
+                String[] inputStringArray = packet.split("\\|inputPacketString:");
+                if (inputStringArray.length < 2) {  // Check for valid split
+                    log.warn("Invalid packet format: {}", packet);
+                    continue; // Skiping to next packet
+                }
+                String inputString = inputStringArray[1];
+                String firmware = inputString.substring(11, 19);
+                JSONObject parser = config.getPacketStr();
 
-                            Double fuelLevelPerc = 0.0;
+                if (parser != null && parser.has(firmware) && !parser.isNull(firmware)) {
+                    try {
+                        JSONObject packetObj = parser.getJSONObject(firmware);
+                        String msgId = inputString.substring(packetObj.getInt("msgidstart"), packetObj.getInt("msgidend"));
+                        JSONObject parseMessageId = packetObj.getJSONObject("data");
+
+                        if (parseMessageId.has(msgId) && !"100".equals(msgId)) {
+                            JSONObject infoSeq = parseMessageId.getJSONObject(msgId);
+                            String vin = inputString.substring(infoSeq.getInt("vinstart"), infoSeq.getInt("vinend"));
+                            Timestamp statusAsOnTime = getStatusAsOnTime(inputString.substring(infoSeq.getInt("statusasonstart"),
+                                    infoSeq.getInt("statusasonend")));
+                            Double hmr = Double.parseDouble(inputString.substring(infoSeq.getInt("hmrstart"), infoSeq.getInt("hmrend")));
+                            Double batteryVoltage = Double.parseDouble(inputString.substring(infoSeq.getInt("batteryvoltstart"),
+                                    infoSeq.getInt("batteryvoltend")));
+
+                            // Location Parsing (with improved error handling)
                             Double latitude = null;
                             Double longitude = null;
+                            String location = inputString.substring(infoSeq.getInt("locationstart"), infoSeq.getInt("locationend"));
                             try {
-                                // below change is to parse location whenever N and E exist in the location
-                                // string
+                                String[] locationParts = location.split("N");
+                                if(locationParts.length == 2){
+                                    latitude = parseLocationPart(locationParts[0]);
 
-                                if (location.contains("N") && location.contains("E")) {
-                                    final Double lat = Double.parseDouble(location.split("N")[0]) / 100;
-                                    final Double fractionLat = ((lat - lat.intValue()) / 60) * 100;
-                                    latitude = lat.intValue() + fractionLat;
-                                    final Double lon = Double.parseDouble(location.split("N")[1].split("E")[0]) / 100;
-                                    final Double fractionLon = ((lon - lon.intValue()) / 60) * 100;
-                                    longitude = lon.intValue() + fractionLon;
+                                    String[] lonParts = locationParts[1].split("E");
 
-
-                                } else {
-                                    //logger.info("Invalid location string: {}", packet);
-                                    MachineLocation machineLocation = testMachineDAO.getExistingMachineLocation(vin);
-                                    latitude = machineLocation.getLatitude();
-                                    longitude = machineLocation.getLongitude();
+                                    if(lonParts.length > 0){
+                                        longitude = parseLocationPart(lonParts[0]);
+                                    }
                                 }
-                                vinListforGeo.add(vin);
-                                machinelocationList.add(new MachineLocation(vin, statusAsOnTime, latitude, longitude));
-                            } catch (Exception ex) {
-                                logger.error("getting exception while parsing loaction {} ", ex.getMessage());
+
+                                if (latitude != null && longitude != null) {
+                                    vinListForGeo.add(vin);
+                                }
+                            } catch (NumberFormatException ex) {
+                                log.warn("Invalid location format for VIN {}: {}", vin, location, ex);
                             }
+
 
                             vinList.add(vin);
-                            // Update machine usage data in machine table
-                            if ((infoSeq.getInt("fuelpercend") - infoSeq.getInt("fuelpercstart")) > 0
-                                    && Double.parseDouble(inputString.substring(infoSeq.getInt("fuelpercstart"),
-                                    infoSeq.getInt("fuelpercend"))) != 110) {
-                                fuelLevelPerc = Double.parseDouble(inputString
-                                        .substring(infoSeq.getInt("fuelpercstart"), infoSeq.getInt("fuelpercend")));
-//								logger.info("Fuel Level "+vin+"-"+statusAsOnTime+"-"+(infoSeq.getInt("fuelpercend") - infoSeq.getInt("fuelpercstart"))+"-"+fuelLevelPerc);
-                                machineDataList.add(new MachineData(vin, hmr, statusAsOnTime, latitude, longitude,
-                                        batteryVoltage, fuelLevelPerc));
 
-                                if(statusAsOnTime.after(lastDate))
-                                {
 
-                                    if (config.getIgnitionmsgid().contains(Integer.parseInt(msgId))) {
-                                        if(infoSeq.has("ignitionstatus"))
-                                        {
-                                            final Boolean ignitionStatus = "1"
-                                                    .equals((inputString.subSequence(infoSeq.getInt("ignitionstatus"),
-                                                            infoSeq.getInt("ignitionstatus") + 1).toString().trim())) ? true
-                                                    : false;
-//											logger.info("Ignition Status: "+vin+"-"+statusAsOnTime+"-"+ignitionStatus+"-"+fuelLevelPerc);
-
-                                            if(ignitionStatus.equals(true))
-                                            {
-                                                machineFuelConsumptionList.add(new MachineFuelConsumption(vin, statusAsOnTime, fuelLevelPerc));
-                                                testMachineDAO.addBatchMachineWithFuelConsume(machineFuelConsumptionList);
-                                            }else {
-                                                try
-                                                {
-                                                    logger.info("Ignition Status is False : "+vin+"-"+statusAsOnTime+"-"+fuelLevelPerc);
-
-                                                    Double fuelLevel = machineFuelHistoryDataRepo.getFuelHistoryRecord(vin);
-                                                    if(fuelLevel!=null) {
-                                                        machineFuelConsumptionList.add(new MachineFuelConsumption(vin, statusAsOnTime, fuelLevel));
-                                                        testMachineDAO.addBatchMachineWithFuelConsume(machineFuelConsumptionList);
-                                                    }else {
-                                                        logger.error("No Existing Records "+vin);
-                                                    }
-
-                                                }catch(Exception e)
-                                                {
-                                                    logger.info("Exception in get fuel data "+e.getMessage()+"-"+vin);
-                                                    e.printStackTrace();
-                                                }
-
-                                            }
-                                        }else {
-                                            logger.info("Ignition Not Integrated: "+vin);
-                                            machineFuelConsumptionList.add(new MachineFuelConsumption(vin, statusAsOnTime, fuelLevelPerc));
-                                            testMachineDAO.addBatchMachineWithFuelConsume(machineFuelConsumptionList);
-                                        }
-                                    }else {
-                                        machineFuelConsumptionList.add(new MachineFuelConsumption(vin, statusAsOnTime, fuelLevelPerc));
-                                        testMachineDAO.addBatchMachineWithFuelConsume(machineFuelConsumptionList);
-                                        logger.info("Ignition Msg Id Not Configured :"+msgId+"-"+vin);
-                                    }
-                                }
-
-                            } else {
-
-                                if(hmr!=null && batteryVoltage!=null) {
-                                    machineDataWithoutFuel.add(new MachineData(vin, hmr, statusAsOnTime, latitude,
-                                            longitude, batteryVoltage, fuelLevelPerc));
-                                }else {
-                                    machineStatusList.add(new MachineData(vin, hmr, statusAsOnTime, latitude, longitude,
-                                            batteryVoltage, fuelLevelPerc));
-                                }
-
+                            Double fuelLevelPerc = 0.0; // Default fuel level
+                            int fuelStart = infoSeq.getInt("fuelpercstart");
+                            int fuelEnd = infoSeq.getInt("fuelpercend");
+                            if (fuelEnd > fuelStart) {
+                                fuelLevelPerc = Double.parseDouble(inputString.substring(fuelStart, fuelEnd));
+                                machineFuelConsumptionList.add(new MachineFuelConsumption(vin, statusAsOnTime, fuelLevelPerc));
                             }
-                            try {
-                                if ((infoSeq.getInt("alertidend") - infoSeq.getInt("alertidstart")) > 0) {
+
+                            // Add to appropriate list based on available data
+                            if (fuelLevelPerc > 0.0) {
+                                if (latitude != null && longitude != null) {
+                                    machineDataList.add(new MachineData(vin, hmr, statusAsOnTime, latitude, longitude, batteryVoltage, fuelLevelPerc));
+                                } else {
+                                    machineDataWithoutLocation.add(new MachineData(vin, hmr, statusAsOnTime, latitude, longitude, batteryVoltage, fuelLevelPerc));
+                                }
+                            } else {
+                                if (latitude != null && longitude != null) {
+                                    machineDataWithoutFuel.add(new MachineData(vin, hmr, statusAsOnTime, latitude, longitude, batteryVoltage, fuelLevelPerc));
+                                } else {
+                                    machineDataWithoutFuelLocation.add(new MachineData(vin, hmr, statusAsOnTime, latitude, longitude, batteryVoltage, fuelLevelPerc));
+                                }
+                            }
+
+                            // update engine status for event type packets
+                            if (config.getEventmsgid().contains(Integer.parseInt(msgId))) {
+                                if ((infoSeq.getInt("alertidstart") - infoSeq.getInt("alertidend")) > 0) {
                                     final String alertId = inputString.substring(infoSeq.getInt("alertidstart"),
                                             infoSeq.getInt("alertidend"));
-                                    final Boolean enginestatus = "1"
+                                    final Boolean engineStatus = "1"
                                             .equals((inputString.subSequence(infoSeq.getInt("alertstatus"),
-                                                    infoSeq.getInt("alertstatus") + 1).toString().trim())) ? true
-                                            : false;
+                                                    infoSeq.getInt("alertstatus") + 1).toString().trim()));
                                     if ("009".equals(alertId)) {
-
-
-                                        if(statusAsOnTime.after(lastDate))
-                                        {
-                                            machineEngineStatusList
-                                                    .add(new MachineEngineStatus(vin, statusAsOnTime, enginestatus));
-                                        }else {
-                                            logger.info("machineEngineStatusList : statusAsOnTime is greaterthan 15 Days "+vin+"-"+statusAsOnTime+"-"+lastDate);
-                                        }
-
+                                        machineEngineStatusList
+                                                .add(new MachineEngineStatus(vin, statusAsOnTime, engineStatus));
                                     }
-
+                                    alertDataList.add(new AlertData(vin, latitude, longitude, engineStatus, alertId,
+                                            statusAsOnTime));
                                 }
                             }
-                            catch(Exception e)
-                            {
-                                logger.error("Exeception in engine status block -"+packet+"-"+e.getMessage());
-                            }
-							*/
-/*}else {
-								logger.info("Msg Event Id Not Configured :"+msgId+"-"+vin);
-							}*//*
-
-                        }else {
-                            logger.info("Msg id - "+msgId+" not integrated for the firmware - "+firware);
                         }
-                    } catch (final JSONException e) {
-                        logger.error("Failed to extract data from  input string " + packet);
-                        e.printStackTrace();
+                    } catch (JSONException e) {
+                        log.error("JSON parsing error for packet: {} - Error: {}", packet, e.getMessage(), e);
                     }
                 } else {
-                    logger.info("Missing Firmware Packet : "+packet);
-                    Date date = new Date();
-                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                    DateFormat updatedf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    date = utilities.getDate(df.format(date));
-                    FirmwareData data = new FirmwareData();
-                    data.setFirmware(firware);
-                    Long count = firmwarePacketRepo.countByFirmwareAndDay(firware, date);
-                    if (count != 0) {
-                        data = firmwarePacketRepo.findByFirmware(firware, date);
-                        data.setCount(data.getCount() + 1);
-                        data.setLast_updated_at(utilities.getDateTime(updatedf.format(new Date())));
-
-                    } else {
-                        data.setCount(1);
-                        data.setLast_updated_at(utilities.getDateTime(updatedf.format(new Date())));
-                        data.setDay(date);
-
-                    }
-                    firmwarePacketRepo.save(data);
+                    log.warn("Firmware version {} not found or invalid in packet: {}", firmware, packet);
                 }
-            } catch (final Exception ex) {
-                logger.error("Failed to parse packet " + packet);
-                ex.printStackTrace();
+            } catch (Exception ex) {
+                log.error("Error processing packet: {} - Error: {}", packet, ex.getMessage(), ex);
             }
         }
+
         try {
-            logger.info("Executing batches...");
-
-            logger.info("FeedProcessor: adding machine feed data");
-            testMachineDAO.updateBatchMachineFeedData(machineDataWithoutFuel);
-            logger.info("FeedProcessor: fininshed adding machine feed data adding machine feed data with fuel");
-            testMachineDAO.updateBatchMachineFeedDataHavingFuel(machineDataList);
-            logger.info("FeedProcessor: fininshed adding machine feed data with fuel adding machine location data");
-            testMachineDAO.updateStatusOnTime(machineStatusList);
-            logger.info("FeedProcessor: fininshed adding machine feed data with hmr and battery ");
-            testMachineDAO.updateBatchMachinLocation(machinelocationList);
-            logger.info("FeedProcessor: fininshed adding machine location data adding machine engine status data");
-            testMachineDAO.addBatchMachineWithEngineStatus(machineEngineStatusList);
-            logger.info(
-                    "FeedProcessor: fininshed adding machine engine status data adding machine fuel consumption data");
-//			testMachineDAO.addBatchMachineWithFuelConsume(machineFuelConsumptionList);
-            logger.info("FeedProcessor: fininshed adding machine fuel consumpotion data");
-
-			*/
-/*if(machineLocationHistory!=null && machineLocationHistory.size()>0)
-			{
-				logger.info("Location Details Size "+machineLocationHistory.size());
-				testMachineDAO.addLocationHistory(machineLocationHistory);
-				machineLocationHistory.clear();
-			}*//*
-
-            machineDataList.clear();
-            machineDataWithoutFuel.clear();
-            machinelocationList.clear();
-            machineEngineStatusList.clear();
-            machineFuelConsumptionList.clear();
-            long end = System.currentTimeMillis();
-            long elapsedTime = end - start;
-            logger.info("Time for 1000 packets  "+elapsedTime);
+            machineDao.updateBatchMachineWithFuel(machineDataList);
+            machineDao.updateBatchMachineWithoutFuel(machineDataWithoutFuel);
+            machineDao.addBatchMachineWithEngineStatus(machineEngineStatusList);
+            machineDao.addBatchMachineWithFuelConsume(machineFuelConsumptionList);
+            machineDao.updateBatchMachineWithoutFuelLocation(machineDataWithoutFuelLocation);
+            machineDao.updateBatchMachineWithFuelWithoutLocation(machineDataWithoutLocation);
         } catch (final Exception ex) {
-            logger.error("Failed to execute batch");
-            ex.printStackTrace();
+            log.error("Failed to execute batch update: {}", ex.getMessage(), ex);
         }
     }
 
-        private Timestamp getStatusAsOnTime(final String statusason) {
+
+    private Double parseLocationPart(String part) {
+        try {
+            double val = Double.parseDouble(part) / 100;
+            double fraction = ((val - (int) val) / 60) * 100;
+            DecimalFormat df = new DecimalFormat("0.00000");
+            return Double.parseDouble(df.format((int) val + fraction));
+        } catch (NumberFormatException e) {
+            log.warn("Invalid location part format: {}.  Using 0.0 as default.", part);
+            return 0.0; // Return a default value (0.0 in this case)
+        }
+    }
+
+    private void generateTimeFenceAlert(final Set<String> timefenceVinList) {
+        try {
+            final Set<String> alertListForVin = new HashSet<>();
+            final Set<String> registrationIds = new HashSet<>();
+            if (!timefenceVinList.isEmpty()) {
+                List<Map<String, Object>> existingAlertList = machineDao.findAlertByVin(timefenceVinList,
+                        EventName.TIME_FENCE_ALERT.getName());
+                if (existingAlertList.size() != timefenceVinList.size()) {
+                    if (!existingAlertList.isEmpty()) {
+                        for (Map<String, Object> row : existingAlertList) {
+                            final String vin = String.valueOf(row.get(Constant.VIN));
+                            timefenceVinList.remove(vin);
+                        }
+                    }
+                    List<Map<String, Object>> machineInfo = machineDao.getMachineForTimefenceAlert(timefenceVinList);
+                    if (!machineInfo.isEmpty()) {
+                        for (Map<String, Object> row : machineInfo) {
+                            final String userName = String.valueOf(row.get(Constant.USER_ID));
+                            String vin = String.valueOf(row.get(Constant.VIN));
+                            alertListForVin.add(vin);
+                            addRegistrationIds(userName, registrationIds);
+                        }
+                    }
+                    sendUserNotification(registrationIds, Constant.TIME_FENCE_ALERT_CASE);
+                    if (!alertListForVin.isEmpty()) {
+                        List<AlertData> alertData = loadAlertDataList(alertListForVin);
+                        log.debug("alert Data size is and alert Data  items {} {}", alertData.size(), alertData);
+                        machineDao.addTimefenceAlert(alertData);
+                    }
+                }
+            }
+        } catch (final Exception ex) {
+            log.error("Failed to add generateTimeFenceAlert with message ", ex);
+        }
+    }
+
+    private void generateGeoFenceAlert(final Set<String> geofenceVinList) {
+        try {
+            if (!geofenceVinList.isEmpty()) {
+                final Set<String> registrationIds = new HashSet<>();
+                final Set<String> alertListExists = new HashSet<>();
+                List<Map<String, Object>> existingAlertList = machineDao.findAlertByVin(geofenceVinList,
+                        EventName.GEO_FENCE_ALERT.getName());
+                if (!existingAlertList.isEmpty()) {
+                    for (Map<String, Object> row : existingAlertList) {
+                        final String vin = String.valueOf(row.get(Constant.VIN));
+                        alertListExists.add(vin);
+                    }
+                    final Set<String> addGFAlertforVin = new HashSet<>();
+                    final Set<String> removeGFAlertforVin = new HashSet<>();
+                    List<Map<String, Object>> machineInfo = machineDao.getMachineForGeofenceAlert(geofenceVinList);
+                    if (null != machineInfo && !machineInfo.isEmpty()) {
+                        for (Map<String, Object> row : machineInfo) {
+                            final String userName = String.valueOf(row.get(Constant.USER_ID));
+                            String vin = String.valueOf(row.get(Constant.VIN));
+                            double radius = Double.parseDouble(row.get(Constant.RADIUS).toString());
+                            double distance = Double.parseDouble(row.get(Constant.DISTANCE).toString());
+                            if (distance > radius) {
+                                if (alertListExists.add(vin)) {
+                                    addGFAlertforVin.add(vin);
+                                    addRegistrationIds(userName, registrationIds);
+                                }
+                            } else {
+                                removeGFAlertforVin.add(vin);
+                            }
+                        }
+                    }
+                    sendUserNotification(registrationIds, Constant.GEO_FENCE_ALERT_CASE);
+                    if (!addGFAlertforVin.isEmpty()) {
+                        List<AlertData> alertData = loadAlertDataList(addGFAlertforVin);
+                        log.debug("alert Data size is and alert Data  items {} {}", alertData.size(), alertData);
+                        machineDao.addGeofenceAlert(alertData);
+                    }
+                    if (!removeGFAlertforVin.isEmpty()) {
+                        log.debug("removeGFAlertForVin  Data :{}", removeGFAlertforVin.size());
+                        int recordCount = machineDao.removeAlertForGeofence(removeGFAlertforVin);
+                        log.warn("No of alerts are removed of Geofence event type is : {}", recordCount);
+                    }
+                }
+            }
+        } catch (final Exception ex) {
+            log.error("Failed to add generateGeoFenceAlert with message ", ex);
+        }
+    }
+
+    public List<AlertData> loadAlertDataList(Set<String> alertListForVin) {
+        List<AlertData> alertData = new LinkedList<>();
+        for (String vin : alertListForVin) {
+            String uuid = getUniqueID();
+            while (machineDao.findByAlertById(uuid) != 0) {
+                uuid = getUniqueID();
+            }
+            alertData.add(new AlertData(vin, uuid));
+        }
+        return alertData;
+    }
+
+    public String getUniqueID() {
+        final UUID idOne = UUID.randomUUID();
+        return idOne.toString();
+    }
+
+    public void sendUserNotification(final Set<String> registrationIds, String eventName) {
+        try {
+            if (!registrationIds.isEmpty()) {
+                buildNotificationOnEventType(eventName, registrationIds);
+            }
+            log.info("sendUserNotification : end ");
+        } catch (Exception ex) {
+            log.error("sendUserNotification:Error occurred while sending notification for  eventName  {}", eventName,
+                    ex);
+        }
+    }
+
+    private void buildNotificationOnEventType(final String eventName, final Set<String> registrationIds) {
+        switch (eventName) {
+            case Constant.TIME_FENCE_ALERT_CASE:
+                sendNotification(getMsgForTimefenceAlert(), registrationIds);
+                break;
+            case Constant.GEO_FENCE_ALERT_CASE:
+                sendNotification(getMsgForGeofenceAlert(), registrationIds);
+                break;
+            default:
+                log.warn("No eventType is matching for alert ");
+                break;
+        }
+    }
+
+    public void sendNotification(PushNotification pushNotification, final Set<String> registrationIds) {
+        try {
+            if (null != pushNotification) {
+                pushNotification.setRegistration_ids(registrationIds);
+                final MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+                headers.add("Authorization", "key =" + apiKey);
+                headers.add("Content-Type", "application/json");
+                final RestTemplate restTemplate = new RestTemplate();
+                restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+                final HttpEntity<PushNotification> request = new HttpEntity<>(pushNotification, headers);
+                final ResponseEntity<String> out = restTemplate.exchange(fcmUrl, HttpMethod.POST, request,
+                        String.class);
+                if (out.getStatusCode() == HttpStatus.OK) {
+                    log.info("PUSH NOTIFICATION SEND");
+                } else {
+                    log.error("PUSH NOTIFICATION FAILED ");
+                }
+                log.debug("registrationIds : {}", registrationIds);
+            }
+        } catch (Exception ex) {
+            log.error("Exception while processing Notification {}", pushNotification, registrationIds, ex);
+            throw ex;
+        }
+
+    }
+
+    public AlertNotification getMsgForTimefenceAlert() {
+        final AlertNotification message = new AlertNotification();
+        message.setContent_available(false);
+        message.setNotification(new AlertNotificationNotification("Machine is used outside Operating Hours",
+                "New " + EventType.UTILIZATION.getName() + " Alert", "default"));
+        message.setData(new AlertNotificationData("Machine is used outside Operating Hours",
+                EventType.UTILIZATION.getName() + " Alert", EventType.UTILIZATION.getName(),
+                "New " + "Utilization" + " Alert"));
+        message.setRegistration_ids(new HashSet<String>());
+        return message;
+    }
+
+    public AlertNotification getMsgForGeofenceAlert() {
+        final AlertNotification message = new AlertNotification();
+        message.setContent_available(false);
+        message.setNotification(new AlertNotificationNotification("Machine is deviated from specified range",
+                "New " + EventType.LANDMARK.getName() + " Alert", "default"));
+        message.setData(new AlertNotificationData("Machine is deviated from specified range",
+                EventType.LANDMARK.getName() + " Alert", EventType.LANDMARK.getName(),
+                "New " + EventType.LANDMARK.getName() + " Alert"));
+        message.setRegistration_ids(new HashSet<String>());
+        return message;
+    }
+
+    private <V> void addRegistrationIds(final String userName, final Set<String> registrationIds) {
+        try {
+            LinkedHashMap<?, ?> map = livelinkUserTokenService.getUserTokenByUsername(userName);
+            if (isCustomer(map)) {
+                @SuppressWarnings("unchecked")
+                HashMap<String, V> tokenKey = new ObjectMapper().convertValue(map.get("accessToken"), HashMap.class);
+                for (Map.Entry<String, V> entry : tokenKey.entrySet()) {
+                    String key = entry.getKey();
+                    if (!key.equals("@class")) {
+                        @SuppressWarnings("unchecked")
+                        HashMap<String, V> appToken = new ObjectMapper().convertValue(tokenKey.get(key), HashMap.class);
+                        if (appToken.get("enable").toString().equalsIgnoreCase("true")) {
+                            registrationIds.add(appToken.get("appFCMKey").toString());
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            log.error("Failed to add RegistrationIds");
+        }
+    }
+
+    private Boolean isCustomer(LinkedHashMap<?, ?> map) {
+        boolean isValid = false;
+        if (map != null && null != map.get("accessToken") && null != map.get("userType")) {
+            isValid = map.get("userType").toString().equalsIgnoreCase(UserType.CUSTOMER.getName());
+        }
+        return isValid;
+    }
+
+    private Timestamp getStatusAsOnTime(final String statusAsOn) {
         DateFormat parseFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         Timestamp statusAsOnTime = null;
         try {
-            Date parseDate = parseFormat.parse(statusason);
-            statusAsOnTime = new java.sql.Timestamp(parseDate.getTime() + 19800000L);
+            Date parseDate = parseFormat.parse(statusAsOn);
+            statusAsOnTime = new Timestamp(parseDate.getTime() + 19800000L);
 
         } catch (final ParseException e) {
             e.printStackTrace();
@@ -343,40 +429,4 @@ public class CombinedHistoryDataParser {
         return statusAsOnTime;
     }
 
-        // Format is "[Seconds] [Minutes] [Hours] [Day of month] [Month] [Day of week]
-        // [Year]"
-        @Scheduled(cron = "0 0 0/1 * * ?")
-        public void publish() throws ParseException {
-
-        // take count value and set it to 0
-        long hourlyCount = packetCount;
-        // Reset Count
-        packetCount = 0;
-
-        // Create date details
-        Date date = new Date();
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        DateFormat dateformat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-        // Use Madrid's time zone to format the date in
-        df.setTimeZone(TimeZone.getTimeZone("Asia/Kolkata"));
-        dateformat.setTimeZone(TimeZone.getTimeZone("Asia/Kolkata"));
-        date = df.parse(df.format(date));
-
-        // Set created date and count
-        FeedParserStatistics stats = new FeedParserStatistics();
-        stats.setCreatedAt(date);
-        stats.setData(hourlyCount);
-
-        // Save the value in database
-        logger.info("Hourly count value is " + hourlyCount);
-        feedRepo.save(stats);
-        if (hourlyCount == 0) {
-            logger.info("Start Feedparser Mail");
-            emailService.sendFeedParserStatusMail("Feedparser",dateformat.format(date),0);
-        }
-    }
-
-    }
-
 }
-*/
