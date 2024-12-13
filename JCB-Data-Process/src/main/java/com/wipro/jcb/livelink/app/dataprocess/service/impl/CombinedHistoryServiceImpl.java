@@ -13,7 +13,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -57,9 +56,6 @@ public class CombinedHistoryServiceImpl implements CombinedHistoryService {
     private static final String MACHINE_WITHOUT_HMR = "UPDATE machine_feedparser_data SET  status_as_on_time = ?,last_modified_date =?,fuel_packet_time=? WHERE vin = ? AND fuel_packet_time < ?";
 
 
-
-    @Override
-    @Transactional
     public void addBatchMachineWithFuelConsume(List<MachineFuelConsumption> packets) {
         try {
             jdbcTemplate.batchUpdate(MACHINE_FUEL_HISTORY, new BatchPreparedStatementSetter() {
@@ -71,14 +67,15 @@ public class CombinedHistoryServiceImpl implements CombinedHistoryService {
                     ps.setTimestamp(3, packet.getStatusAsOn());
                     ps.setDouble(4, packet.getFuelLevelPercentage());
                     ps.setString(5, "f");
-                    }
+                }
+
                 @Override
                 public int getBatchSize() {
                     return packets.size();
                 }
             });
         } catch (final Exception ex) {
-            log.error("Failed to add fuel consumption : {}", ex.getMessage(), ex);
+            log.error("Failed to add fuel consumption with message ", ex);
             throw new RuntimeException("Failed to add fuel consumption", ex);
         }
     }
