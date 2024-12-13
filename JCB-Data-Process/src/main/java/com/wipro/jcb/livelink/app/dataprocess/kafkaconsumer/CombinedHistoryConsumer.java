@@ -27,7 +27,7 @@ public class CombinedHistoryConsumer implements Runnable {
     @Value("${kafka.bootstrap-servers}")
     String bootstrapServers;
 
-    @Value("${kafka.topic-name}")
+    @Value("${kafka.topic-name-combinedHistory}")
     String topicName;
 
     @Value("${kafka.enable-auto-commit}")
@@ -74,7 +74,7 @@ public class CombinedHistoryConsumer implements Runnable {
             try {
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
                 if (!records.isEmpty()) {
-                    log.debug("Received {} records from Kafka", records.count());  // Log number of records received
+                    log.debug("Received CombinedHistory records {}  from Kafka", records.count());  // Log number of records received
                     List<Future<?>> futures = new ArrayList<>();
 
                     for (ConsumerRecord<String, String> record : records) {
