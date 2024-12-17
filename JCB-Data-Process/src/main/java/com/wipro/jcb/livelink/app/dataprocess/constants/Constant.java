@@ -27,5 +27,6 @@ public final class Constant {
     public static final String GEO_FENCE_EVENT_DESCRIPTION = "Machine is deviated from specified range";
 
     public static final String MESSAGE_SEPARATOR = "\\|inputPacketString:";
+    public static final String RESPONSE_SUCCESS = "response:SUCCESS";
 
 }

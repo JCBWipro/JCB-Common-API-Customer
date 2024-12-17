@@ -1,25 +1,37 @@
 package com.wipro.jcb.livelink.app.dataprocess.kafkaconsumer;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.wipro.jcb.livelink.app.dataprocess.dataparser.CombinedHistoryDataParser;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.PostConstruct;
+
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.wipro.jcb.livelink.app.dataprocess.dataparser.CombinedHistoryDataParser;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
 public class CombinedHistoryConsumer implements Runnable {
+	
+	@Autowired
+	CombinedHistoryDataParser combinedHistoryDataParser;
 
     @Value("${CombinedHistoryThreadCount}")
     int numberOfThreads;
@@ -82,7 +94,7 @@ public class CombinedHistoryConsumer implements Runnable {
                             try {
                                 String msgReceived = record.value();
                                 log.trace("Processing message: {}", msgReceived);
-                                CombinedHistoryDataParser.dataParsing(msgReceived);
+                                combinedHistoryDataParser.dataParsing(msgReceived);
                             } catch (Exception e) {
                                 log.error("Error processing message: {} - Exception: {}", record.value(), e.getMessage(), e);
                             }

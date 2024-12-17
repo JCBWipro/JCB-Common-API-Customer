@@ -37,7 +37,7 @@ public class CombinedHistoryServiceImpl implements CombinedHistoryService {
     NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     private static final String MACHINE_FUEL_HISTORY = "INSERT INTO  machinefuelhistorydata (vin, vin_id,date_time,fuel_level, created_by) VALUES (?, ?,?,?,?) on conflict do nothing";
-    private static final String MACHINE_ENGINE_STATUS = "INSERT INTO  machineenginestatushistorydata (vin, vin_id,date_time,is_engine_on) VALUES (?, ?,?,?) on conflict do nothing";
+    private static final String MACHINE_ENGINE_STATUS = "INSERT IGNORE INTO machineenginestatushistorydata (vin, vin_id,date_time,is_engine_on) VALUES (?, ?,?,?)";
     private static final String ADD_ALERT = "INSERT INTO alert (alert_id,event_description,event_generated_time,event_level,event_name,event_type ,is_open,read_flag,vin,is_generated)VALUES (?,?,?,?,?,?,?,?,?,?)";
     private static final String IS_ALERT_ID_EXISTS = "SELECT Count(vin) FROM alert WHERE alert_id = ?";
     private static final String DELETE_GEO_FENCE_ALERT = "DELETE FROM alert WHERE vin IN (:ids) AND event_name =(:eventName)";
