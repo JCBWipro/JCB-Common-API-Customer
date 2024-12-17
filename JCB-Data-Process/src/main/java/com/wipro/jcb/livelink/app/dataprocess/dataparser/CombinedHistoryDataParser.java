@@ -1,30 +1,40 @@
 package com.wipro.jcb.livelink.app.dataprocess.dataparser;
 
-import com.wipro.jcb.livelink.app.dataprocess.commonUtils.DataParserUtilities;
-import com.wipro.jcb.livelink.app.dataprocess.config.AppConfiguration;
-import com.wipro.jcb.livelink.app.dataprocess.constants.Constant;
-import com.wipro.jcb.livelink.app.dataprocess.dataparserDAO.CombinedHistoryDAO;
-import com.wipro.jcb.livelink.app.dataprocess.dataparserDAO.MachineDAO;
-import com.wipro.jcb.livelink.app.dataprocess.dto.*;
-import com.wipro.jcb.livelink.app.dataprocess.entity.FeedParserStatistics;
-import com.wipro.jcb.livelink.app.dataprocess.entity.FirmwareData;
-import com.wipro.jcb.livelink.app.dataprocess.repo.FeedParserStatisticsRepository;
-import com.wipro.jcb.livelink.app.dataprocess.repo.FirmwarePacketRepo;
-import com.wipro.jcb.livelink.app.dataprocess.repo.MachineFuelHistoryDataRepo;
-import com.wipro.jcb.livelink.app.dataprocess.service.EmailService;
-import lombok.extern.slf4j.Slf4j;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
+import com.wipro.jcb.livelink.app.dataprocess.commonUtils.DataParserUtilities;
+import com.wipro.jcb.livelink.app.dataprocess.config.AppConfiguration;
+import com.wipro.jcb.livelink.app.dataprocess.constants.Constant;
+import com.wipro.jcb.livelink.app.dataprocess.dataparserDAO.CombinedHistoryDAO;
+import com.wipro.jcb.livelink.app.dataprocess.dataparserDAO.MachineDAO;
+import com.wipro.jcb.livelink.app.dataprocess.dto.MachineData;
+import com.wipro.jcb.livelink.app.dataprocess.dto.MachineEngineStatus;
+import com.wipro.jcb.livelink.app.dataprocess.dto.MachineFuelConsumption;
+import com.wipro.jcb.livelink.app.dataprocess.dto.MachineLocation;
+import com.wipro.jcb.livelink.app.dataprocess.entity.FeedParserStatistics;
+import com.wipro.jcb.livelink.app.dataprocess.entity.FirmwareData;
+import com.wipro.jcb.livelink.app.dataprocess.repo.FeedParserStatisticsRepository;
+import com.wipro.jcb.livelink.app.dataprocess.repo.FirmwarePacketRepo;
+import com.wipro.jcb.livelink.app.dataprocess.repo.MachineFuelHistoryDataRepo;
+
+import lombok.extern.slf4j.Slf4j;
 
 /*
  * Author: Rituraj Azad
@@ -32,23 +42,29 @@ import java.util.concurrent.atomic.AtomicLong;
  * Date:12-12-2024
  * */
 @Slf4j
+@Component
 public class CombinedHistoryDataParser {
+	
     @Autowired
     MachineDAO machineDao;
+    
     @Autowired
     AppConfiguration config;
+    
     @Value("${fcm.apiKey}")
     String apiKey;
+    
     @Value("${fcm.url}")
     String fcmUrl;
+    
     @Autowired
     CombinedHistoryDAO combinedHistoryDAO;
 
     @Autowired
     FeedParserStatisticsRepository feedRepo;
 
-    @Autowired
-    EmailService emailService;
+//    @Autowired
+//    EmailService emailService;
 
     @Autowired
     FirmwarePacketRepo firmwarePacketRepo;
@@ -69,22 +85,16 @@ public class CombinedHistoryDataParser {
     private final List<MachineFuelConsumption> machineFuelConsumptionList = new LinkedList<>();
     private final List<MachineData> machineStatusList = new LinkedList<>();
 
-    public static void dataParsing(String msgReceived) {
-        //parsing logic to be implemented
+    public void dataParsing(String msgReceived) {
         try {
-            // 1. Split the message into individual packets
-            String[] packets = msgReceived.split(Constant.MESSAGE_SEPARATOR);
-
-            LinkedList<String> packetList = new LinkedList<>(Arrays.asList(packets));
-
-            // 2. Process and update the packets
-            CombinedHistoryDataParser parser = new CombinedHistoryDataParser();
-            parser.processAndUpdatePacket(packetList);
-
+        	List<String> messages = new LinkedList<String>();
+    		if (msgReceived.contains(Constant.RESPONSE_SUCCESS)) {
+    			messages.add(msgReceived);
+    		}
+    		processAndUpdatePacket(messages);
         } catch (Exception e) {
             log.error("Error parsing message: {}", e.getMessage(), e);
         }
-
     }
 
     public void processAndUpdatePacket(List<String> packets) {
@@ -96,7 +106,7 @@ public class CombinedHistoryDataParser {
         long start = System.currentTimeMillis();
         for (final String packet : packets) {
             try {
-                final String[] inputStringArray = packet.split("\\|inputPacketString:");
+                final String[] inputStringArray = packet.split(Constant.MESSAGE_SEPARATOR);
                 final String inputString = inputStringArray[1];
                 final String firmware = inputString.substring(11, 19);
                 final JSONObject parser = config.getPacketStr();
@@ -135,7 +145,6 @@ public class CombinedHistoryDataParser {
                             Double longitude = null;
                             try {
                                 // below change is to parse location whenever N and E exist in the location
-
                                 if (location.contains("N") && location.contains("E")) {
                                     final double lat = Double.parseDouble(location.split("N")[0]) / 100;
                                     final double fractionLat = ((lat - (int) lat) / 60) * 100;
@@ -143,8 +152,6 @@ public class CombinedHistoryDataParser {
                                     final double lon = Double.parseDouble(location.split("N")[1].split("E")[0]) / 100;
                                     final double fractionLon = ((lon - (int) lon) / 60) * 100;
                                     longitude = (int) lon + fractionLon;
-
-
                                 } else {
                                     MachineLocation machineLocation = combinedHistoryDAO.getExistingMachineLocation(vin);
                                     latitude = machineLocation.getLatitude();
@@ -343,7 +350,7 @@ public class CombinedHistoryDataParser {
         feedRepo.save(stats);
         if (hourlyCount == 0) {
             log.info("Start Feedparser Mail");
-            emailService.sendFeedParserStatusMail("Feedparser", dateformat.format(date), 0);
+            //emailService.sendFeedParserStatusMail("Feedparser", dateformat.format(date), 0);
         }
     }
 }
