@@ -78,7 +78,7 @@ public class UserController {
             if (userResponse.getRoleName().equals("12")) {
                 ResponseEntity<String> unlockResult = userRoleCheckService.unlockAllAccounts();
 
-                // Check the status code from the unlockAccounts method
+                // Check the status code from the unlockAllAccounts method
                 if (unlockResult.getStatusCode().is2xxSuccessful()) {
                     response.put("message", unlockResult.getBody());
                     response.put("success", true);
@@ -96,7 +96,7 @@ public class UserController {
             }
         } catch (Exception e) {
             log.error("An error occurred while manually unlocking accounts.", e);
-            response.put("message", "Failed to unlock accounts manually due to an error,Please check the logs for details.");
+            response.put("message", "Failed to unlock accounts manually due to an error.");
             response.put("success", false);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
@@ -154,6 +154,14 @@ public class UserController {
     public List<MapRespContract> searchByVIN(@PathVariable String userName, @PathVariable String vin) {
     	log.info("In UserController::searchByVIN() userName:{} and vin:{}", userName, vin);
         return searchByVinService.getMap(userName, vin);
+    }
+    
+    /*
+     * This End Point is to get password By userName
+     */
+    @GetMapping("/getPwdByUserName/{userName}")
+    public String getPwdByUserName(@PathVariable String userName) {
+        return contactRepo.findPwdByUserName(userName);
     }
 }
 

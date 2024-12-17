@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class APIGatewayUtils {
-	
+
 	public static Integer getRolesByID(String roleName) {
 		Map<String, Integer> map = new HashMap<>();
 		map.put("JCB Account",1);
@@ -20,6 +20,7 @@ public class APIGatewayUtils {
 		map.put("MA Manager",11);
 		map.put("Super Admin",12);
 		map.put("Government Admin",13);
+		map.put("JCB",14);
 		return map.get(roleName);
 	}
 

@@ -13,7 +13,7 @@ import com.wipro.jcb.livelink.app.user.web.reponse.UserDetailsReponse;
 public class UserDetailsBOService {
 	
 	@Autowired
-	private ContactRepo contactRepo;
+	ContactRepo contactRepo;
 	
 	public UserDetailsBO getUserDetails(String userName) {
 		UserDetailsReponse repoResult = contactRepo.findContactByContactId(userName);

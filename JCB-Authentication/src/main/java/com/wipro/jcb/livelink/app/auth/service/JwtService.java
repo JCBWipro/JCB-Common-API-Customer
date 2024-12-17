@@ -23,10 +23,10 @@ public class JwtService {
     public String generateToken(String userName, String roleName) {
         //All the combined components is called as a "Claims" in JWT
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userName, roleName);
+        return createJWTToken(claims, userName, roleName);
     }
 
-	private String createToken(Map<String, Object> claims, String userName, String roleName) {
+	private String createJWTToken(Map<String, Object> claims, String userName, String roleName) {
 		 Map<String, Object> rolesClaim = new HashMap<>();
 		 rolesClaim.put("roles", roleName);
 		return Jwts.builder().setClaims(claims).setSubject(userName)

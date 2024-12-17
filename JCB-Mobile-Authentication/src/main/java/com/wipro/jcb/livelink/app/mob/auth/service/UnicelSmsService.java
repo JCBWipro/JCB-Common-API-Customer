@@ -42,7 +42,7 @@ public class UnicelSmsService {
 
             RestTemplate restTemplate = new RestTemplate();
             String finalUrl = getSMSUrl(phoneNumber, message);
-            HttpHost targetHost = new HttpHost("unicel.in");
+            HttpHost targetHost = new HttpHost("instaalerts.zone");
             CloseableHttpClient httpClient = HttpClientBuilder.create().build();
             HttpGet httpget = new HttpGet(finalUrl);
             httpClient.execute(targetHost, httpget);
