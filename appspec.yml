@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 files:
   - source: build_artifacts/
-    destination: /data5/JCB_MobileAPI_Artifact/
+    destination: /data5/JCB_MobileAPI_Artifacts/
     owner: jcbuser1
     group: jcbuser1
  
