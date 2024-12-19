@@ -8,22 +8,21 @@ files:
  
 hooks:
   BeforeInstall:
-- location: Scripts/before_install.sh
+    - location: Scripts/before_install.sh
       timeout: 300
       runas: jcbuser1
  
   ApplicationStop:
-- location: Scripts/stop_server.sh
+    - location: Scripts/stop_server.sh
       timeout: 300
       runas: jcbuser1
  
   ApplicationStart:
-- location: Scripts/start_server.sh
+    - location: Scripts/start_server.sh
       timeout: 300
       runas: jcbuser1
  
   ValidateService:
-- location: Scripts/validate_server.sh
+    - location: Scripts/validate_server.sh
       timeout: 300
       runas: jcbuser1
- 
