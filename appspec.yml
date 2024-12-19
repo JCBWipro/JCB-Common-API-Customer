@@ -10,7 +10,7 @@ hooks:
   BeforeInstall:
     - location: Scripts/before_install.sh
       timeout: 300
-      runas: jcbuser1
+      runas: root
  
   ApplicationStop:
     - location: Scripts/stop_server.sh
