@@ -1,29 +1,34 @@
 #!/bin/bash
  
-BUCKET_NAME="codepipeline-ap-south-1-633051940229/JCBMobileAPI_CodePip/BuildArtif"
+# Define the bucket and folder structure
+BUCKET_NAME="codepipeline-ap-south-1-633051940229"
+FOLDER_NAME="JCBMobileAPI_CodePip/BuildArtif"
 DEST_DIR="/data5/JCB_MobileAPI_Artifacts"
  
-echo "Fetching the latest jar file from S3 bucket..."
+echo "Fetching the latest artifact from S3 and deploying..."
  
-# List objects in the bucket and get the latest one
-LATEST_FILE=$(aws s3 ls s3://$BUCKET_NAME/ --recursive | sort | tail -n 1 | awk '{print $4}')
+# Fetch the latest JAR file from the specified S3 bucket
+echo "Finding the latest file in S3 bucket $BUCKET_NAME under $FOLDER_NAME..."
+LATEST_FILE=$(aws s3 ls s3://$BUCKET_NAME/$FOLDER_NAME/ --recursive | sort | tail -n 1 | awk '{print $4}')
  
+# Check if a file was found
 if [ -z "$LATEST_FILE" ]; then
-    echo "No files found in the bucket. Exiting."
-    exit 1
+  echo "No latest file found in the S3 bucket! Exiting with failure."
+  exit 1
 fi
  
-echo "Latest file found: $LATEST_FILE"
+echo "Latest file identified: $LATEST_FILE"
  
-# Download the latest file
-aws s3 cp s3://$BUCKET_NAME/$LATEST_FILE /tmp/
+# Downloading the latest file from S3
+echo "Downloading the latest file..."
+aws s3 cp s3://$BUCKET_NAME/$LATEST_FILE /tmp/latest_artifact.zip
  
-# Unzip the file
-echo "Unzipping the file..."
-unzip /tmp/$(basename "$LATEST_FILE") -d /tmp/
+# Extracting the file if it's a ZIP
+echo "Extracting downloaded artifact..."
+unzip -o /tmp/latest_artifact.zip -d /tmp/extracted_artifact/
  
-# Move the jar file to the target directory
-echo "Deploying the jar to $DEST_DIR..."
-mv /tmp/*.jar $DEST_DIR/
+# Deploying the extracted artifact to the target directory
+echo "Deploying the artifact to $DEST_DIR..."
+mv /tmp/extracted_artifact/*.jar $DEST_DIR/
  
 echo "Deployment of the latest jar completed successfully."
