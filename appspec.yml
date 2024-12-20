@@ -1,11 +1,5 @@
 version: 0.0
 os: linux
-files:
-  - source: .
-    destination: /data5/JCB_MobileAPI_Artifacts/
-    owner: jcbuser1
-    group: jcbuser1
- 
 hooks:
   BeforeInstall:
     - location: Scripts/before_install.sh
