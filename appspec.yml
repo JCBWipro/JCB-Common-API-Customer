@@ -9,7 +9,7 @@ hooks:
   ApplicationStop:
     - location: Scripts/stop_server.sh
       timeout: 300
-      runas: jcbuser1
+      runas: root
  
   AfterInstall:
     - location: Scripts/deploy_latest_jar.sh
@@ -19,9 +19,9 @@ hooks:
   ApplicationStart:
     - location: Scripts/start_server.sh
       timeout: 300
-      runas: jcbuser1
+      runas: root
  
   ValidateService:
     - location: Scripts/validate_server.sh
       timeout: 300
-      runas: jcbuser1
+      runas: root
