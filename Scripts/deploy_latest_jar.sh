@@ -1,5 +1,8 @@
 #!/bin/bash
  
+# Ensure the correct PATH is set
+export PATH=$PATH:/usr/local/bin
+ 
 # Define the bucket and folder structure
 BUCKET_NAME="codepipeline-ap-south-1-633051940229"
 FOLDER_NAME="JCBMobileAPI_CodePip/BuildArtif"
