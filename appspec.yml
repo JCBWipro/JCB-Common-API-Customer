@@ -4,24 +4,24 @@ hooks:
   BeforeInstall:
     - location: Scripts/before_install.sh
       timeout: 300
-      runas: root
+      runas: jcbuser1
  
   ApplicationStop:
     - location: Scripts/stop_server.sh
       timeout: 300
-      runas: root
+      runas: jcbuser1
  
   AfterInstall:
     - location: Scripts/deploy_latest_jar.sh
       timeout: 300
-      runas: root
+      runas: jcbuser1
  
   ApplicationStart:
     - location: Scripts/start_server.sh
       timeout: 300
-      runas: root
+      runas: jcbuser1
  
   ValidateService:
     - location: Scripts/validate_server.sh
       timeout: 300
-      runas: root
+      runas: jcbuser1
