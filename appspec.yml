@@ -18,7 +18,7 @@ hooks:
  
   ApplicationStart:
     - location: Scripts/start_server.sh
-      timeout: 1000
+      timeout: 500
       runas: root
  
   ValidateService:
